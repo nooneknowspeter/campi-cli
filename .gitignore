@@ -1,8 +1,11 @@
+# nix artifacts
 .direnv/
 
-.venv/
-venv/
-
+# quarto artifacts
 /.quarto/
 **/*.quarto_ipynb
 _output/
+
+# zig artifacts
+.zig-cache/
+zig-out/
