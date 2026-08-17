@@ -26,4 +26,3 @@ pub const CONFIG = struct {
 
     manifest_files: MANIFEST_FILES,
 };
-

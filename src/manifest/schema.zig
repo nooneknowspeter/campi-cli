@@ -134,4 +134,3 @@ pub const MANIFEST = struct {
         linkedin: ?bool,
     },
 };
-
