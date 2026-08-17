@@ -61,13 +61,11 @@
 
         treefmt_pkgs = with pkgs; [
           # linters & formatters
-          clang-tools
-          isort
           nixfmt
           prettier
-          ruff
           taplo
           treefmt
+          zig
         ];
       in
       {
@@ -87,4 +85,3 @@
       }
     );
 }
-
