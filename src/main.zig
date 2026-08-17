@@ -1,71 +1,45 @@
-const std = @import("std");
-const Io = std.Io;
+const STD = @import("std");
 
-const campi_cli = @import("campi_cli");
+const HELP = @import("help/main.zig");
+const CONFIG = @import("config/main.zig");
 
-pub fn main(init: std.process.Init) !void {
-    // Prints to stderr, unbuffered, ignoring potential errors.
-    std.debug.print("All your {s} are belong to us.\n", .{"codebase"});
+pub fn main(init: STD.process.Init) !void {
+    const IO = init.io;
+    const ARENA_ALLOCTOR: STD.mem.Allocator = init.arena.allocator();
+    const ARGS = init.minimal.args.toSlice(ARENA_ALLOCTOR) catch |err| {
+        STD.log.err("{any}", .{err});
 
-    // This is appropriate for anything that lives as long as the process.
-    const arena: std.mem.Allocator = init.arena.allocator();
+        return err;
+    };
 
-    // Accessing command line arguments:
-    const args = try init.minimal.args.toSlice(arena);
-    for (args) |arg| {
-        std.log.info("arg: {s}", .{arg});
+    const STDIN_FD = STD.Io.File.stdin();
+    var stdin_buffer: [1024]u8 = undefined;
+    var stdin_writer = STDIN_FD.writer(IO, &stdin_buffer);
+    const STDIN = &stdin_writer.interface;
+    _ = STDIN;
+
+    const STDOUT_FD = STD.Io.File.stdout();
+    var stdout_buffer: [1024]u8 = undefined;
+    var stdout_writer = STDOUT_FD.writer(IO, &stdout_buffer);
+    const STDOUT = &stdout_writer.interface;
+
+    const STDERR_FD = STD.Io.File.stdout();
+    var stderr_buffer: [1024]u8 = undefined;
+    var stderr_writer = STDERR_FD.writer(IO, &stderr_buffer);
+    const STDERR = &stderr_writer.interface;
+    _ = STDERR;
+
+    if (ARGS.len <= 1 or ARGS.len == 2) {
+        try STDOUT.print("{s}", .{HELP.MAIN});
+        try STDOUT.flush();
+        return;
     }
 
-    // In order to do I/O operations need an `Io` instance.
-    const io = init.io;
-
-    // Stdout is for the actual output of your application, for example if you
-    // are implementing gzip, then only the compressed bytes should be sent to
-    // stdout, not any debugging messages.
-    var stdout_buffer: [1024]u8 = undefined;
-    var stdout_file_writer: Io.File.Writer = .init(.stdout(), io, &stdout_buffer);
-    const stdout_writer = &stdout_file_writer.interface;
-
-    try campi_cli.printAnotherMessage(stdout_writer);
-
-    try stdout_writer.flush(); // Don't forget to flush!
-}
-
-test "simple test" {
-    const gpa = std.testing.allocator;
-    var list: std.ArrayList(i32) = .empty;
-    defer list.deinit(gpa); // Try commenting this out and see if zig detects the memory leak!
-    try list.append(gpa, 42);
-    try std.testing.expectEqual(@as(i32, 42), list.pop());
-}
-
-test "fuzz example" {
-    try std.testing.fuzz({}, testOne, .{});
-}
-
-fn testOne(context: void, smith: *std.testing.Smith) !void {
-    _ = context;
-    // Try passing `--fuzz` to `zig build test` and see if it manages to fail this test case!
-
-    const gpa = std.testing.allocator;
-    var list: std.ArrayList(u8) = .empty;
-    defer list.deinit(gpa);
-    while (!smith.eos()) switch (smith.value(enum { add_data, dup_data })) {
-        .add_data => {
-            const slice = try list.addManyAsSlice(gpa, smith.value(u4));
-            smith.bytes(slice);
-        },
-        .dup_data => {
-            if (list.items.len == 0) continue;
-            if (list.items.len > std.math.maxInt(u32)) return error.SkipZigTest;
-            const len = smith.valueRangeAtMost(u32, 1, @min(32, list.items.len));
-            const off = smith.valueRangeAtMost(u32, 0, @intCast(list.items.len - len));
-            try list.appendSlice(gpa, list.items[off..][0..len]);
-            try std.testing.expectEqualSlices(
-                u8,
-                list.items[off..][0..len],
-                list.items[list.items.len - len ..],
-            );
-        },
-    };
+    if (ARGS.len > 1) {
+        if (STD.mem.eql(u8, ARGS[1], "-h")) {
+            try STDOUT.print("{s}", .{HELP.MAIN});
+            try STDOUT.flush();
+            return;
+        }
+    }
 }
