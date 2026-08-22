@@ -3,6 +3,8 @@ brand: ./branding/brand.yaml
 project:
   type: website
   output-dir: _output
+  render:
+    - index.qmd
   preview:
     host: 0.0.0.0
     port: 4000
@@ -13,7 +15,7 @@ website:
   sidebar:
     contents:
       - index.qmd
-  breadcrumbs: true
+  bread-crumbs: true
   page-navigation: true
 
 format:
