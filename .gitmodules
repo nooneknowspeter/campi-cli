@@ -1,0 +1,4 @@
+[submodule "branding"]
+	path = branding
+	url = git@github.com:campi-hq/branding.git
+	branch = main
