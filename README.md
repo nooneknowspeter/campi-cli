@@ -1,18 +1,18 @@
 # campi-cli
 
-zig command line client for campi.
+Zig command line client for campi.
 
-command line client for campi, written in zig.
+Command line client for campi, written in zig.
 
-## build
+## Build
 
 ```
 zig build
 ```
 
-## development
+## Development
 
-the dev shell provides zig, clang, and the shared treefmt setup:
+The dev shell provides zig, clang, and the shared treefmt setup:
 
 ```
 just             # list recipes
@@ -21,6 +21,6 @@ just lint        # treefmt lint
 just format      # treefmt format
 ```
 
-## license
+## License
 
 gpl v3
