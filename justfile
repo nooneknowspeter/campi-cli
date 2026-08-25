@@ -1,8 +1,8 @@
 default:
     @just --list
 
-quarto-preview:
-    @quarto preview
+quarto-preview port="4010":
+    @quarto preview --port {{port}}
 
 quarto-render:
     @quarto render
