@@ -22,6 +22,3 @@ format:
   html:
     toc: true
     embed-resources: true
-    highlight-style:
-      light: atom-one
-      dark: atom-one-dark
