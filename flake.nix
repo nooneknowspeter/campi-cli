@@ -47,6 +47,15 @@
           just
         ];
 
+        campi_cli = pkgs.stdenv.mkDerivation {
+          pname = "campi-cli";
+          version = "0.0.0";
+          src = self;
+          nativeBuildInputs = [
+            pkgs.zig.hook
+          ];
+        };
+
         pandoc_38 = pkgs.stdenv.mkDerivation {
           pname = "pandoc";
           version = "3.8";
@@ -92,6 +101,18 @@
         ];
       in
       {
+        packages = {
+          default = campi_cli;
+          campi-cli = campi_cli;
+        };
+
+        apps = {
+          default = {
+            type = "app";
+            program = "${campi_cli}/bin/campi-cli";
+          };
+        };
+
         devShells = {
           default = pkgs.mkShell {
             packages = [ ] ++ runtime_pkgs ++ dev_pkgs ++ doc_pkgs ++ security_pkgs ++ treefmt_pkgs;
