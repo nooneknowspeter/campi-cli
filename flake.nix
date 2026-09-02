@@ -45,6 +45,7 @@
           direnv
           git
           just
+          opencode
         ];
 
         campi_cli = pkgs.stdenv.mkDerivation {
