@@ -1,12 +1,15 @@
 default:
     @just --list
 
+# preview web docs
 quarto-preview port="4010":
-    @quarto preview --port {{port}}
+    @quarto preview --port {{ port }}
 
+# render docs for distribution and hosting
 quarto-render:
     @quarto render
 
+# generate man pages
 quarto-man:
     @quarto render docs/man
 
