@@ -7,6 +7,9 @@ quarto-preview port="4010":
 quarto-render:
     @quarto render
 
+quarto-man:
+    @quarto render docs/man
+
 lint args="":
     @treefmt {{ args }} --config-file ./treefmt.lint.toml
 
