@@ -1,0 +1,9 @@
+project:
+  render:
+    - campi-cli.md
+  output-dir: ../../_output/docs/man
+
+format:
+  man:
+    section: 1
+    output-ext: "1"

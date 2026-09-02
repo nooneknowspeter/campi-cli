@@ -5,6 +5,10 @@ project:
   output-dir: _output
   render:
     - index.qmd
+    - docs/*.md
+    - CONTRIBUTING.md
+    - SECURITY.md
+    - SUPPORT.md
   preview:
     host: 0.0.0.0
     port: 4010
@@ -15,6 +19,17 @@ website:
   sidebar:
     contents:
       - index.qmd
+      - section: Documentation
+        contents:
+          - docs/installation.md
+          - docs/usage.md
+          - docs/commands.md
+          - docs/development.md
+      - section: Project
+        contents:
+          - CONTRIBUTING.md
+          - SECURITY.md
+          - SUPPORT.md
   bread-crumbs: true
   page-navigation: true
 
