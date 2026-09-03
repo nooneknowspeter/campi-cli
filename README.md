@@ -41,8 +41,9 @@ zig build --prefix ~/.local
   - [x] config; the base config file
   - [x] manifest; the campaign manifest
 - [ ] cli
-  - [ ] help command; print tool and commands help text
-  - [ ] version; print the tool version
+  - [x] verbosity; debug logs
+  - [x] help command; print tool and commands help text
+  - [x] version; print the tool version
   - [ ] init; scaffold a new project
   - [ ] fmt; format manifest files
   - [ ] validate; validate the config and manifests
@@ -55,8 +56,9 @@ zig build --prefix ~/.local
   - [ ] plan and apply read the campaign manifest
   - [ ] init writes the base config file and prepares the working directory
 - [ ] tests
-  - [ ] parser
-  - [ ] runner
+  - [ ] cli
+    - [x] parser
+    - [x] runner
 
 ## Documentation
 
