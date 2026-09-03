@@ -8,6 +8,12 @@ pub const FLAGS = [_]PARSER.FlagDefinition{
         .is_flag_a_boolean = false,
         .description = "Path or URI to the config file",
     },
+    .{
+        .long_flag = "dir",
+        .short_flag = 'd',
+        .is_flag_a_boolean = false,
+        .description = "Run command in the specified working directory",
+    },
 };
 
 pub fn run(

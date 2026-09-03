@@ -1,17 +1,8 @@
 const CONTEXT = @import("../context.zig");
 const PARSER = @import("../parser.zig");
 
-const GLOBAL_OPTIONS =
-    \\
-    \\ Global Options:
-    \\ -h / --help - Show this help output or the help of a specific command
-    \\ -v / --verbose - Show verbose output of a command
-    \\ -d <WORK_DIR> / --dir <WORK_DIR> - Run command in the specified working directory
-    \\
-;
-
 pub const MAIN =
-    \\ campi-cli [GLOBAL OPTIONS] <COMMAND> [ARGS]
+    \\ campi-cli <COMMAND> [ARGS]
     \\
     \\ Commands:
     \\ help - print tool and commands help text
@@ -23,85 +14,111 @@ pub const MAIN =
     \\ plan - fetch and show state data
     \\ apply - apply current manifests and configuration
     \\
-++ GLOBAL_OPTIONS;
+;
 
 pub const HELP =
     \\ campi-cli help <COMMAND>
     \\
     \\ Print the help of a specific command
     \\
-++ GLOBAL_OPTIONS;
+    \\ Args:
+    \\ -h / --help - Show this help output
+    \\ -v / --verbose - Show verbose output and debug logs
+    \\
+;
 
 pub const INIT =
-    \\ campi-cli [GLOBAL OPTIONS] init [ARGS]
+    \\ campi-cli init [ARGS]
     \\
     \\ Create the base config file and prepare the working directory
     \\
     \\ Args:
+    \\ -h / --help - Show this help output
+    \\ -v / --verbose - Show verbose output and debug logs
     \\ -i / --interactive - Run command in an interactive state; progressive, ask for confirmation
+    \\ -d <WORK_DIR> / --dir <WORK_DIR> - Run command in the specified working directory
     \\
-++ GLOBAL_OPTIONS;
+;
 
 pub const FMT =
-    \\ campi-cli [GLOBAL OPTIONS] fmt [ARGS]
+    \\ campi-cli fmt [ARGS]
     \\
     \\ Format campi files
     \\ runs in dry run mode by default, use -w / --write to persist changes
     \\
     \\ Args:
+    \\ -h / --help - Show this help output
+    \\ -v / --verbose - Show verbose output and debug logs
     \\ -w / --write - Write the reformatted output
     \\ --lsp - Run as a language server
+    \\ -d <WORK_DIR> / --dir <WORK_DIR> - Run command in the specified working directory
     \\
-++ GLOBAL_OPTIONS;
+;
 
 pub const VALIDATE =
-    \\ campi-cli [GLOBAL OPTIONS] validate [ARGS]
+    \\ campi-cli validate [ARGS]
     \\
     \\ Check the config and manifests for correctness
     \\ runs in dry run mode by default, use -w / --write to persist changes
     \\
     \\ Args:
+    \\ -h / --help - Show this help output
+    \\ -v / --verbose - Show verbose output and debug logs
     \\ -w / --write
+    \\ -d <WORK_DIR> / --dir <WORK_DIR> - Run command in the specified working directory
     \\
-++ GLOBAL_OPTIONS;
+;
 
 pub const VERSION =
-    \\ campi-cli [GLOBAL OPTIONS] version [ARGS]
+    \\ campi-cli version [ARGS]
     \\
     \\ Display the tool version
     \\
-++ GLOBAL_OPTIONS;
+    \\ Args:
+    \\ -h / --help - Show this help output
+    \\ -v / --verbose - Show verbose output and debug logs
+    \\
+;
 
 pub const STATE =
-    \\ campi-cli [GLOBAL OPTIONS] state [ARGS]
+    \\ campi-cli state [ARGS]
     \\
     \\ Retrieve the current state and compare it against the provided state
     \\
     \\ Args:
+    \\ -h / --help - Show this help output
+    \\ -v / --verbose - Show verbose output and debug logs
     \\ --config-file <PATH/URI>
+    \\ -d <WORK_DIR> / --dir <WORK_DIR> - Run command in the specified working directory
     \\
-++ GLOBAL_OPTIONS;
+;
 
 pub const PLAN =
-    \\ campi-cli [GLOBAL OPTIONS] plan [ARGS]
+    \\ campi-cli plan [ARGS]
     \\
     \\ Fetch and show state data as a plan
     \\
     \\ Args:
+    \\ -h / --help - Show this help output
+    \\ -v / --verbose - Show verbose output and debug logs
     \\ --export
+    \\ -d <WORK_DIR> / --dir <WORK_DIR> - Run command in the specified working directory
     \\
-++ GLOBAL_OPTIONS;
+;
 
 pub const APPLY =
-    \\ campi-cli [GLOBAL OPTIONS] apply [ARGS]
+    \\ campi-cli apply [ARGS]
     \\
     \\ Apply the current manifests and configuration
     \\ runs in dry run mode by default, use -w / --write to persist changes
     \\
     \\ Args:
+    \\ -h / --help - Show this help output
+    \\ -v / --verbose - Show verbose output and debug logs
     \\ --exclude <VALUE>
+    \\ -d <WORK_DIR> / --dir <WORK_DIR> - Run command in the specified working directory
     \\
-++ GLOBAL_OPTIONS;
+;
 
 pub fn run(
     context: CONTEXT.CommandContext,

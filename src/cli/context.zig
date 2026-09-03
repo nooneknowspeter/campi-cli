@@ -11,3 +11,6 @@ pub const CommandContext = struct {
     stdout: *STD.Io.Writer,
     stderr: *STD.Io.Writer,
 };
+
+/// runtime log gate; dispatch sets it from the --verbose flag
+pub var verbose: bool = false;

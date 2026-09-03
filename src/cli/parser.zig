@@ -67,18 +67,6 @@ pub fn findFlag(
     return null;
 }
 
-pub fn mergeFlags(
-    allocator: STD.mem.Allocator,
-    global: []const FlagDefinition,
-    command: []const FlagDefinition,
-) ![]const FlagDefinition {
-    var merged = STD.ArrayList(FlagDefinition).empty;
-    try merged.appendSlice(allocator, global);
-    try merged.appendSlice(allocator, command);
-
-    return merged.toOwnedSlice(allocator);
-}
-
 pub fn hasFlag(flags: []const ResolvedFlagState, long_flag: []const u8) bool {
     for (flags) |resolved_flag_state| {
         if (STD.mem.eql(u8, resolved_flag_state.long_flag, long_flag)) return true;

@@ -7,27 +7,6 @@ const PARSER = @import("parser.zig");
 pub const ExitCode = CONTEXT.ExitCode;
 pub const CommandContext = CONTEXT.CommandContext;
 
-const GLOBAL_OPTIONS = [_]PARSER.FlagDefinition{
-    .{
-        .long_flag = "help",
-        .short_flag = 'h',
-        .is_flag_a_boolean = true,
-        .description = "Show help output",
-    },
-    .{
-        .long_flag = "verbose",
-        .short_flag = 'v',
-        .is_flag_a_boolean = true,
-        .description = "Show verbose output",
-    },
-    .{
-        .long_flag = "dir",
-        .short_flag = 'd',
-        .is_flag_a_boolean = false,
-        .description = "Run command in the specified working directory",
-    },
-};
-
 pub fn dispatchCommand(
     allocator: STD.mem.Allocator,
     context: CommandContext,
@@ -49,6 +28,13 @@ pub fn dispatchCommand(
 
     if (STD.mem.eql(u8, args[1], "help")) {
         if (args.len >= 3) {
+            if (PARSER.isFlag(args[2])) {
+                context.stdout.print("{s}", .{COMMANDS.HELP.HELP}) catch
+                    return ExitCode.RUNTIME_FAILURE;
+
+                return ExitCode.SUCCESS;
+            }
+
             const TARGET = COMMANDS.findCommand(args[2]) orelse {
                 context.stderr.print(
                     "unknown command: {s}\n",
@@ -78,10 +64,7 @@ pub fn dispatchCommand(
         return ExitCode.USAGE_FAILURE;
     };
 
-    const FLAGS = PARSER.mergeFlags(allocator, &GLOBAL_OPTIONS, COMMAND.flags) catch
-        return ExitCode.RUNTIME_FAILURE;
-
-    const RESOLVED_FLAGS = PARSER.resolveFlags(allocator, FLAGS, args[2..]) catch
+    const RESOLVED_FLAGS = PARSER.resolveFlags(allocator, COMMAND.flags, args[2..]) catch
         return ExitCode.RUNTIME_FAILURE;
 
     if (RESOLVED_FLAGS.failure) |failure| {
@@ -156,3 +139,4 @@ test {
     _ = @import("tests/parser.zig");
     _ = @import("tests/runner.zig");
 }
+
