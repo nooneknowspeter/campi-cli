@@ -108,4 +108,3 @@ pub fn findCommand(name: []const u8) ?*const CommandDefinition {
 
     return null;
 }
-
