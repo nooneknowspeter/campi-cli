@@ -25,7 +25,7 @@ test "check if no arguments prints the main help" {
 
     try STD.testing.expectEqual(CONTEXT.ExitCode.SUCCESS, EXIT_CODE);
     try STD.testing.expect(
-        STD.mem.indexOf(u8, stdout_output.items, "campi-cli [GLOBAL OPTIONS]") != null,
+        STD.mem.indexOf(u8, stdout_output.items, "campi-cli <COMMAND> [ARGS]") != null,
     );
 }
 
@@ -51,7 +51,7 @@ test "check if the help flag prints the main help" {
 
     try STD.testing.expectEqual(CONTEXT.ExitCode.SUCCESS, EXIT_CODE);
     try STD.testing.expect(
-        STD.mem.indexOf(u8, stdout_output.items, "campi-cli [GLOBAL OPTIONS]") != null,
+        STD.mem.indexOf(u8, stdout_output.items, "campi-cli <COMMAND> [ARGS]") != null,
     );
 }
 
