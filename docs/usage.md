@@ -5,7 +5,7 @@
 ## Synopsis
 
 ```
-campi-cli [GLOBAL OPTIONS] <COMMAND> [ARGS]
+campi-cli <COMMAND> [ARGS]
 ```
 
 ## Help
@@ -19,10 +19,13 @@ campi-cli help plan
 campi-cli plan --help
 ```
 
-## Global options
+## Shared options
 
 - `-h` / `--help` - show help output for the tool or a specific command
 - `-v` / `--verbose` - show verbose output of a command
+
+Some commands also accept a working directory:
+
 - `-d <WORK_DIR>` / `--dir <WORK_DIR>` - run a command in the specified
   working directory
 

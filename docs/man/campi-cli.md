@@ -8,7 +8,7 @@ campi-cli - command line client for marketing as code
 
 # SYNOPSIS
 
-`campi-cli [GLOBAL OPTIONS] <COMMAND> [ARGS]`
+`campi-cli <COMMAND> [ARGS]`
 
 # DESCRIPTION
 
@@ -20,13 +20,15 @@ Commands that change files run in dry run mode by default; they report what
 would change without touching anything. Pass `-w` / `--write` to persist the
 changes.
 
-# GLOBAL OPTIONS
+# SHARED OPTIONS
 
 `-h`, `--help`
 : Show help output for the tool or a specific command.
 
 `-v`, `--verbose`
 : Show verbose output of a command.
+
+Some commands also accept a working directory:
 
 `-d <WORK_DIR>`, `--dir <WORK_DIR>`
 : Run a command in the specified working directory.
