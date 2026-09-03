@@ -106,6 +106,16 @@ pub fn dispatchCommand(
         return ExitCode.SUCCESS;
     }
 
+    // toggle verbosity
+    CONTEXT.verbose = PARSER.hasFlag(RESOLVED_FLAGS.flags, "verbose");
+
+    STD.log.debug("dispatching command: {s}", .{COMMAND.name});
+
+    STD.log.debug("resolved {d} flags, {d} values", .{
+        RESOLVED_FLAGS.flags.len,
+        RESOLVED_FLAGS.flag_values.len,
+    });
+
     return COMMAND.run(context, RESOLVED_FLAGS.flags, RESOLVED_FLAGS.flag_values);
 }
 
