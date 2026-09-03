@@ -45,6 +45,7 @@
           direnv
           git
           just
+          lldb
           opencode
         ];
 
