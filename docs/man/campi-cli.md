@@ -73,11 +73,11 @@ Some commands also accept a working directory:
 
 # FILES
 
-`config.yml`
-: The base config file; created by `campi-cli init`.
+`config.zon`
+: The base config file; created and loaded by `campi-cli init`.
 
-`cami.yml`
-: The campaign manifest; read by `campi-cli plan` and `campi-cli apply`.
+`manifest.example.zon`
+: Example campaign manifest; scaffolded by `campi-cli init`, read by `campi-cli plan` and `campi-cli apply`.
 
 `state.lock`
 : The state lock file; read and compared by `campi-cli state`.
