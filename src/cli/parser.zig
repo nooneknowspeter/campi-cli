@@ -4,6 +4,7 @@ pub const ResolvedFlagState = struct {
     long_flag: []const u8,
     short_flag: ?u8,
     is_value_included: bool,
+    value: ?[]const u8 = null,
 };
 
 pub const FlagDefinition = struct {
@@ -20,7 +21,6 @@ pub const ResolutionFailure = union(enum) {
 
 pub const Resolution = struct {
     flags: []const ResolvedFlagState,
-    flag_values: []const []const u8,
     failure: ?ResolutionFailure,
 };
 
@@ -76,7 +76,6 @@ pub fn hasFlag(flags: []const ResolvedFlagState, long_flag: []const u8) bool {
 }
 
 /// resolve argument tokens against the flag definitions
-/// a `--` sentinel switches the rest to values
 /// parsing stops on the first failure
 pub fn resolveFlags(
     allocator: STD.mem.Allocator,
@@ -84,30 +83,17 @@ pub fn resolveFlags(
     args: []const []const u8,
 ) !Resolution {
     var flags = STD.ArrayList(ResolvedFlagState).empty;
-    var flag_values = STD.ArrayList([]const u8).empty;
 
-    var parse_flags = true;
     var index: usize = 0;
 
     while (index < args.len) : (index += 1) {
         const ARGUMENT = args[index];
 
-        if (parse_flags and STD.mem.eql(u8, ARGUMENT, "--")) {
-            parse_flags = false;
-
-            continue;
-        }
-
-        if (!parse_flags or !isFlag(ARGUMENT)) {
-            try flag_values.append(allocator, ARGUMENT);
-
-            continue;
-        }
+        if (!isFlag(ARGUMENT)) continue;
 
         const FLAG = findFlag(flag_definitions, ARGUMENT) orelse
             return .{
                 .flags = try flags.toOwnedSlice(allocator),
-                .flag_values = try flag_values.toOwnedSlice(allocator),
                 .failure = .{ .unknown_flag = ARGUMENT },
             };
 
@@ -122,7 +108,6 @@ pub fn resolveFlags(
 
                 return .{
                     .flags = try flags.toOwnedSlice(allocator),
-                    .flag_values = try flag_values.toOwnedSlice(allocator),
                     .failure = .{
                         .invalid_value = ARGUMENT,
                     },
@@ -142,7 +127,6 @@ pub fn resolveFlags(
             if (value.len == 0 or isFlag(value)) {
                 return .{
                     .flags = try flags.toOwnedSlice(allocator),
-                    .flag_values = try flag_values.toOwnedSlice(allocator),
                     .failure = .{
                         .invalid_value = ARGUMENT,
                     },
@@ -153,12 +137,12 @@ pub fn resolveFlags(
                 .long_flag = FLAG.long_flag,
                 .short_flag = FLAG.short_flag,
                 .is_value_included = true,
+                .value = value,
             });
         } else {
             if (index + 1 >= args.len) {
                 return .{
                     .flags = try flags.toOwnedSlice(allocator),
-                    .flag_values = try flag_values.toOwnedSlice(allocator),
                     .failure = .{
                         .invalid_value = ARGUMENT,
                     },
@@ -168,7 +152,6 @@ pub fn resolveFlags(
             if (isFlag(args[index + 1])) {
                 return .{
                     .flags = try flags.toOwnedSlice(allocator),
-                    .flag_values = try flag_values.toOwnedSlice(allocator),
                     .failure = .{
                         .invalid_value = ARGUMENT,
                     },
@@ -179,6 +162,7 @@ pub fn resolveFlags(
                 .long_flag = FLAG.long_flag,
                 .short_flag = FLAG.short_flag,
                 .is_value_included = false,
+                .value = args[index + 1],
             });
 
             index += 1;
@@ -187,7 +171,6 @@ pub fn resolveFlags(
 
     return .{
         .flags = try flags.toOwnedSlice(allocator),
-        .flag_values = try flag_values.toOwnedSlice(allocator),
         .failure = null,
     };
 }

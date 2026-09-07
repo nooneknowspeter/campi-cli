@@ -94,12 +94,9 @@ pub fn dispatchCommand(
 
     STD.log.debug("dispatching command: {s}", .{COMMAND.name});
 
-    STD.log.debug("resolved {d} flags, {d} values", .{
-        RESOLVED_FLAGS.flags.len,
-        RESOLVED_FLAGS.flag_values.len,
-    });
+    STD.log.debug("resolved {d} flags", .{RESOLVED_FLAGS.flags.len});
 
-    return COMMAND.run(context, RESOLVED_FLAGS.flags, RESOLVED_FLAGS.flag_values);
+    return COMMAND.run(allocator, context, RESOLVED_FLAGS.flags);
 }
 
 pub fn main(init: STD.process.Init) u8 {

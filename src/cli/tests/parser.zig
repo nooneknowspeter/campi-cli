@@ -29,7 +29,6 @@ test "check if a single long flag is resolved" {
     try STD.testing.expectEqualStrings("verbose", RESOLUTION.flags[0].long_flag);
     try STD.testing.expectEqual(@as(?u8, 'v'), RESOLUTION.flags[0].short_flag);
     try STD.testing.expect(RESOLUTION.flags[0].is_value_included == false);
-    try STD.testing.expectEqual(@as(usize, 0), RESOLUTION.flag_values.len);
 }
 
 test "check if a short flag is resolved" {
@@ -54,7 +53,7 @@ test "check if an inline value flag resolves with the value included" {
     try STD.testing.expect(RESOLUTION.failure == null);
     try STD.testing.expectEqual(@as(usize, 1), RESOLUTION.flags.len);
     try STD.testing.expect(RESOLUTION.flags[0].is_value_included == true);
-    try STD.testing.expectEqual(@as(usize, 0), RESOLUTION.flag_values.len);
+    try STD.testing.expectEqualStrings("/tmp/work", RESOLUTION.flags[0].value.?);
 }
 
 test "check if a value flag consumes the following argument" {
@@ -67,20 +66,7 @@ test "check if a value flag consumes the following argument" {
     try STD.testing.expect(RESOLUTION.failure == null);
     try STD.testing.expectEqual(@as(usize, 1), RESOLUTION.flags.len);
     try STD.testing.expect(RESOLUTION.flags[0].is_value_included == false);
-    try STD.testing.expectEqual(@as(usize, 0), RESOLUTION.flag_values.len);
-}
-
-test "check if the double dash sentinel starts flag values" {
-    var arena = STD.heap.ArenaAllocator.init(STD.testing.allocator);
-    defer arena.deinit();
-
-    const ARGS = [_][]const u8{ "--", "--verbose" };
-    const RESOLUTION = try PARSER.resolveFlags(arena.allocator(), &TEST_DEFINITIONS, &ARGS);
-
-    try STD.testing.expect(RESOLUTION.failure == null);
-    try STD.testing.expectEqual(@as(usize, 0), RESOLUTION.flags.len);
-    try STD.testing.expectEqual(@as(usize, 1), RESOLUTION.flag_values.len);
-    try STD.testing.expectEqualStrings("--verbose", RESOLUTION.flag_values[0]);
+    try STD.testing.expectEqualStrings("/tmp/work", RESOLUTION.flags[0].value.?);
 }
 
 test "ensure an unknown flag fails with unknown_flag" {

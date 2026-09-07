@@ -1,3 +1,5 @@
+const STD = @import("std");
+
 const CONTEXT = @import("../context.zig");
 const PARSER = @import("../parser.zig");
 
@@ -121,12 +123,12 @@ pub const APPLY =
 ;
 
 pub fn run(
+    allocator: STD.mem.Allocator,
     context: CONTEXT.CommandContext,
     flags: []const PARSER.ResolvedFlagState,
-    flag_values: []const []const u8,
 ) CONTEXT.ExitCode {
+    _ = allocator;
     _ = flags;
-    _ = flag_values;
 
     context.stdout.print("{s}", .{MAIN}) catch
         return CONTEXT.ExitCode.RUNTIME_FAILURE;

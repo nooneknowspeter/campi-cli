@@ -13,9 +13,9 @@ const VALIDATE = @import("commands/validate.zig");
 const VERSION = @import("commands/version.zig");
 
 pub const CommandHandler = *const fn (
+    allocator: STD.mem.Allocator,
     context: CONTEXT.CommandContext,
     flags: []const PARSER.ResolvedFlagState,
-    flag_values: []const []const u8,
 ) CONTEXT.ExitCode;
 
 pub const CommandDefinition = struct {
