@@ -116,6 +116,7 @@ pub fn main(init: STD.process.Init) u8 {
         .stdin = &stdin_reader.interface,
         .stdout = &stdout_writer.interface,
         .stderr = &stderr_writer.interface,
+        .io = init.io,
     };
 
     const ARGS = init.minimal.args.toSlice(ALLOCATOR) catch |err| {

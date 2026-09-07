@@ -15,6 +15,7 @@ test "check if no arguments prints the main help" {
         .stdin = &stdin_reader,
         .stdout = &stdout_writer.writer,
         .stderr = &stderr_writer.writer,
+        .io = STD.testing.io,
     };
 
     const ARGS = [_][]const u8{"campi-cli"};
@@ -41,6 +42,7 @@ test "check if the help flag prints the main help" {
         .stdin = &stdin_reader,
         .stdout = &stdout_writer.writer,
         .stderr = &stderr_writer.writer,
+        .io = STD.testing.io,
     };
 
     const ARGS = [_][]const u8{ "campi-cli", "-h" };
@@ -67,6 +69,7 @@ test "check if version prints the version string" {
         .stdin = &stdin_reader,
         .stdout = &stdout_writer.writer,
         .stderr = &stderr_writer.writer,
+        .io = STD.testing.io,
     };
 
     const ARGS = [_][]const u8{ "campi-cli", "version" };
@@ -91,6 +94,7 @@ test "check if the help flag on a command prints the command help" {
         .stdin = &stdin_reader,
         .stdout = &stdout_writer.writer,
         .stderr = &stderr_writer.writer,
+        .io = STD.testing.io,
     };
 
     const ARGS = [_][]const u8{ "campi-cli", "plan", "--help" };
@@ -117,6 +121,7 @@ test "check if help with a command prints the command help" {
         .stdin = &stdin_reader,
         .stdout = &stdout_writer.writer,
         .stderr = &stderr_writer.writer,
+        .io = STD.testing.io,
     };
 
     const ARGS = [_][]const u8{ "campi-cli", "help", "version" };
@@ -143,6 +148,7 @@ test "ensure an unknown command fails with usage failure" {
         .stdin = &stdin_reader,
         .stdout = &stdout_writer.writer,
         .stderr = &stderr_writer.writer,
+        .io = STD.testing.io,
     };
 
     const ARGS = [_][]const u8{ "campi-cli", "foo" };

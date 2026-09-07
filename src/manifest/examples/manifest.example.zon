@@ -1,0 +1,19 @@
+.{
+    .campaigns = .{
+        .{
+            .name = "Example campaign",
+            .objective = .AWARENESS,
+            .status = .PAUSED,
+            .budget = null,
+            .ad_groups = .{},
+        },
+    },
+    .platforms = .{
+        .meta = false,
+        .x = false,
+        .tiktok = false,
+        .google = false,
+        .reddit = false,
+        .linkedin = false,
+    },
+}
