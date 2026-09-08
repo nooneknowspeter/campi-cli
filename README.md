@@ -44,9 +44,9 @@ zig build --prefix ~/.local
   - [x] verbosity; debug logs
   - [x] help command; print tool and commands help text
   - [x] version; print the tool version
-  - [ ] init; scaffold a new project
+  - [x] init; scaffold a new project
   - [ ] fmt; format manifest files
-  - [ ] validate; validate the config and manifests
+  - [x] validate; validate the config and manifests
   - [ ] state; read and compare the state and lock files
   - [ ] config; manage the config file
   - [ ] plan; compute what would change
@@ -54,7 +54,7 @@ zig build --prefix ~/.local
 - [ ] file handling
   - [ ] state reads and compares the state and lock files
   - [ ] plan and apply read the campaign manifest
-  - [ ] init writes the base config file and prepares the working directory
+  - [x] init writes the base config file and prepares the working directory
 - [ ] tests
   - [ ] cli
     - [x] parser
