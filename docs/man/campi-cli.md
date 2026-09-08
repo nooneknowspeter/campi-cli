@@ -71,6 +71,9 @@ Some commands also accept a working directory:
 `2`
 : Usage failure.
 
+`3`
+: Pending updates: `fmt` in dry run would reformat at least one file.
+
 # FILES
 
 `config.campi.zon`

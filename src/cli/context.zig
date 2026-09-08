@@ -4,6 +4,7 @@ pub const ExitCode = enum(u8) {
     SUCCESS = 0,
     RUNTIME_FAILURE = 1,
     USAGE_FAILURE = 2,
+    PENDING_UPDATES = 3,
 };
 
 pub const Message = struct {
@@ -17,6 +18,8 @@ pub const Message = struct {
     pub const MANIFEST_REGEX_NOT_IMPLEMENTED = "manifest selection by regex is not implemented yet: ";
     pub const VALID_MANIFEST = "valid manifest: ";
     pub const INVALID_MANIFEST = "invalid manifest: ";
+    pub const MANIFEST_COULD_NOT_BE_WRITTEN = "could not write manifest: ";
+    pub const FMT_LSP_NOT_IMPLEMENTED = "not implemented yet";
 };
 
 pub const CommandContext = struct {
