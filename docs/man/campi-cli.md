@@ -73,13 +73,13 @@ Some commands also accept a working directory:
 
 # FILES
 
-`config.zon`
+`config.campi.zon`
 : The base config file; created and loaded by `campi-cli init`.
 
-`manifest.example.zon`
+`example.manifest.campi.zon`
 : Example campaign manifest; scaffolded by `campi-cli init`, read by `campi-cli plan` and `campi-cli apply`.
 
-`state.lock`
+`state.campi.zon`
 : The state lock file; read and compared by `campi-cli state`.
 
 # SEE ALSO

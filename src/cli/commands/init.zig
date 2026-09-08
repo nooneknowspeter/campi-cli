@@ -45,7 +45,7 @@ pub fn run(
     const PROJECT_NAME = STD.Io.Dir.path.basename(DIR_PATH);
 
     // scaffold when no config file is present
-    WORK_DIR.access(context.io, "config.zon", .{}) catch {
+    WORK_DIR.access(context.io, "config.campi.zon", .{}) catch {
         FS.writeFiles(context, WORK_DIR, PROJECT_NAME) catch {
             context.stderr.print("could not write config: {s}\n", .{DIR_PATH}) catch
                 return CONTEXT.ExitCode.RUNTIME_FAILURE;
@@ -55,8 +55,8 @@ pub fn run(
 
         context.stdout.print(
             \\initialized campi in {s}
-            \\created config.zon
-            \\created manifest.example.zon
+            \\created config.campi.zon
+            \\created example.manifest.campi.zon
             \\
         , .{DIR_PATH}) catch
             return CONTEXT.ExitCode.RUNTIME_FAILURE;
@@ -72,7 +72,7 @@ pub fn run(
         return CONTEXT.ExitCode.RUNTIME_FAILURE;
     };
 
-    context.stdout.print("loaded config.zon\n", .{}) catch
+    context.stdout.print("loaded config.campi.zon\n", .{}) catch
         return CONTEXT.ExitCode.RUNTIME_FAILURE;
 
     return CONTEXT.ExitCode.SUCCESS;

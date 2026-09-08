@@ -4,8 +4,8 @@ const CONFIG = @import("../config/main.zig");
 const CONTEXT = @import("../cli/context.zig");
 const PARSER = @import("../cli/parser.zig");
 
-const CONFIG_FILENAME = "config.zon";
-const MANIFEST_EXAMPLE_FILENAME = "manifest.example.zon";
+const CONFIG_FILENAME = "config.campi.zon";
+const MANIFEST_EXAMPLE_FILENAME = "example.manifest.campi.zon";
 
 pub fn dirPath(
     context: CONTEXT.CommandContext,

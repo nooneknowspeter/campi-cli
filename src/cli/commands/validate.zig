@@ -44,7 +44,7 @@ pub fn run(
     defer WORK_DIR.close(context.io);
 
     CONFIG.load(allocator, context, WORK_DIR) catch {
-        context.stderr.print("could not find config.zon; run campi-cli init\n", .{}) catch
+        context.stderr.print("could not find config.campi.zon; run campi-cli init\n", .{}) catch
             return CONTEXT.ExitCode.RUNTIME_FAILURE;
 
         return CONTEXT.ExitCode.RUNTIME_FAILURE;

@@ -13,7 +13,7 @@ pub fn defaultConfig(project_name: []const u8) SCHEMA.CONFIG {
         .config_version = "0.1.0",
         .project_name = project_name,
         .state_file_location_type = .local,
-        .state_file_uri = "state.lock",
+        .state_file_uri = "state.campi.zon",
         .platform_configs = .{
             .meta = null,
             .x = null,
@@ -22,7 +22,7 @@ pub fn defaultConfig(project_name: []const u8) SCHEMA.CONFIG {
             .reddit = null,
             .linkedin = null,
         },
-        .manifest_files = .{ .manifest_files = &.{"manifest.example.zon"} },
+        .manifest_files = .{ .manifest_files = &.{"example.manifest.campi.zon"} },
     };
 }
 
@@ -33,7 +33,7 @@ pub fn load(
 ) !void {
     const SOURCE = try work_dir.readFileAllocOptions(
         context.io,
-        "config.zon",
+        "config.campi.zon",
         allocator,
         .unlimited,
         .of(u8),
