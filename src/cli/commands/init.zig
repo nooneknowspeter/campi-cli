@@ -28,14 +28,20 @@ pub fn run(
     var path_buffer: [STD.Io.Dir.max_path_bytes]u8 = undefined;
 
     const DIR_PATH = FS.dirPath(context, flags, &path_buffer) catch {
-        context.stderr.print("could not determine the working directory\n", .{}) catch
+        context.stderr.print(
+            \\{s}
+            \\
+        , .{CONTEXT.Message.COULD_NOT_DETERMINE_WORKING_DIRECTORY}) catch
             return CONTEXT.ExitCode.RUNTIME_FAILURE;
 
         return CONTEXT.ExitCode.RUNTIME_FAILURE;
     };
 
     const WORK_DIR = FS.openWorkDir(context, DIR_PATH) catch {
-        context.stderr.print("working directory does not exist: {s}\n", .{DIR_PATH}) catch
+        context.stderr.print(
+            \\{s}{s}
+            \\
+        , .{ CONTEXT.Message.WORKING_DIRECTORY_DOES_NOT_EXIST, DIR_PATH }) catch
             return CONTEXT.ExitCode.RUNTIME_FAILURE;
 
         return CONTEXT.ExitCode.RUNTIME_FAILURE;
@@ -47,7 +53,10 @@ pub fn run(
     // scaffold when no config file is present
     WORK_DIR.access(context.io, "config.campi.zon", .{}) catch {
         FS.writeFiles(context, WORK_DIR, PROJECT_NAME) catch {
-            context.stderr.print("could not write config: {s}\n", .{DIR_PATH}) catch
+            context.stderr.print(
+                \\{s}{s}
+                \\
+            , .{ CONTEXT.Message.CONFIG_COULD_NOT_BE_WRITTEN, DIR_PATH }) catch
                 return CONTEXT.ExitCode.RUNTIME_FAILURE;
 
             return CONTEXT.ExitCode.RUNTIME_FAILURE;
@@ -66,13 +75,19 @@ pub fn run(
 
     // a config file is present; load it into the config module
     CONFIG.load(allocator, context, WORK_DIR) catch {
-        context.stderr.print("could not load config: {s}\n", .{DIR_PATH}) catch
+        context.stderr.print(
+            \\{s}{s}
+            \\
+        , .{ CONTEXT.Message.CONFIG_COULD_NOT_BE_LOADED, DIR_PATH }) catch
             return CONTEXT.ExitCode.RUNTIME_FAILURE;
 
         return CONTEXT.ExitCode.RUNTIME_FAILURE;
     };
 
-    context.stdout.print("loaded config.campi.zon\n", .{}) catch
+    context.stdout.print(
+        \\{s}
+        \\
+    , .{CONTEXT.Message.LOADED_CONFIG}) catch
         return CONTEXT.ExitCode.RUNTIME_FAILURE;
 
     return CONTEXT.ExitCode.SUCCESS;

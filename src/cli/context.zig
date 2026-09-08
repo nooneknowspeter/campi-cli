@@ -6,6 +6,15 @@ pub const ExitCode = enum(u8) {
     USAGE_FAILURE = 2,
 };
 
+pub const Message = struct {
+    pub const COULD_NOT_DETERMINE_WORKING_DIRECTORY = "could not determine the working directory";
+    pub const WORKING_DIRECTORY_DOES_NOT_EXIST = "working directory does not exist: ";
+    pub const CONFIG_NOT_FOUND = "could not find config.campi.zon; run campi-cli init";
+    pub const CONFIG_COULD_NOT_BE_LOADED = "could not load config: ";
+    pub const CONFIG_COULD_NOT_BE_WRITTEN = "could not write config: ";
+    pub const LOADED_CONFIG = "loaded config.campi.zon";
+};
+
 pub const CommandContext = struct {
     stdin: *STD.Io.Reader,
     stdout: *STD.Io.Writer,
