@@ -13,6 +13,10 @@ pub const Message = struct {
     pub const CONFIG_COULD_NOT_BE_LOADED = "could not load config: ";
     pub const CONFIG_COULD_NOT_BE_WRITTEN = "could not write config: ";
     pub const LOADED_CONFIG = "loaded config.campi.zon";
+    pub const NO_MANIFEST_FILES_CONFIGURED = "no manifest files configured";
+    pub const MANIFEST_REGEX_NOT_IMPLEMENTED = "manifest selection by regex is not implemented yet: ";
+    pub const VALID_MANIFEST = "valid manifest: ";
+    pub const INVALID_MANIFEST = "invalid manifest: ";
 };
 
 pub const CommandContext = struct {
