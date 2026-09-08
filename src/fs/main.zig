@@ -12,10 +12,8 @@ pub fn dirPath(
     flags: []const PARSER.ResolvedFlagState,
     buffer: []u8,
 ) ![]const u8 {
-    for (flags) |resolved_flag_state| {
-        if (STD.mem.eql(u8, resolved_flag_state.long_flag, "dir")) {
-            return resolved_flag_state.value.?;
-        }
+    if (PARSER.flagValue(flags, "dir")) |dir_path| {
+        return dir_path;
     }
 
     const LENGTH = try STD.process.currentPath(context.io, buffer);

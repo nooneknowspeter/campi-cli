@@ -75,6 +75,25 @@ pub fn hasFlag(flags: []const ResolvedFlagState, long_flag: []const u8) bool {
     return false;
 }
 
+/// resolved value for a flag; a single character matches the short form, anything else the long form
+pub fn flagValue(flags: []const ResolvedFlagState, name: []const u8) ?[]const u8 {
+    for (flags) |resolved_flag_state| {
+        if (name.len > 1) {
+            if (STD.mem.eql(u8, resolved_flag_state.long_flag, name)) {
+                return resolved_flag_state.value;
+            }
+
+            continue;
+        }
+
+        if (resolved_flag_state.short_flag) |character| {
+            if (name[0] == character) return resolved_flag_state.value;
+        }
+    }
+
+    return null;
+}
+
 /// resolve argument tokens against the flag definitions
 /// parsing stops on the first failure
 pub fn resolveFlags(
