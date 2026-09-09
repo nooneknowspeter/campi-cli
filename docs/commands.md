@@ -9,7 +9,7 @@ changes.
 - `fmt` - format campi files; `-w / --write`, `--lsp`
 - `validate` - check the config and manifests for correctness; `-w / --write`
 - `state` - retrieve the current state and compare it against the provided
-  state; `--config-file <PATH/URI>`
+  state
 - `plan` - fetch and show state data as a plan; `--export`
 - `apply` - apply the current manifests and configuration; `--exclude <VALUE>`
 

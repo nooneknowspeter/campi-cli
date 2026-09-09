@@ -42,7 +42,8 @@ Some commands also accept a working directory:
 : Print the tool version.
 
 `init`
-: Create the base config file and prepare the working directory.
+: Create the base config file and prepare the working directory; on an
+existing config, reports the directory as already initialized.
 
 `fmt`
 : Format campi files; `-w` / `--write`, `--lsp`.
@@ -52,7 +53,7 @@ Some commands also accept a working directory:
 
 `state`
 : Retrieve the current state and compare it against the provided state;
-`--config-file <PATH/URI>`.
+`--dir <WORK_DIR>`.
 
 `plan`
 : Fetch and show state data as a plan; `--export`.
@@ -83,7 +84,11 @@ Some commands also accept a working directory:
 : Example campaign manifest; scaffolded by `campi-cli init`, read by `campi-cli plan` and `campi-cli apply`.
 
 `state.campi.zon`
-: The state lock file; read and compared by `campi-cli state`.
+: The state file; read by `campi-cli state`. Its location is set by
+`state_file_location_type` and `state_file_uri` in `config.campi.zon`:
+`.local` (default) stores it in the working directory, `.cloud` points at a
+remote backend URI (`s3://<bucket>/<key>` or `gdrive://<root>/<path>`; not
+implemented yet).
 
 # SEE ALSO
 
