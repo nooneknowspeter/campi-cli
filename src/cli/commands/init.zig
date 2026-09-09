@@ -51,7 +51,7 @@ pub fn run(
     const PROJECT_NAME = STD.Io.Dir.path.basename(DIR_PATH);
 
     // scaffold when no config file is present
-    WORK_DIR.access(context.io, "config.campi.zon", .{}) catch {
+    WORK_DIR.access(context.io, "config.campi", .{}) catch {
         FS.writeFiles(context, WORK_DIR, PROJECT_NAME) catch {
             context.stderr.print(
                 \\{s}{s}
@@ -64,8 +64,8 @@ pub fn run(
 
         context.stdout.print(
             \\initialized campi in {s}
-            \\created config.campi.zon
-            \\created example.manifest.campi.zon
+            \\created config.campi
+            \\created example.manifest.campi
             \\
         , .{DIR_PATH}) catch
             return CONTEXT.ExitCode.RUNTIME_FAILURE;

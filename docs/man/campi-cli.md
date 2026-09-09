@@ -77,15 +77,15 @@ existing config, reports the directory as already initialized.
 
 # FILES
 
-`config.campi.zon`
+`config.campi`
 : The base config file; created and loaded by `campi-cli init`.
 
-`example.manifest.campi.zon`
+`example.manifest.campi`
 : Example campaign manifest; scaffolded by `campi-cli init`, read by `campi-cli plan` and `campi-cli apply`.
 
-`state.campi.zon`
+`state.campi`
 : The state file; read by `campi-cli state`. Its location is set by
-`state_file_location_type` and `state_file_uri` in `config.campi.zon`:
+`state_file_location_type` and `state_file_uri` in `config.campi`:
 `.local` (default) stores it in the working directory, `.cloud` points at a
 remote backend URI (`s3://<bucket>/<key>` or `gdrive://<root>/<path>`; not
 implemented yet).
