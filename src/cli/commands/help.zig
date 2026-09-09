@@ -90,7 +90,6 @@ pub const STATE =
     \\ Args:
     \\ -h / --help - Show this help output
     \\ -v / --verbose - Show verbose output and debug logs
-    \\ --config-file <PATH/URI>
     \\ -d <WORK_DIR> / --dir <WORK_DIR> - Run command in the specified working directory
     \\
 ;
