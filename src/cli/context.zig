@@ -20,6 +20,10 @@ pub const Message = struct {
     pub const INVALID_MANIFEST = "invalid manifest: ";
     pub const MANIFEST_COULD_NOT_BE_WRITTEN = "could not write manifest: ";
     pub const FMT_LSP_NOT_IMPLEMENTED = "not implemented yet";
+    pub const STATE_BACKEND_NOT_IMPLEMENTED = "state backend is not implemented yet: ";
+    pub const VALID_STATE = "found state file: ";
+    pub const INVALID_STATE = "invalid state file: ";
+    pub const STATE_LOCK_FAILED = "could not probe state lock: ";
 };
 
 pub const CommandContext = struct {
