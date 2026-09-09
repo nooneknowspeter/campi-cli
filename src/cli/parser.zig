@@ -21,6 +21,7 @@ pub const ResolutionFailure = union(enum) {
 
 pub const Resolution = struct {
     flags: []const ResolvedFlagState,
+    positionals: []const []const u8,
     failure: ?ResolutionFailure,
 };
 
@@ -102,17 +103,22 @@ pub fn resolveFlags(
     args: []const []const u8,
 ) !Resolution {
     var flags = STD.ArrayList(ResolvedFlagState).empty;
+    var positionals = STD.ArrayList([]const u8).empty;
 
     var index: usize = 0;
 
     while (index < args.len) : (index += 1) {
         const ARGUMENT = args[index];
 
-        if (!isFlag(ARGUMENT)) continue;
+        if (!isFlag(ARGUMENT)) {
+            try positionals.append(allocator, ARGUMENT);
+            continue;
+        }
 
         const FLAG = findFlag(flag_definitions, ARGUMENT) orelse
             return .{
                 .flags = try flags.toOwnedSlice(allocator),
+                .positionals = try positionals.toOwnedSlice(allocator),
                 .failure = .{ .unknown_flag = ARGUMENT },
             };
 
@@ -127,6 +133,7 @@ pub fn resolveFlags(
 
                 return .{
                     .flags = try flags.toOwnedSlice(allocator),
+                    .positionals = try positionals.toOwnedSlice(allocator),
                     .failure = .{
                         .invalid_value = ARGUMENT,
                     },
@@ -146,6 +153,7 @@ pub fn resolveFlags(
             if (value.len == 0 or isFlag(value)) {
                 return .{
                     .flags = try flags.toOwnedSlice(allocator),
+                    .positionals = try positionals.toOwnedSlice(allocator),
                     .failure = .{
                         .invalid_value = ARGUMENT,
                     },
@@ -162,6 +170,7 @@ pub fn resolveFlags(
             if (index + 1 >= args.len) {
                 return .{
                     .flags = try flags.toOwnedSlice(allocator),
+                    .positionals = try positionals.toOwnedSlice(allocator),
                     .failure = .{
                         .invalid_value = ARGUMENT,
                     },
@@ -171,6 +180,7 @@ pub fn resolveFlags(
             if (isFlag(args[index + 1])) {
                 return .{
                     .flags = try flags.toOwnedSlice(allocator),
+                    .positionals = try positionals.toOwnedSlice(allocator),
                     .failure = .{
                         .invalid_value = ARGUMENT,
                     },
@@ -190,6 +200,7 @@ pub fn resolveFlags(
 
     return .{
         .flags = try flags.toOwnedSlice(allocator),
+        .positionals = try positionals.toOwnedSlice(allocator),
         .failure = null,
     };
 }

@@ -96,7 +96,10 @@ pub fn dispatchCommand(
 
     STD.log.debug("resolved {d} flags", .{RESOLVED_FLAGS.flags.len});
 
-    return COMMAND.run(allocator, context, RESOLVED_FLAGS.flags);
+    var command_context = context;
+    command_context.positionals = RESOLVED_FLAGS.positionals;
+
+    return COMMAND.run(allocator, command_context, RESOLVED_FLAGS.flags);
 }
 
 pub fn main(init: STD.process.Init) u8 {
@@ -113,10 +116,10 @@ pub fn main(init: STD.process.Init) u8 {
     var stderr_writer = STD.Io.File.stderr().writer(IO, &stderr_buffer);
 
     const COMMAND_CONTEXT = CommandContext{
+        .io = init.io,
         .stdin = &stdin_reader.interface,
         .stdout = &stdout_writer.interface,
         .stderr = &stderr_writer.interface,
-        .io = init.io,
     };
 
     const ARGS = init.minimal.args.toSlice(ALLOCATOR) catch |err| {
