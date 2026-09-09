@@ -33,6 +33,7 @@ pub const INIT =
     \\ campi-cli init [ARGS]
     \\
     \\ Create the base config file and prepare the working directory
+    \\ on an existing config, reports the directory as already initialized
     \\
     \\ Args:
     \\ -h / --help - Show this help output

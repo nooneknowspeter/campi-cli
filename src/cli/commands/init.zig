@@ -85,9 +85,10 @@ pub fn run(
     };
 
     context.stdout.print(
-        \\{s}
+        \\campi is already initialized in {s}
+        \\nothing to do; run the plan command to preview changes or the apply command to provision campi data
         \\
-    , .{CONTEXT.Message.LOADED_CONFIG}) catch
+    , .{DIR_PATH}) catch
         return CONTEXT.ExitCode.RUNTIME_FAILURE;
 
     return CONTEXT.ExitCode.SUCCESS;
