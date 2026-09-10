@@ -25,6 +25,12 @@ pub const LockState = enum {
     failed,
 };
 
+pub const LockResult = union(enum) {
+    acquired: STD.Io.Dir.File,
+    held,
+    failed,
+};
+
 pub const StateLocation = union(enum) {
     local: []const u8,
     cloud: []const u8,
@@ -128,4 +134,81 @@ pub fn acquireLock(context: CONTEXT.CommandContext, work_dir: STD.Io.Dir) LockSt
     lock_file.close(context.io);
 
     return .available;
+}
+
+pub fn lockForWrite(context: CONTEXT.CommandContext, work_dir: STD.Io.Dir) LockResult {
+    var lock_file = work_dir.createFile(context.io, LOCK_FILENAME, .{}) catch |err| {
+        context.stderr.print(
+            \\{s}{any}
+            \\
+        , .{ CONTEXT.Message.STATE_LOCK_COULD_NOT_BE_TAKEN, err }) catch
+            return .failed;
+
+        return .failed;
+    };
+
+    const ACQUIRED = lock_file.tryLock(context.io, .exclusive) catch |err| {
+        lock_file.close(context.io);
+
+        context.stderr.print(
+            \\{s}{any}
+            \\
+        , .{ CONTEXT.Message.STATE_LOCK_COULD_NOT_BE_TAKEN, err }) catch
+            return .failed;
+
+        return .failed;
+    };
+
+    if (!ACQUIRED) {
+        lock_file.close(context.io);
+
+        context.stderr.print(
+            \\{s}
+            \\
+        , .{CONTEXT.Message.STATE_LOCK_HELD}) catch
+            return .failed;
+
+        return .held;
+    }
+
+    return .{ .acquired = lock_file };
+}
+
+pub fn write(
+    context: CONTEXT.CommandContext,
+    work_dir: STD.Io.Dir,
+    file_name: []const u8,
+    value: SCHEMA.STATE,
+) !void {
+    var buffer: [1024]u8 = undefined;
+
+    var state_file = try work_dir.createFile(context.io, file_name, .{});
+    defer state_file.close(context.io);
+
+    var state_writer = state_file.writer(context.io, &buffer);
+    try STD.zon.stringify.serialize(
+        value,
+        .{ .whitespace = true },
+        &state_writer.interface,
+    );
+    try state_writer.flush();
+}
+
+pub fn appliedAt(buffer: []u8) []const u8 {
+    const SECONDS = STD.time.epoch.EpochSeconds{
+        .secs = STD.time.timestamp(),
+    };
+    const EPOCH_DAY = SECONDS.getEpochDay();
+    const YEAR_DAY = EPOCH_DAY.calculateYearDay();
+    const MONTH_DAY = YEAR_DAY.calculateMonthDay();
+    const DAY_SECONDS = SECONDS.getDaySeconds();
+
+    return STD.fmt.bufPrint(buffer, "{d:0>4}-{d:0>2}-{d:0>2}T{d:0>2}:{d:0>2}:{d:0>2}Z", .{
+        YEAR_DAY.year,
+        MONTH_DAY.month.numeric(),
+        MONTH_DAY.day_index + 1,
+        DAY_SECONDS.getHoursIntoDay(),
+        DAY_SECONDS.getMinutesIntoHour(),
+        DAY_SECONDS.getSecondsIntoMinute(),
+    }) catch return buffer[0..0];
 }

@@ -23,6 +23,8 @@ pub const Message = struct {
     pub const VALID_STATE = "found state file: ";
     pub const INVALID_STATE = "invalid state file: ";
     pub const STATE_LOCK_FAILED = "could not probe state lock: ";
+    pub const STATE_LOCK_COULD_NOT_BE_TAKEN = "could not take state lock: ";
+    pub const STATE_LOCK_HELD = "state file is locked by another process";
 };
 
 pub const CommandContext = struct {

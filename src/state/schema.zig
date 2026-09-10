@@ -2,6 +2,7 @@ pub const CAMPAIGN = struct {
     campaign: []const u8,
     external_id: ?[]const u8,
     input_manifest: ?[]const u8,
+    manifest_hash: []const u8,
 };
 
 pub const STATE = struct {
