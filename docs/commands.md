@@ -10,7 +10,10 @@ changes.
 - `validate` - check the config and manifests for correctness; `-w / --write`
 - `state` - retrieve the current state and compare it against the provided
   state
-- `plan` - fetch and show state data as a plan; `--export`
-- `apply` - apply the current manifests and configuration; `--exclude <VALUE>`
+- `plan` - compare the current manifests against the recorded state and show
+  what would change per enabled platform; `--export`
+- `apply` - apply the plan and persist state; `-w / --write`, `--exclude <VALUE>`
+- `import` - import a hand-created campaign into state:
+  `import <PLATFORM> <CAMPAIGN> <EXTERNAL_ID>`; `-w / --write`
 
 See `campi-cli help <COMMAND>` for the flags of a specific command.

@@ -56,10 +56,22 @@ existing config, reports the directory as already initialized.
 `--dir <WORK_DIR>`.
 
 `plan`
-: Fetch and show state data as a plan; `--export`.
+: Compute what would change by comparing the current campaign manifests
+against the recorded state, one section per enabled platform; `+` creates,
+`~` updates, `-` archives. `--export` prints the plan as ZON. Exits `3` when
+changes are pending, `0` otherwise.
 
 `apply`
-: Apply the current manifests and configuration; `--exclude <VALUE>`.
+: Apply the plan from the current manifests; dry run by default. `-w` /
+`--write` takes a write lock on `state.campi.lock` and persists the changes
+to `state.campi`. `--exclude <VALUE>` skips a campaign by name. Exits `3` in
+dry run when changes would be applied, `0` otherwise.
+
+`import`
+: Import a hand-created campaign into state;
+`campi-cli import <PLATFORM> <CAMPAIGN> <EXTERNAL_ID>`. Takes a write lock
+on `state.campi.lock` and appends the record; the platform must be one of
+`meta`, `x`, `tiktok`, `google`, `reddit`, `linkedin`.
 
 # EXIT CODES
 
@@ -73,7 +85,8 @@ existing config, reports the directory as already initialized.
 : Usage failure.
 
 `3`
-: Pending updates: `fmt` in dry run would reformat at least one file.
+: Pending updates: `fmt` in dry run would reformat at least one file, or
+`plan` / `apply` in dry run computed changes that would be applied.
 
 # FILES
 
@@ -84,11 +97,14 @@ existing config, reports the directory as already initialized.
 : Example campaign manifest; scaffolded by `campi-cli init`, read by `campi-cli plan` and `campi-cli apply`.
 
 `state.campi`
-: The state file; read by `campi-cli state`. Its location is set by
-`state_file_location_type` and `state_file_uri` in `config.campi`:
-`.local` (default) stores it in the working directory, `.cloud` points at a
-remote backend URI (`s3://<bucket>/<key>` or `gdrive://<root>/<path>`; not
-implemented yet).
+: The state file; read by `campi-cli state`, `plan` and `apply`, written by
+`apply -w` and `import`. Its location is set by `state_file_location_type`
+and `state_file_uri` in `config.campi`: `.local` (default) stores it in the
+working directory, `.cloud` points at a remote backend URI
+(`s3://<bucket>/<key>` or `gdrive://<root>/<path>`; not implemented yet).
+
+`state.campi.lock`
+: Write lock file; taken by `apply -w` and `import` while writing state.
 
 # SEE ALSO
 

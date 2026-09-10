@@ -49,11 +49,12 @@ zig build --prefix ~/.local
   - [x] validate; validate the config and manifests
   - [ ] state; read and compare the state and lock files
   - [ ] config; manage the config file
-  - [ ] plan; compute what would change
-  - [ ] apply; apply the changes
+  - [x] plan; compute what would change
+  - [x] apply; apply the changes
+  - [x] import; import hand-created campaigns into state
 - [ ] file handling
   - [ ] state reads and compares the state and lock files
-  - [ ] plan and apply read the campaign manifest
+  - [x] plan and apply read the campaign manifest
   - [x] init writes the base config file and prepares the working directory
 - [ ] tests
   - [ ] cli
