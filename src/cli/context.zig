@@ -27,6 +27,7 @@ pub const Message = struct {
     pub const STATE_LOCK_HELD = "state file is locked by another process";
     pub const NO_CHANGES = "no changes";
     pub const PLAN_NOT_COMPUTED = "could not compute plan";
+    pub const STATE_COULD_NOT_BE_WRITTEN = "could not write state: ";
 };
 
 pub const CommandContext = struct {

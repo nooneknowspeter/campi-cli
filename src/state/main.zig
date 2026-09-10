@@ -26,7 +26,7 @@ pub const LockState = enum {
 };
 
 pub const LockResult = union(enum) {
-    acquired: STD.Io.Dir.File,
+    acquired: STD.Io.File,
     held,
     failed,
 };
@@ -194,21 +194,21 @@ pub fn write(
     try state_writer.flush();
 }
 
-pub fn appliedAt(buffer: []u8) []const u8 {
+pub fn appliedAt(allocator: STD.mem.Allocator, io: STD.Io) ![]const u8 {
     const SECONDS = STD.time.epoch.EpochSeconds{
-        .secs = STD.time.timestamp(),
+        .secs = @intCast(STD.Io.Timestamp.now(io, .real).toSeconds()),
     };
     const EPOCH_DAY = SECONDS.getEpochDay();
     const YEAR_DAY = EPOCH_DAY.calculateYearDay();
     const MONTH_DAY = YEAR_DAY.calculateMonthDay();
     const DAY_SECONDS = SECONDS.getDaySeconds();
 
-    return STD.fmt.bufPrint(buffer, "{d:0>4}-{d:0>2}-{d:0>2}T{d:0>2}:{d:0>2}:{d:0>2}Z", .{
+    return STD.fmt.allocPrint(allocator, "{d:0>4}-{d:0>2}-{d:0>2}T{d:0>2}:{d:0>2}:{d:0>2}Z", .{
         YEAR_DAY.year,
         MONTH_DAY.month.numeric(),
         MONTH_DAY.day_index + 1,
         DAY_SECONDS.getHoursIntoDay(),
         DAY_SECONDS.getMinutesIntoHour(),
         DAY_SECONDS.getSecondsIntoMinute(),
-    }) catch return buffer[0..0];
+    });
 }
