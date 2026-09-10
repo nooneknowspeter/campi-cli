@@ -25,6 +25,8 @@ pub const Message = struct {
     pub const STATE_LOCK_FAILED = "could not probe state lock: ";
     pub const STATE_LOCK_COULD_NOT_BE_TAKEN = "could not take state lock: ";
     pub const STATE_LOCK_HELD = "state file is locked by another process";
+    pub const NO_CHANGES = "no changes";
+    pub const PLAN_NOT_COMPUTED = "could not compute plan";
 };
 
 pub const CommandContext = struct {
