@@ -28,6 +28,9 @@ pub const Message = struct {
     pub const NO_CHANGES = "no changes";
     pub const PLAN_NOT_COMPUTED = "could not compute plan";
     pub const STATE_COULD_NOT_BE_WRITTEN = "could not write state: ";
+    pub const IMPORT_USAGE = "campi-cli import <platform> <campaign> <external-id>";
+    pub const IMPORT_UNKNOWN_PLATFORM = "unknown platform: ";
+    pub const IMPORT_ALREADY_IMPORTED = "campaign is already imported on this platform: ";
 };
 
 pub const CommandContext = struct {

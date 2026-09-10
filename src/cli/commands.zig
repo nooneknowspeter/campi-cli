@@ -6,6 +6,7 @@ const PARSER = @import("parser.zig");
 const APPLY = @import("commands/apply.zig");
 const FMT = @import("commands/fmt.zig");
 pub const HELP = @import("commands/help.zig");
+const IMPORT = @import("commands/import.zig");
 const INIT = @import("commands/init.zig");
 const PLAN = @import("commands/plan.zig");
 const STATE = @import("commands/state.zig");
@@ -49,6 +50,7 @@ const VALIDATE_FLAGS = SHARED_FLAGS ++ VALIDATE.FLAGS;
 const STATE_FLAGS = SHARED_FLAGS ++ STATE.FLAGS;
 const PLAN_FLAGS = SHARED_FLAGS ++ PLAN.FLAGS;
 const APPLY_FLAGS = SHARED_FLAGS ++ APPLY.FLAGS;
+const IMPORT_FLAGS = SHARED_FLAGS ++ IMPORT.FLAGS;
 
 pub const COMMAND_REGISTRY = [_]CommandDefinition{
     .{
@@ -98,6 +100,12 @@ pub const COMMAND_REGISTRY = [_]CommandDefinition{
         .help = HELP.APPLY,
         .flags = &APPLY_FLAGS,
         .run = APPLY.run,
+    },
+    .{
+        .name = "import",
+        .help = HELP.IMPORT,
+        .flags = &IMPORT_FLAGS,
+        .run = IMPORT.run,
     },
 };
 

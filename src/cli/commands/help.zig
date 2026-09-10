@@ -15,6 +15,7 @@ pub const MAIN =
     \\ state - retrieve current state and compare against provided state
     \\ plan - fetch and show state data
     \\ apply - apply current manifests and configuration
+    \\ import - import hand-created campaigns into state
     \\
 ;
 
@@ -117,7 +118,20 @@ pub const APPLY =
     \\ Args:
     \\ -h / --help - Show this help output
     \\ -v / --verbose - Show verbose output and debug logs
+    \\ -w / --write - Apply the plan and persist state
     \\ --exclude <VALUE>
+    \\ -d <WORK_DIR> / --dir <WORK_DIR> - Run command in the specified working directory
+    \\
+;
+
+pub const IMPORT =
+    \\ campi-cli import <PLATFORM> <CAMPAIGN> <EXTERNAL_ID> [ARGS]
+    \\
+    \\ Import a hand-created campaign into state
+    \\
+    \\ Args:
+    \\ -h / --help - Show this help output
+    \\ -v / --verbose - Show verbose output and debug logs
     \\ -d <WORK_DIR> / --dir <WORK_DIR> - Run command in the specified working directory
     \\
 ;
