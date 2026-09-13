@@ -3,15 +3,15 @@ const STD = @import("std");
 const CONTEXT = @import("context.zig");
 const PARSER = @import("parser.zig");
 
-const APPLY = @import("commands/apply.zig");
-const FMT = @import("commands/fmt.zig");
+const APPLY_CMD = @import("commands/apply.zig");
+const FMT_CMD = @import("commands/fmt.zig");
 pub const HELP = @import("commands/help.zig");
-const IMPORT = @import("commands/import.zig");
-const INIT = @import("commands/init.zig");
-const PLAN = @import("commands/plan.zig");
-const STATE = @import("commands/state.zig");
-const VALIDATE = @import("commands/validate.zig");
-const VERSION = @import("commands/version.zig");
+const IMPORT_CMD = @import("commands/import.zig");
+const INIT_CMD = @import("commands/init.zig");
+const PLAN_CMD = @import("commands/plan.zig");
+const STATE_CMD = @import("commands/state.zig");
+const VALIDATE_CMD = @import("commands/validate.zig");
+const VERSION_CMD = @import("commands/version.zig");
 
 pub const CommandHandler = *const fn (
     allocator: STD.mem.Allocator,
@@ -44,13 +44,13 @@ const SHARED_FLAGS = [_]PARSER.FlagDefinition{
 };
 
 // comptime merging
-const INIT_FLAGS = SHARED_FLAGS ++ INIT.FLAGS;
-const FMT_FLAGS = SHARED_FLAGS ++ FMT.FLAGS;
-const VALIDATE_FLAGS = SHARED_FLAGS ++ VALIDATE.FLAGS;
-const STATE_FLAGS = SHARED_FLAGS ++ STATE.FLAGS;
-const PLAN_FLAGS = SHARED_FLAGS ++ PLAN.FLAGS;
-const APPLY_FLAGS = SHARED_FLAGS ++ APPLY.FLAGS;
-const IMPORT_FLAGS = SHARED_FLAGS ++ IMPORT.FLAGS;
+const INIT_FLAGS = SHARED_FLAGS ++ INIT_CMD.FLAGS;
+const FMT_FLAGS = SHARED_FLAGS ++ FMT_CMD.FLAGS;
+const VALIDATE_FLAGS = SHARED_FLAGS ++ VALIDATE_CMD.FLAGS;
+const STATE_FLAGS = SHARED_FLAGS ++ STATE_CMD.FLAGS;
+const PLAN_FLAGS = SHARED_FLAGS ++ PLAN_CMD.FLAGS;
+const APPLY_FLAGS = SHARED_FLAGS ++ APPLY_CMD.FLAGS;
+const IMPORT_FLAGS = SHARED_FLAGS ++ IMPORT_CMD.FLAGS;
 
 pub const COMMAND_REGISTRY = [_]CommandDefinition{
     .{
@@ -63,49 +63,49 @@ pub const COMMAND_REGISTRY = [_]CommandDefinition{
         .name = "init",
         .help = HELP.INIT,
         .flags = &INIT_FLAGS,
-        .run = INIT.run,
+        .run = INIT_CMD.run,
     },
     .{
         .name = "fmt",
         .help = HELP.FMT,
         .flags = &FMT_FLAGS,
-        .run = FMT.run,
+        .run = FMT_CMD.run,
     },
     .{
         .name = "validate",
         .help = HELP.VALIDATE,
         .flags = &VALIDATE_FLAGS,
-        .run = VALIDATE.run,
+        .run = VALIDATE_CMD.run,
     },
     .{
         .name = "version",
         .help = HELP.VERSION,
         .flags = &SHARED_FLAGS,
-        .run = VERSION.run,
+        .run = VERSION_CMD.run,
     },
     .{
         .name = "state",
         .help = HELP.STATE,
         .flags = &STATE_FLAGS,
-        .run = STATE.run,
+        .run = STATE_CMD.run,
     },
     .{
         .name = "plan",
         .help = HELP.PLAN,
         .flags = &PLAN_FLAGS,
-        .run = PLAN.run,
+        .run = PLAN_CMD.run,
     },
     .{
         .name = "apply",
         .help = HELP.APPLY,
         .flags = &APPLY_FLAGS,
-        .run = APPLY.run,
+        .run = APPLY_CMD.run,
     },
     .{
         .name = "import",
         .help = HELP.IMPORT,
         .flags = &IMPORT_FLAGS,
-        .run = IMPORT.run,
+        .run = IMPORT_CMD.run,
     },
 };
 
