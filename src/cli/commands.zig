@@ -4,6 +4,7 @@ const CONTEXT = @import("context.zig");
 const PARSER = @import("parser.zig");
 
 const APPLY_CMD = @import("commands/apply.zig");
+const CONFIG_CMD = @import("commands/config.zig");
 const FMT_CMD = @import("commands/fmt.zig");
 pub const HELP = @import("commands/help.zig");
 const IMPORT_CMD = @import("commands/import.zig");
@@ -47,6 +48,7 @@ const SHARED_FLAGS = [_]PARSER.FlagDefinition{
 const INIT_FLAGS = SHARED_FLAGS ++ INIT_CMD.FLAGS;
 const FMT_FLAGS = SHARED_FLAGS ++ FMT_CMD.FLAGS;
 const VALIDATE_FLAGS = SHARED_FLAGS ++ VALIDATE_CMD.FLAGS;
+const CONFIG_FLAGS = SHARED_FLAGS ++ CONFIG_CMD.FLAGS;
 const STATE_FLAGS = SHARED_FLAGS ++ STATE_CMD.FLAGS;
 const PLAN_FLAGS = SHARED_FLAGS ++ PLAN_CMD.FLAGS;
 const APPLY_FLAGS = SHARED_FLAGS ++ APPLY_CMD.FLAGS;
@@ -76,6 +78,12 @@ pub const COMMAND_REGISTRY = [_]CommandDefinition{
         .help = HELP.VALIDATE,
         .flags = &VALIDATE_FLAGS,
         .run = VALIDATE_CMD.run,
+    },
+    .{
+        .name = "config",
+        .help = HELP.CONFIG,
+        .flags = &CONFIG_FLAGS,
+        .run = CONFIG_CMD.run,
     },
     .{
         .name = "version",

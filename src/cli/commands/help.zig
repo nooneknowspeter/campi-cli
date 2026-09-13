@@ -11,6 +11,7 @@ pub const MAIN =
     \\ init - create base config file and prepare work dir
     \\ fmt - format campi files
     \\ validate - check campi manifests for correctness
+    \\ config - show the active configuration
     \\ version - display tool version
     \\ state - retrieve current state and compare against provided state
     \\ plan - fetch and show state data
@@ -69,6 +70,18 @@ pub const VALIDATE =
     \\ -h / --help - Show this help output
     \\ -v / --verbose - Show verbose output and debug logs
     \\ -w / --write
+    \\ -d <WORK_DIR> / --dir <WORK_DIR> - Run command in the specified working directory
+    \\
+;
+
+pub const CONFIG =
+    \\ campi-cli config [ARGS]
+    \\
+    \\ Display the active configuration
+    \\
+    \\ Args:
+    \\ -h / --help - Show this help output
+    \\ -v / --verbose - Show verbose output and debug logs
     \\ -d <WORK_DIR> / --dir <WORK_DIR> - Run command in the specified working directory
     \\
 ;
