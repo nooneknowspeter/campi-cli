@@ -48,7 +48,7 @@ zig build --prefix ~/.local
   - [ ] fmt; format manifest files
   - [x] validate; validate the config and manifests
   - [ ] state; read and compare the state and lock files
-  - [ ] config; manage the config file
+  - [x] config; manage the config file
   - [x] plan; compute what would change
   - [x] apply; apply the changes
   - [x] import; import hand-created campaigns into state

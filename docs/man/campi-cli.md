@@ -51,6 +51,11 @@ existing config, reports the directory as already initialized.
 `validate`
 : Check the config and manifests for correctness; `-w` / `--write`.
 
+`config`
+: Show the active configuration: the config file location, config and campi
+versions, project name, state file location, enabled platforms, and configured
+manifest files.
+
 `state`
 : Retrieve the current state and compare it against the provided state;
 `--dir <WORK_DIR>`.

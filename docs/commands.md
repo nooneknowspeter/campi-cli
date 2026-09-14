@@ -8,6 +8,7 @@ changes.
 - `init` - create the base config file and prepare the working directory
 - `fmt` - format campi files; `-w / --write`, `--lsp`
 - `validate` - check the config and manifests for correctness; `-w / --write`
+- `config` - show the active configuration
 - `state` - retrieve the current state and compare it against the provided
   state
 - `plan` - compare the current manifests against the recorded state and show
