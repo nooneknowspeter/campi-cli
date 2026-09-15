@@ -5,6 +5,7 @@ const CONTEXT = @import("../context.zig");
 const FS = @import("../../fs/main.zig");
 const MANIFEST = @import("../../manifest/main.zig");
 const PARSER = @import("../parser.zig");
+const PLATFORMS = @import("../../platforms/main.zig");
 const STATE_MODULE = @import("../../state/main.zig");
 
 pub const FLAGS = [_]PARSER.FlagDefinition{
@@ -44,10 +45,10 @@ fn buildImportedState(
     inline for (STD.meta.fields(@TypeOf(previous_state.platforms))) |field| {
         if (@field(previous_state.platforms, field.name)) |campaigns|
             for (campaigns) |record|
-                try platforms[platformIndex(field.name)].append(allocator, record);
+                try platforms[PLATFORMS.index(field.name).?].append(allocator, record);
 
         if (STD.mem.eql(u8, field.name, platform))
-            try platforms[platformIndex(field.name)].append(allocator, .{
+            try platforms[PLATFORMS.index(field.name).?].append(allocator, .{
                 .campaign = campaign_name,
                 .external_id = external_id,
                 .input_manifest = null,
@@ -73,16 +74,6 @@ fn buildImportedState(
     };
 }
 
-fn platformIndex(name: []const u8) usize {
-    if (STD.mem.eql(u8, name, "meta")) return 0;
-    if (STD.mem.eql(u8, name, "x")) return 1;
-    if (STD.mem.eql(u8, name, "tiktok")) return 2;
-    if (STD.mem.eql(u8, name, "google")) return 3;
-    if (STD.mem.eql(u8, name, "reddit")) return 4;
-
-    return 5;
-}
-
 pub fn run(
     allocator: STD.mem.Allocator,
     context: CONTEXT.CommandContext,
@@ -102,7 +93,7 @@ pub fn run(
     const CAMPAIGN = context.positionals[1];
     const EXTERNAL_ID = context.positionals[2];
 
-    if (platformIndex(PLATFORM) == 5) {
+    if (PLATFORMS.index(PLATFORM) == null) {
         context.stderr.print(
             \\{s}{s}
             \\

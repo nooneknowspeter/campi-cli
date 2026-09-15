@@ -6,6 +6,7 @@ const FS = @import("../../fs/main.zig");
 const MANIFEST = @import("../../manifest/main.zig");
 const PARSER = @import("../parser.zig");
 const PLAN = @import("../../plan/main.zig");
+const PLATFORMS = @import("../../platforms/main.zig");
 const STATE_MODULE = @import("../../state/main.zig");
 
 pub const FLAGS = [_]PARSER.FlagDefinition{
@@ -70,21 +71,21 @@ fn buildNewState(
 
                 if (archived) continue;
 
-                try platforms[platform_index(platform.name)].append(allocator, record);
+                try platforms[PLATFORMS.index(platform.name).?].append(allocator, record);
             };
 
         for (operations) |operation| {
             if (!STD.mem.eql(u8, operation.platform, platform.name)) continue;
 
             switch (operation.operation_type) {
-                .create => try platforms[platform_index(platform.name)].append(allocator, .{
+                .create => try platforms[PLATFORMS.index(platform.name).?].append(allocator, .{
                     .campaign = operation.campaign,
                     .external_id = operation.external_id,
                     .input_manifest = operation.input_manifest,
                     .manifest_hash = operation.manifest_hash,
                 }),
                 .update => {
-                    for (platforms[platform_index(platform.name)].items) |*record| {
+                    for (platforms[PLATFORMS.index(platform.name).?].items) |*record| {
                         if (STD.mem.eql(u8, record.campaign, operation.campaign)) {
                             record.external_id = operation.external_id;
                             record.input_manifest = operation.input_manifest;
@@ -113,16 +114,6 @@ fn buildNewState(
             .linkedin = try linkedin.toOwnedSlice(allocator),
         },
     };
-}
-
-fn platform_index(name: []const u8) usize {
-    if (STD.mem.eql(u8, name, "meta")) return 0;
-    if (STD.mem.eql(u8, name, "x")) return 1;
-    if (STD.mem.eql(u8, name, "tiktok")) return 2;
-    if (STD.mem.eql(u8, name, "google")) return 3;
-    if (STD.mem.eql(u8, name, "reddit")) return 4;
-
-    return 5;
 }
 
 fn printOperations(context: CONTEXT.CommandContext, operations: []const PLAN.SCHEMA.OPERATION, verb: []const u8) CONTEXT.ExitCode {
