@@ -7,6 +7,20 @@ pub const SCHEMA = @import("schema.zig");
 
 pub const LOCK_FILENAME = "state.campi.lock";
 
+pub const EMPTY_STATE = SCHEMA.STATE{
+    .state_version = "",
+    .applied_at = null,
+    .manifest_files = &.{},
+    .platforms = .{
+        .meta = null,
+        .x = null,
+        .tiktok = null,
+        .google = null,
+        .reddit = null,
+        .linkedin = null,
+    },
+};
+
 pub const LoadedState = struct {
     file_path: []const u8,
     source: []const u8,

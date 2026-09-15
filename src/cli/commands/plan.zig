@@ -6,7 +6,7 @@ const FS = @import("../../fs/main.zig");
 const MANIFEST = @import("../../manifest/main.zig");
 const PARSER = @import("../parser.zig");
 const PLAN = @import("../../plan/main.zig");
-const STATE = @import("../../state/main.zig");
+const STATE_MODULE = @import("../../state/main.zig");
 
 pub const FLAGS = [_]PARSER.FlagDefinition{
     .{
@@ -61,7 +61,7 @@ pub fn run(
         return CONTEXT.ExitCode.RUNTIME_FAILURE;
     };
 
-    const STATE_LOCATION = STATE.resolveStateLocation(context, CONFIG.current_config.?) orelse
+    const STATE_LOCATION = STATE_MODULE.resolveStateLocation(context, CONFIG.current_config.?) orelse
         return CONTEXT.ExitCode.RUNTIME_FAILURE;
 
     const STATE_FILE = switch (STATE_LOCATION) {
@@ -75,7 +75,7 @@ pub fn run(
     const LOADED = MANIFEST.loadAll(allocator, context, WORK_DIR, MANIFEST_PATHS);
     if (LOADED.invalid) return CONTEXT.ExitCode.RUNTIME_FAILURE;
 
-    const state_value: ?STATE.SCHEMA.STATE = switch (STATE.load(allocator, context, WORK_DIR, STATE_FILE)) {
+    const state_value: ?STATE_MODULE.SCHEMA.STATE = switch (STATE_MODULE.load(allocator, context, WORK_DIR, STATE_FILE)) {
         .loaded => |loaded_state| loaded_state.value,
         .missing => null,
         .invalid => return CONTEXT.ExitCode.RUNTIME_FAILURE,
