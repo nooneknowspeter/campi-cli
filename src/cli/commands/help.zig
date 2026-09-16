@@ -64,12 +64,11 @@ pub const VALIDATE =
     \\ campi-cli validate [ARGS]
     \\
     \\ Check the config and manifests for correctness
-    \\ runs in dry run mode by default, use -w / --write to persist changes
+    \\ runs in dry run mode by default
     \\
     \\ Args:
     \\ -h / --help - Show this help output
     \\ -v / --verbose - Show verbose output and debug logs
-    \\ -w / --write
     \\ -d <WORK_DIR> / --dir <WORK_DIR> - Run command in the specified working directory
     \\
 ;

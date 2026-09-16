@@ -7,7 +7,7 @@ changes.
 - `version` - print the tool version
 - `init` - create the base config file and prepare the working directory
 - `fmt` - format campi files; `-w / --write`, `--lsp`
-- `validate` - check the config and manifests for correctness; `-w / --write`
+- `validate` - check the config and manifests for correctness
 - `config` - show the active configuration
 - `state` - retrieve the current state and compare it against the provided
   state

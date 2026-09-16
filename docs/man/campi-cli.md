@@ -49,7 +49,7 @@ existing config, reports the directory as already initialized.
 : Format campi files; `-w` / `--write`, `--lsp`.
 
 `validate`
-: Check the config and manifests for correctness; `-w` / `--write`.
+: Check the config and manifests for correctness.
 
 `config`
 : Show the active configuration: the config file location, config and campi

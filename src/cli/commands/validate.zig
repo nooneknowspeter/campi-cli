@@ -8,12 +8,6 @@ const PARSER = @import("../parser.zig");
 
 pub const FLAGS = [_]PARSER.FlagDefinition{
     .{
-        .long_flag = "write",
-        .short_flag = 'w',
-        .is_flag_a_boolean = true,
-        .description = "Write fixes",
-    },
-    .{
         .long_flag = "dir",
         .short_flag = 'd',
         .is_flag_a_boolean = false,
