@@ -1,0 +1,15 @@
+<script src="/_vendor/mermaid/mermaid.min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    if (!window.mermaid) return;
+    mermaid.initialize({ startOnLoad: false, theme: "neutral", securityLevel: "loose" });
+    document.querySelectorAll("script[type='text/mermaid']").forEach(function (el) {
+      var pre = document.createElement("pre");
+      pre.className = "mermaid";
+      pre.textContent = el.textContent;
+      el.parentNode.insertBefore(pre, el);
+      el.remove();
+    });
+    mermaid.run({ querySelector: "pre.mermaid" });
+  });
+</script>

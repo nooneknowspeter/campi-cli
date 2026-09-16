@@ -9,6 +9,8 @@ project:
     - CONTRIBUTING.md
     - SECURITY.md
     - SUPPORT.md
+  resources:
+    - _vendor
   preview:
     host: 0.0.0.0
     port: 4010
@@ -36,4 +38,24 @@ website:
 format:
   html:
     toc: true
-    embed-resources: true
+    embed-resources: false
+    include-after-body: _vendor/mermaid/load.html
+  typst:
+    toc: true
+    number-sections: true
+    papersize: us-letter
+    margin:
+      x: 0.75in
+      y: 0.9in
+    template-partials:
+      - branding/src/typst/typst-template.typ
+    filters:
+      - branding/filters/mermaid-pdf.lua
+  revealjs:
+    theme: branding/src/revealjs/campi-reveal.scss
+    logo: branding/bin/iconic_color_1_400x400.svg
+    footer: "campi confidential"
+    toc: true
+    slide-level: 2
+    echo: false
+    transition: slide
