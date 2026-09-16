@@ -51,11 +51,3 @@ format:
       - branding/src/typst/typst-template.typ
     filters:
       - branding/filters/mermaid-pdf.lua
-  revealjs:
-    theme: branding/src/revealjs/campi-reveal.scss
-    logo: branding/bin/iconic_color_1_400x400.svg
-    footer: "campi confidential"
-    toc: true
-    slide-level: 2
-    echo: false
-    transition: slide
