@@ -47,7 +47,7 @@ pub fn run(
         context.stderr.print(
             \\{s}
             \\
-        , .{CONTEXT.Message.FMT_LSP_NOT_IMPLEMENTED}) catch
+        , .{CONTEXT.Message.NOT_IMPLEMENTED}) catch
             return CONTEXT.ExitCode.RUNTIME_FAILURE;
 
         return CONTEXT.ExitCode.RUNTIME_FAILURE;

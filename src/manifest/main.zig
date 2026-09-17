@@ -22,7 +22,7 @@ pub fn filePaths(context: CONTEXT.CommandContext, config: CONFIG.SCHEMA.CONFIG) 
             context.stderr.print(
                 \\{s}{s}
                 \\
-            , .{ CONTEXT.Message.MANIFEST_REGEX_NOT_IMPLEMENTED, pattern }) catch
+            , .{ CONTEXT.Message.NOT_IMPLEMENTED, pattern }) catch
                 return null;
 
             return null;

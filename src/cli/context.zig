@@ -8,18 +8,16 @@ pub const ExitCode = enum(u8) {
 };
 
 pub const Message = struct {
+    pub const NOT_IMPLEMENTED = "not yet implemented";
     pub const COULD_NOT_DETERMINE_WORKING_DIRECTORY = "could not determine the working directory";
     pub const WORKING_DIRECTORY_DOES_NOT_EXIST = "working directory does not exist: ";
     pub const CONFIG_NOT_FOUND = "could not find config.campi; run the init command";
     pub const CONFIG_COULD_NOT_BE_LOADED = "could not load config: ";
     pub const CONFIG_COULD_NOT_BE_WRITTEN = "could not write config: ";
     pub const NO_MANIFEST_FILES_CONFIGURED = "no manifest files configured";
-    pub const MANIFEST_REGEX_NOT_IMPLEMENTED = "manifest selection by regex is not implemented yet: ";
     pub const VALID_MANIFEST = "valid manifest: ";
     pub const INVALID_MANIFEST = "invalid manifest: ";
     pub const MANIFEST_COULD_NOT_BE_WRITTEN = "could not write manifest: ";
-    pub const FMT_LSP_NOT_IMPLEMENTED = "not implemented yet";
-    pub const STATE_BACKEND_NOT_IMPLEMENTED = "state backend is not implemented yet: ";
     pub const VALID_STATE = "found state file: ";
     pub const INVALID_STATE = "invalid state file: ";
     pub const STATE_LOCK_FAILED = "could not probe state lock: ";

@@ -60,7 +60,7 @@ pub fn resolveStateLocation(
             context.stderr.print(
                 \\{s}{s}
                 \\
-            , .{ CONTEXT.Message.STATE_BACKEND_NOT_IMPLEMENTED, config.state_file_uri }) catch
+            , .{ CONTEXT.Message.NOT_IMPLEMENTED, config.state_file_uri }) catch
                 return null;
 
             return null;
