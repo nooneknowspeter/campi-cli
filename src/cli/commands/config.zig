@@ -52,11 +52,30 @@ fn printManifestFiles(
     config: CONFIG.SCHEMA.CONFIG,
 ) CONTEXT.ExitCode {
     switch (config.manifest_files) {
-        .regex => |pattern| {
-            context.stdout.print(
-                "manifest files: regex: {s}\n",
-                .{pattern},
-            ) catch return CONTEXT.ExitCode.RUNTIME_FAILURE;
+        .globs => |globs| {
+            if (globs.len == 0) {
+                context.stdout.print("manifest files: globs: none\n", .{}) catch
+                    return CONTEXT.ExitCode.RUNTIME_FAILURE;
+
+                return CONTEXT.ExitCode.SUCCESS;
+            }
+
+            var has_printed_any = false;
+
+            for (globs) |glob| {
+                if (has_printed_any) {
+                    context.stdout.print(", {s}", .{glob}) catch
+                        return CONTEXT.ExitCode.RUNTIME_FAILURE;
+                } else {
+                    context.stdout.print("manifest files: globs: {s}", .{glob}) catch
+                        return CONTEXT.ExitCode.RUNTIME_FAILURE;
+
+                    has_printed_any = true;
+                }
+            }
+
+            context.stdout.print("\n", .{}) catch
+                return CONTEXT.ExitCode.RUNTIME_FAILURE;
         },
         .manifest_files => |files| {
             const LIST = files orelse {

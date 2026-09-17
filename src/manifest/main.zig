@@ -18,11 +18,11 @@ pub const LoadResult = struct {
 
 pub fn filePaths(context: CONTEXT.CommandContext, config: CONFIG.SCHEMA.CONFIG) ?[]const []const u8 {
     switch (config.manifest_files) {
-        .regex => |pattern| {
+        .globs => {
             context.stderr.print(
-                \\{s}{s}
+                \\{s}
                 \\
-            , .{ CONTEXT.Message.NOT_IMPLEMENTED, pattern }) catch
+            , .{CONTEXT.Message.NOT_IMPLEMENTED}) catch
                 return null;
 
             return null;

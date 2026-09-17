@@ -4,7 +4,7 @@ const FILE_LOCATION_TYPE = enum {
 };
 
 const MANIFEST_FILES = union(enum) {
-    regex: []const u8,
+    globs: []const []const u8,
     manifest_files: ?[]const []const u8,
 };
 
