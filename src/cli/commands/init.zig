@@ -25,6 +25,16 @@ pub fn run(
     context: CONTEXT.CommandContext,
     flags: []const PARSER.ResolvedFlagState,
 ) CONTEXT.ExitCode {
+    if (PARSER.hasFlag(flags, "interactive")) {
+        context.stderr.print(
+            \\{s}
+            \\
+        , .{CONTEXT.Message.NOT_IMPLEMENTED}) catch
+            return CONTEXT.ExitCode.RUNTIME_FAILURE;
+
+        return CONTEXT.ExitCode.RUNTIME_FAILURE;
+    }
+
     var path_buffer: [STD.Io.Dir.max_path_bytes]u8 = undefined;
 
     const DIR_PATH = FS.dirPath(context, flags, &path_buffer) catch {

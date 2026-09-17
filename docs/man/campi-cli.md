@@ -43,7 +43,8 @@ Some commands also accept a working directory:
 
 `init`
 : Create the base config file and prepare the working directory; on an
-existing config, reports the directory as already initialized.
+existing config, reports the directory as already initialized. The
+interactive mode is reported as not implemented yet.
 
 `fmt`
 : Format campi files; `-w` / `--write`, `--lsp`.
