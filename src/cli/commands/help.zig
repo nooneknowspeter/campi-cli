@@ -172,6 +172,54 @@ pub const TIKTOK =
     \\
 ;
 
+pub const X =
+    \\ campi-cli x [ARGS]
+    \\
+    \\ Fetch and format X Ads API data
+    \\
+    \\ Args:
+    \\ -h / --help - Show this help output
+    \\ -v / --verbose - Show verbose output and debug logs
+    \\ -d <WORK_DIR> / --dir <WORK_DIR> - Run command in the specified working directory
+    \\
+;
+
+pub const GOOGLE =
+    \\ campi-cli google [ARGS]
+    \\
+    \\ Fetch and format Google Ads API data
+    \\
+    \\ Args:
+    \\ -h / --help - Show this help output
+    \\ -v / --verbose - Show verbose output and debug logs
+    \\ -d <WORK_DIR> / --dir <WORK_DIR> - Run command in the specified working directory
+    \\
+;
+
+pub const REDDIT =
+    \\ campi-cli reddit [ARGS]
+    \\
+    \\ Fetch and format Reddit Ads API data
+    \\
+    \\ Args:
+    \\ -h / --help - Show this help output
+    \\ -v / --verbose - Show verbose output and debug logs
+    \\ -d <WORK_DIR> / --dir <WORK_DIR> - Run command in the specified working directory
+    \\
+;
+
+pub const LINKEDIN =
+    \\ campi-cli linkedin [ARGS]
+    \\
+    \\ Fetch and format LinkedIn Marketing API data
+    \\
+    \\ Args:
+    \\ -h / --help - Show this help output
+    \\ -v / --verbose - Show verbose output and debug logs
+    \\ -d <WORK_DIR> / --dir <WORK_DIR> - Run command in the specified working directory
+    \\
+;
+
 pub fn run(
     allocator: STD.mem.Allocator,
     context: CONTEXT.CommandContext,

@@ -7,14 +7,18 @@ const APPLY_CMD = @import("commands/apply.zig");
 const CONFIG_CMD = @import("commands/config.zig");
 const FMT_CMD = @import("commands/fmt.zig");
 pub const HELP = @import("commands/help.zig");
+const GOOGLE_CMD = @import("commands/google.zig");
 const IMPORT_CMD = @import("commands/import.zig");
 const INIT_CMD = @import("commands/init.zig");
+const LINKEDIN_CMD = @import("commands/linkedin.zig");
 const META_CMD = @import("commands/meta.zig");
 const PLAN_CMD = @import("commands/plan.zig");
+const REDDIT_CMD = @import("commands/reddit.zig");
 const STATE_CMD = @import("commands/state.zig");
 const TIKTOK_CMD = @import("commands/tiktok.zig");
 const VALIDATE_CMD = @import("commands/validate.zig");
 const VERSION_CMD = @import("commands/version.zig");
+const X_CMD = @import("commands/x.zig");
 
 pub const CommandHandler = *const fn (
     allocator: STD.mem.Allocator,
@@ -57,6 +61,10 @@ const APPLY_FLAGS = SHARED_FLAGS ++ APPLY_CMD.FLAGS;
 const IMPORT_FLAGS = SHARED_FLAGS ++ IMPORT_CMD.FLAGS;
 const META_FLAGS = SHARED_FLAGS ++ META_CMD.FLAGS;
 const TIKTOK_FLAGS = SHARED_FLAGS ++ TIKTOK_CMD.FLAGS;
+const X_FLAGS = SHARED_FLAGS ++ X_CMD.FLAGS;
+const GOOGLE_FLAGS = SHARED_FLAGS ++ GOOGLE_CMD.FLAGS;
+const REDDIT_FLAGS = SHARED_FLAGS ++ REDDIT_CMD.FLAGS;
+const LINKEDIN_FLAGS = SHARED_FLAGS ++ LINKEDIN_CMD.FLAGS;
 
 pub const COMMAND_REGISTRY = [_]CommandDefinition{
     .{
@@ -130,6 +138,30 @@ pub const COMMAND_REGISTRY = [_]CommandDefinition{
         .help = HELP.TIKTOK,
         .flags = &TIKTOK_FLAGS,
         .run = TIKTOK_CMD.run,
+    },
+    .{
+        .name = "x",
+        .help = HELP.X,
+        .flags = &X_FLAGS,
+        .run = X_CMD.run,
+    },
+    .{
+        .name = "google",
+        .help = HELP.GOOGLE,
+        .flags = &GOOGLE_FLAGS,
+        .run = GOOGLE_CMD.run,
+    },
+    .{
+        .name = "reddit",
+        .help = HELP.REDDIT,
+        .flags = &REDDIT_FLAGS,
+        .run = REDDIT_CMD.run,
+    },
+    .{
+        .name = "linkedin",
+        .help = HELP.LINKEDIN,
+        .flags = &LINKEDIN_FLAGS,
+        .run = LINKEDIN_CMD.run,
     },
 };
 
