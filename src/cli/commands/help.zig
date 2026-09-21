@@ -160,6 +160,18 @@ pub const META =
     \\
 ;
 
+pub const TIKTOK =
+    \\ campi-cli tiktok [ARGS]
+    \\
+    \\ Fetch and format TikTok Marketing API SDK data
+    \\
+    \\ Args:
+    \\ -h / --help - Show this help output
+    \\ -v / --verbose - Show verbose output and debug logs
+    \\ -d <WORK_DIR> / --dir <WORK_DIR> - Run command in the specified working directory
+    \\
+;
+
 pub fn run(
     allocator: STD.mem.Allocator,
     context: CONTEXT.CommandContext,

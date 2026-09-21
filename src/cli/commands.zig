@@ -12,6 +12,7 @@ const INIT_CMD = @import("commands/init.zig");
 const META_CMD = @import("commands/meta.zig");
 const PLAN_CMD = @import("commands/plan.zig");
 const STATE_CMD = @import("commands/state.zig");
+const TIKTOK_CMD = @import("commands/tiktok.zig");
 const VALIDATE_CMD = @import("commands/validate.zig");
 const VERSION_CMD = @import("commands/version.zig");
 
@@ -55,6 +56,7 @@ const PLAN_FLAGS = SHARED_FLAGS ++ PLAN_CMD.FLAGS;
 const APPLY_FLAGS = SHARED_FLAGS ++ APPLY_CMD.FLAGS;
 const IMPORT_FLAGS = SHARED_FLAGS ++ IMPORT_CMD.FLAGS;
 const META_FLAGS = SHARED_FLAGS ++ META_CMD.FLAGS;
+const TIKTOK_FLAGS = SHARED_FLAGS ++ TIKTOK_CMD.FLAGS;
 
 pub const COMMAND_REGISTRY = [_]CommandDefinition{
     .{
@@ -122,6 +124,12 @@ pub const COMMAND_REGISTRY = [_]CommandDefinition{
         .help = HELP.META,
         .flags = &META_FLAGS,
         .run = META_CMD.run,
+    },
+    .{
+        .name = "tiktok",
+        .help = HELP.TIKTOK,
+        .flags = &TIKTOK_FLAGS,
+        .run = TIKTOK_CMD.run,
     },
 };
 
