@@ -37,6 +37,7 @@ pub const CommandContext = struct {
     stdout: *STD.Io.Writer,
     stderr: *STD.Io.Writer,
     positionals: []const []const u8 = &.{},
+    environ: ?STD.process.Environ = null,
 };
 
 /// runtime log gate; dispatch sets it from the --verbose flag

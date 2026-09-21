@@ -9,6 +9,7 @@ const FMT_CMD = @import("commands/fmt.zig");
 pub const HELP = @import("commands/help.zig");
 const IMPORT_CMD = @import("commands/import.zig");
 const INIT_CMD = @import("commands/init.zig");
+const META_CMD = @import("commands/meta.zig");
 const PLAN_CMD = @import("commands/plan.zig");
 const STATE_CMD = @import("commands/state.zig");
 const VALIDATE_CMD = @import("commands/validate.zig");
@@ -53,6 +54,7 @@ const STATE_FLAGS = SHARED_FLAGS ++ STATE_CMD.FLAGS;
 const PLAN_FLAGS = SHARED_FLAGS ++ PLAN_CMD.FLAGS;
 const APPLY_FLAGS = SHARED_FLAGS ++ APPLY_CMD.FLAGS;
 const IMPORT_FLAGS = SHARED_FLAGS ++ IMPORT_CMD.FLAGS;
+const META_FLAGS = SHARED_FLAGS ++ META_CMD.FLAGS;
 
 pub const COMMAND_REGISTRY = [_]CommandDefinition{
     .{
@@ -114,6 +116,12 @@ pub const COMMAND_REGISTRY = [_]CommandDefinition{
         .help = HELP.IMPORT,
         .flags = &IMPORT_FLAGS,
         .run = IMPORT_CMD.run,
+    },
+    .{
+        .name = "meta",
+        .help = HELP.META,
+        .flags = &META_FLAGS,
+        .run = META_CMD.run,
     },
 };
 

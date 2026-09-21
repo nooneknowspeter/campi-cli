@@ -148,6 +148,18 @@ pub const IMPORT =
     \\
 ;
 
+pub const META =
+    \\ campi-cli meta [ARGS]
+    \\
+    \\ Fetch and format Meta Marketing API SDK data
+    \\
+    \\ Args:
+    \\ -h / --help - Show this help output
+    \\ -v / --verbose - Show verbose output and debug logs
+    \\ -d <WORK_DIR> / --dir <WORK_DIR> - Run command in the specified working directory
+    \\
+;
+
 pub fn run(
     allocator: STD.mem.Allocator,
     context: CONTEXT.CommandContext,
