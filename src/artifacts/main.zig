@@ -169,6 +169,133 @@ fn resolveSource(
     }
 }
 
+fn cacheFilePath(
+    allocator: STD.mem.Allocator,
+    cache_key: []const u8,
+) ![]const u8 {
+    return STD.fmt.allocPrint(allocator, "{s}/{s}.bin", .{ CACHE_RELATIVE_PATH, cache_key });
+}
+
+fn readCached(
+    allocator: STD.mem.Allocator,
+    context: CONTEXT.CommandContext,
+    work_dir: STD.Io.Dir,
+    cache_path: []const u8,
+) !?[]const u8 {
+    var file = work_dir.openFile(
+        context.io,
+        cache_path,
+        .{},
+    ) catch |err| {
+        switch (err) {
+            error.FileNotFound => return null,
+            else => return err,
+        }
+    };
+    defer file.close(context.io);
+
+    var reader = file.reader(context.io, &.{});
+
+    return try reader.interface.allocRemaining(allocator, .unlimited);
+}
+
+fn writeCache(
+    context: CONTEXT.CommandContext,
+    work_dir: STD.Io.Dir,
+    cache_path: []const u8,
+    bytes: []const u8,
+) void {
+    work_dir.createDirPath(context.io, CACHE_RELATIVE_PATH) catch |err| {
+        context.stderr.print(
+            \\{s}{any}
+            \\
+        ,
+            .{ CONTEXT.Message.ARTIFACT_CACHE_COULD_NOT_BE_WRITTEN, err },
+        ) catch {};
+
+        return;
+    };
+
+    work_dir.writeFile(context.io, .{
+        .sub_path = cache_path,
+        .data = bytes,
+    }) catch |err| {
+        context.stderr.print(
+            \\{s}{any}
+            \\
+        ,
+            .{ CONTEXT.Message.ARTIFACT_CACHE_COULD_NOT_BE_WRITTEN, err },
+        ) catch {};
+    };
+}
+
+pub fn loadArtifact(
+    allocator: STD.mem.Allocator,
+    context: CONTEXT.CommandContext,
+    work_dir: STD.Io.Dir,
+    source: []const u8,
+) !SCHEMA.DownloadedArtifact {
+    const CACHE_KEY = try cacheKey(allocator, source);
+    const CACHE_PATH = try cacheFilePath(allocator, CACHE_KEY);
+
+    if (try readCached(allocator, context, work_dir, CACHE_PATH)) |BYTES| {
+        return .{
+            .source = source,
+            .content_type = contentTypeForSource(source),
+            .bytes = BYTES,
+        };
+    }
+
+    const BYTES = try resolveSource(allocator, context, work_dir, source);
+
+    writeCache(context, work_dir, CACHE_PATH, BYTES);
+
+    return .{
+        .source = source,
+        .content_type = contentTypeForSource(source),
+        .bytes = BYTES,
+    };
+}
+
+pub fn loadArtifacts(
+    allocator: STD.mem.Allocator,
+    context: CONTEXT.CommandContext,
+    work_dir: STD.Io.Dir,
+    sources: []const []const u8,
+) SCHEMA.ARTIFACT_RESULT {
+    var artifacts = STD.ArrayList(SCHEMA.DownloadedArtifact).empty;
+    var failed = STD.ArrayList([]const u8).empty;
+    var invalid = false;
+
+    for (sources) |source| {
+        const ARTIFACT = loadArtifact(
+            allocator,
+            context,
+            work_dir,
+            source,
+        ) catch |err| {
+            context.stderr.print(
+                \\{s}{s}
+                \\
+                \\{any}
+                \\
+            , .{ CONTEXT.Message.ARTIFACT_COULD_NOT_BE_LOADED, source, err }) catch
+                return .{ .artifacts = artifacts.items, .failed = failed.items, .invalid = true };
+
+            failed.append(allocator, source) catch
+                return .{ .artifacts = artifacts.items, .failed = failed.items, .invalid = true };
+
+            invalid = true;
+            continue;
+        };
+
+        artifacts.append(allocator, ARTIFACT) catch
+            return .{ .artifacts = artifacts.items, .failed = failed.items, .invalid = true };
+    }
+
+    return .{ .artifacts = artifacts.items, .failed = failed.items, .invalid = invalid };
+}
+
 test "collectCreativeSources gathers creative media urls across manifests and dedupes" {
     var arena = STD.heap.ArenaAllocator.init(STD.testing.allocator);
     defer arena.deinit();
@@ -348,6 +475,111 @@ test "resolveSource strips a file scheme prefix from a local source" {
     const BYTES = try resolveSource(ALLOCATOR, COMMAND_CONTEXT, tmp.dir, SOURCE);
 
     try STD.testing.expectEqualStrings("schemed-image-bytes", BYTES);
+}
+
+test "loadArtifact caches downloaded bytes on disk" {
+    var arena = STD.heap.ArenaAllocator.init(STD.testing.allocator);
+    defer arena.deinit();
+    const ALLOCATOR = arena.allocator();
+
+    var stdin_reader = STD.Io.Reader.fixed(&.{});
+    var stdout_writer = STD.Io.Writer.Allocating.init(STD.testing.allocator);
+    var stderr_writer = STD.Io.Writer.Allocating.init(STD.testing.allocator);
+    const COMMAND_CONTEXT = testContext(&stdin_reader, &stdout_writer.writer, &stderr_writer.writer);
+
+    var tmp = STD.testing.tmpDir(.{});
+    defer tmp.cleanup();
+
+    const FILE_NAME = "creative.png";
+    try tmp.dir.writeFile(
+        STD.testing.io,
+        .{ .sub_path = FILE_NAME, .data = "cachable-image-bytes" },
+    );
+
+    const ARTIFACT = try loadArtifact(ALLOCATOR, COMMAND_CONTEXT, tmp.dir, FILE_NAME);
+
+    try STD.testing.expectEqualStrings("cachable-image-bytes", ARTIFACT.bytes);
+    try STD.testing.expectEqualStrings("image/png", ARTIFACT.content_type);
+
+    const CACHE_KEY = try cacheKey(ALLOCATOR, FILE_NAME);
+    const CACHE_PATH = try cacheFilePath(ALLOCATOR, CACHE_KEY);
+
+    tmp.dir.access(
+        STD.testing.io,
+        CACHE_PATH,
+        .{},
+    ) catch |err| switch (err) {
+        error.FileNotFound => return error.CacheFileMissing,
+        else => return err,
+    };
+}
+
+test "loadArtifact serves a warm cache even when the source vanishes" {
+    var arena = STD.heap.ArenaAllocator.init(STD.testing.allocator);
+    defer arena.deinit();
+    const ALLOCATOR = arena.allocator();
+
+    var stdin_reader = STD.Io.Reader.fixed(&.{});
+    var stdout_writer = STD.Io.Writer.Allocating.init(STD.testing.allocator);
+    var stderr_writer = STD.Io.Writer.Allocating.init(STD.testing.allocator);
+    const COMMAND_CONTEXT = testContext(&stdin_reader, &stdout_writer.writer, &stderr_writer.writer);
+
+    var tmp = STD.testing.tmpDir(.{});
+    defer tmp.cleanup();
+
+    const FILE_NAME = "creative.gif";
+    try tmp.dir.writeFile(
+        STD.testing.io,
+        .{ .sub_path = FILE_NAME, .data = "warm-cache-image-bytes" },
+    );
+
+    const COLD = try loadArtifact(ALLOCATOR, COMMAND_CONTEXT, tmp.dir, FILE_NAME);
+    try STD.testing.expectEqualStrings("warm-cache-image-bytes", COLD.bytes);
+
+    tmp.dir.deleteFile(
+        STD.testing.io,
+        FILE_NAME,
+    ) catch |err| switch (err) {
+        error.FileNotFound => {},
+        else => return err,
+    };
+
+    const WARM = try loadArtifact(ALLOCATOR, COMMAND_CONTEXT, tmp.dir, FILE_NAME);
+
+    try STD.testing.expectEqualStrings("warm-cache-image-bytes", WARM.bytes);
+}
+
+test "loadArtifacts collects failures and flags the result invalid" {
+    var arena = STD.heap.ArenaAllocator.init(STD.testing.allocator);
+    defer arena.deinit();
+    const ALLOCATOR = arena.allocator();
+
+    var stdin_reader = STD.Io.Reader.fixed(&.{});
+    var stdout_writer = STD.Io.Writer.Allocating.init(STD.testing.allocator);
+    defer stdout_writer.deinit();
+    var stderr_writer = STD.Io.Writer.Allocating.init(STD.testing.allocator);
+    defer stderr_writer.deinit();
+    const COMMAND_CONTEXT = testContext(&stdin_reader, &stdout_writer.writer, &stderr_writer.writer);
+
+    var tmp = STD.testing.tmpDir(.{});
+    defer tmp.cleanup();
+
+    const FILE_NAME = "creative.webp";
+    try tmp.dir.writeFile(
+        STD.testing.io,
+        .{ .sub_path = FILE_NAME, .data = "present-bytes" },
+    );
+
+    const RESULT = loadArtifacts(ALLOCATOR, COMMAND_CONTEXT, tmp.dir, &.{
+        FILE_NAME,
+        "missing-creative.gif",
+    });
+
+    try STD.testing.expectEqual(@as(usize, 1), RESULT.artifacts.len);
+    try STD.testing.expectEqualStrings("present-bytes", RESULT.artifacts[0].bytes);
+    try STD.testing.expectEqual(@as(usize, 1), RESULT.failed.len);
+    try STD.testing.expectEqualStrings("missing-creative.gif", RESULT.failed[0]);
+    try STD.testing.expect(RESULT.invalid);
 }
 
 fn serveHttp(

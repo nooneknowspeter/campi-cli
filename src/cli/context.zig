@@ -29,6 +29,8 @@ pub const Message = struct {
     pub const IMPORT_USAGE = "campi-cli import <platform> <campaign> <external-id>";
     pub const IMPORT_UNKNOWN_PLATFORM = "unknown platform: ";
     pub const IMPORT_ALREADY_IMPORTED = "campaign is already imported on this platform: ";
+    pub const ARTIFACT_COULD_NOT_BE_LOADED = "could not load artifact: ";
+    pub const ARTIFACT_CACHE_COULD_NOT_BE_WRITTEN = "could not write artifact cache: ";
 };
 
 pub const CommandContext = struct {

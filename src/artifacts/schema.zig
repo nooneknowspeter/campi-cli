@@ -11,6 +11,6 @@ pub const DownloadedArtifact = struct {
 
 pub const ARTIFACT_RESULT = struct {
     artifacts: []DownloadedArtifact,
-    failed: []const u8,
+    failed: []const []const u8,
     invalid: bool,
 };
