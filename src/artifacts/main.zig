@@ -1,5 +1,6 @@
 const STD = @import("std");
 
+const CONTEXT = @import("../cli/context.zig");
 const MANIFEST = @import("../manifest/main.zig");
 
 pub const SCHEMA = @import("schema.zig");
@@ -102,6 +103,72 @@ pub fn cacheKey(allocator: STD.mem.Allocator, source: []const u8) ![]const u8 {
     return STD.fmt.allocPrint(allocator, "{x}", .{SUM});
 }
 
+fn sourcePath(source: []const u8) []const u8 {
+    if (STD.mem.startsWith(u8, source, "file://"))
+        return source["file://".len..];
+
+    return source;
+}
+
+fn readLocalSource(
+    allocator: STD.mem.Allocator,
+    context: CONTEXT.CommandContext,
+    work_dir: STD.Io.Dir,
+    local_path: []const u8,
+) ![]const u8 {
+    if (STD.Io.Dir.path.isAbsolute(local_path)) {
+        var file = try STD.Io.Dir.openFileAbsolute(context.io, local_path, .{});
+        defer file.close(context.io);
+
+        var reader = file.reader(context.io, &.{});
+
+        return reader.interface.allocRemaining(allocator, .unlimited);
+    }
+
+    return work_dir.readFileAllocOptions(
+        context.io,
+        local_path,
+        allocator,
+        .unlimited,
+        .of(u8),
+        0,
+    );
+}
+
+fn downloadSource(
+    allocator: STD.mem.Allocator,
+    context: CONTEXT.CommandContext,
+    url: []const u8,
+) ![]const u8 {
+    var client = STD.http.Client{ .allocator = allocator, .io = context.io };
+    defer client.deinit();
+
+    var writer = STD.Io.Writer.Allocating.init(allocator);
+    defer writer.deinit();
+
+    const RESULT = try client.fetch(.{
+        .location = .{ .url = url },
+        .response_writer = &writer.writer,
+    });
+
+    if (RESULT.status.class() != .success)
+        return error.ArtifactDownloadFailed;
+
+    return try writer.toOwnedSlice();
+}
+
+fn resolveSource(
+    allocator: STD.mem.Allocator,
+    context: CONTEXT.CommandContext,
+    work_dir: STD.Io.Dir,
+    source: []const u8,
+) ![]const u8 {
+    switch (resolveKind(source)) {
+        .remote => return downloadSource(allocator, context, source),
+        .local => return readLocalSource(allocator, context, work_dir, sourcePath(source)),
+    }
+}
+
 test "collectCreativeSources gathers creative media urls across manifests and dedupes" {
     var arena = STD.heap.ArenaAllocator.init(STD.testing.allocator);
     defer arena.deinit();
@@ -166,6 +233,153 @@ test "cacheKey is deterministic and distinct per source" {
 
     try STD.testing.expectEqualStrings(KEY_ONE, KEY_ONE_AGAIN);
     try STD.testing.expect(STD.mem.eql(u8, KEY_ONE, KEY_TWO) == false);
+}
+
+test "resolveSource downloads a remote creative over loopback http" {
+    var arena = STD.heap.ArenaAllocator.init(STD.testing.allocator);
+    defer arena.deinit();
+    const ALLOCATOR = arena.allocator();
+
+    var stdin_reader = STD.Io.Reader.fixed(&.{});
+    var stdout_writer = STD.Io.Writer.Allocating.init(STD.testing.allocator);
+    var stderr_writer = STD.Io.Writer.Allocating.init(STD.testing.allocator);
+    const COMMAND_CONTEXT = testContext(&stdin_reader, &stdout_writer.writer, &stderr_writer.writer);
+
+    const BODY = "fake-image-bytes";
+
+    var address = STD.Io.net.IpAddress{ .ip4 = STD.Io.net.Ip4Address.loopback(0) };
+    var server = address.listen(STD.testing.io, .{}) catch |err| switch (err) {
+        error.NetworkDown => return error.SkipZigTest,
+        else => return err,
+    };
+    defer server.deinit(STD.testing.io);
+
+    const PORT = server.socket.address.ip4.port;
+
+    const SERVER_THREAD = STD.Thread.spawn(.{}, serveHttp, .{ &server, BODY, STD.http.Status.ok }) catch
+        return error.SkipZigTest;
+    defer SERVER_THREAD.join();
+
+    const URL = try STD.fmt.allocPrint(ALLOCATOR, "http://127.0.0.1:{d}/creative.png", .{PORT});
+
+    const BYTES = try resolveSource(ALLOCATOR, COMMAND_CONTEXT, STD.Io.Dir.cwd(), URL);
+
+    try STD.testing.expectEqualStrings(BODY, BYTES);
+}
+
+test "resolveSource fails when the remote responds not found" {
+    var arena = STD.heap.ArenaAllocator.init(STD.testing.allocator);
+    defer arena.deinit();
+    const ALLOCATOR = arena.allocator();
+
+    var stdin_reader = STD.Io.Reader.fixed(&.{});
+    var stdout_writer = STD.Io.Writer.Allocating.init(STD.testing.allocator);
+    var stderr_writer = STD.Io.Writer.Allocating.init(STD.testing.allocator);
+    const COMMAND_CONTEXT = testContext(&stdin_reader, &stdout_writer.writer, &stderr_writer.writer);
+
+    var address = STD.Io.net.IpAddress{ .ip4 = STD.Io.net.Ip4Address.loopback(0) };
+    var server = address.listen(STD.testing.io, .{}) catch |err| switch (err) {
+        error.NetworkDown => return error.SkipZigTest,
+        else => return err,
+    };
+    defer server.deinit(STD.testing.io);
+
+    const PORT = server.socket.address.ip4.port;
+
+    const SERVER_THREAD = STD.Thread.spawn(.{}, serveHttp, .{ &server, "", STD.http.Status.not_found }) catch
+        return error.SkipZigTest;
+    defer SERVER_THREAD.join();
+
+    const URL = try STD.fmt.allocPrint(ALLOCATOR, "http://127.0.0.1:{d}/missing.png", .{PORT});
+
+    try STD.testing.expectError(error.ArtifactDownloadFailed, resolveSource(
+        ALLOCATOR,
+        COMMAND_CONTEXT,
+        STD.Io.Dir.cwd(),
+        URL,
+    ));
+}
+
+test "resolveSource reads a local creative from a temp directory" {
+    var arena = STD.heap.ArenaAllocator.init(STD.testing.allocator);
+    defer arena.deinit();
+    const ALLOCATOR = arena.allocator();
+
+    var stdin_reader = STD.Io.Reader.fixed(&.{});
+    var stdout_writer = STD.Io.Writer.Allocating.init(STD.testing.allocator);
+    var stderr_writer = STD.Io.Writer.Allocating.init(STD.testing.allocator);
+    const COMMAND_CONTEXT = testContext(&stdin_reader, &stdout_writer.writer, &stderr_writer.writer);
+
+    var tmp = STD.testing.tmpDir(.{});
+    defer tmp.cleanup();
+
+    const FILE_NAME = "creative.png";
+    try tmp.dir.writeFile(
+        STD.testing.io,
+        .{ .sub_path = FILE_NAME, .data = "local-image-bytes" },
+    );
+
+    const BYTES = try resolveSource(ALLOCATOR, COMMAND_CONTEXT, tmp.dir, FILE_NAME);
+
+    try STD.testing.expectEqualStrings("local-image-bytes", BYTES);
+}
+
+test "resolveSource strips a file scheme prefix from a local source" {
+    var arena = STD.heap.ArenaAllocator.init(STD.testing.allocator);
+    defer arena.deinit();
+    const ALLOCATOR = arena.allocator();
+
+    var stdin_reader = STD.Io.Reader.fixed(&.{});
+    var stdout_writer = STD.Io.Writer.Allocating.init(STD.testing.allocator);
+    var stderr_writer = STD.Io.Writer.Allocating.init(STD.testing.allocator);
+    const COMMAND_CONTEXT = testContext(&stdin_reader, &stdout_writer.writer, &stderr_writer.writer);
+
+    var tmp = STD.testing.tmpDir(.{});
+    defer tmp.cleanup();
+
+    const FILE_NAME = "creative.jpg";
+    try tmp.dir.writeFile(
+        STD.testing.io,
+        .{ .sub_path = FILE_NAME, .data = "schemed-image-bytes" },
+    );
+
+    const SOURCE = try STD.fmt.allocPrint(ALLOCATOR, "file://{s}", .{FILE_NAME});
+
+    const BYTES = try resolveSource(ALLOCATOR, COMMAND_CONTEXT, tmp.dir, SOURCE);
+
+    try STD.testing.expectEqualStrings("schemed-image-bytes", BYTES);
+}
+
+fn serveHttp(
+    server: *STD.Io.net.Server,
+    body: []const u8,
+    status: STD.http.Status,
+) void {
+    const STREAM = server.accept(STD.testing.io) catch return;
+    defer STREAM.close(STD.testing.io);
+
+    var input_buffer: [1024]u8 = undefined;
+    var output_buffer: [1024]u8 = undefined;
+    var reader = STREAM.reader(STD.testing.io, &input_buffer);
+    var writer = STREAM.writer(STD.testing.io, &output_buffer);
+
+    var http_server = STD.http.Server.init(&reader.interface, &writer.interface);
+    var REQUEST = http_server.receiveHead() catch return;
+
+    REQUEST.respond(body, .{ .status = status }) catch return;
+}
+
+fn testContext(
+    stdin: *STD.Io.Reader,
+    stdout: *STD.Io.Writer,
+    stderr: *STD.Io.Writer,
+) CONTEXT.CommandContext {
+    return .{
+        .stdin = stdin,
+        .stdout = stdout,
+        .stderr = stderr,
+        .io = STD.testing.io,
+    };
 }
 
 fn testManifest(allocator: STD.mem.Allocator, media_urls: []const []const u8) MANIFEST.SCHEMA.MANIFEST {
