@@ -1,7 +1,7 @@
 const STD = @import("std");
 
-const CONTEXT = @import("../context.zig");
-const PARSER = @import("../parser.zig");
+const CONTEXT = @import("../../context.zig");
+const PARSER = @import("../../parser.zig");
 
 pub const FLAGS = [_]PARSER.FlagDefinition{
     .{

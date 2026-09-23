@@ -7,18 +7,18 @@ const APPLY_CMD = @import("commands/apply.zig");
 const CONFIG_CMD = @import("commands/config.zig");
 const FMT_CMD = @import("commands/fmt.zig");
 pub const HELP = @import("commands/help.zig");
-const GOOGLE_CMD = @import("commands/google.zig");
+const GOOGLE_CMD = @import("commands/platforms/google.zig");
 const IMPORT_CMD = @import("commands/import.zig");
 const INIT_CMD = @import("commands/init.zig");
-const LINKEDIN_CMD = @import("commands/linkedin.zig");
-const META_CMD = @import("commands/meta.zig");
+const LINKEDIN_CMD = @import("commands/platforms/linkedin.zig");
+const META_CMD = @import("commands/platforms/meta.zig");
 const PLAN_CMD = @import("commands/plan.zig");
-const REDDIT_CMD = @import("commands/reddit.zig");
+const REDDIT_CMD = @import("commands/platforms/reddit.zig");
 const STATE_CMD = @import("commands/state.zig");
-const TIKTOK_CMD = @import("commands/tiktok.zig");
+const TIKTOK_CMD = @import("commands/platforms/tiktok.zig");
 const VALIDATE_CMD = @import("commands/validate.zig");
 const VERSION_CMD = @import("commands/version.zig");
-const X_CMD = @import("commands/x.zig");
+const X_CMD = @import("commands/platforms/x.zig");
 
 pub const CommandHandler = *const fn (
     allocator: STD.mem.Allocator,

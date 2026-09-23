@@ -1,8 +1,8 @@
 const STD = @import("std");
 
-const CONTEXT = @import("../context.zig");
-const PARSER = @import("../parser.zig");
-const TIKTOK_SDK = @import("../../platforms/tiktok/main.zig");
+const CONTEXT = @import("../../context.zig");
+const PARSER = @import("../../parser.zig");
+const META_SDK = @import("../../../platforms/meta/main.zig");
 
 pub const FLAGS = [_]PARSER.FlagDefinition{
     .{
@@ -30,10 +30,10 @@ pub fn run(
         return CONTEXT.ExitCode.RUNTIME_FAILURE;
     };
 
-    if (!TIKTOK_SDK.hasAccessToken(ENVIRON)) {
+    if (!META_SDK.hasAccessToken(ENVIRON)) {
         context.stderr.print(
             "could not find the {s} environment variable\n",
-            .{TIKTOK_SDK.ACCESS_TOKEN_ENV},
+            .{META_SDK.ACCESS_TOKEN_ENV},
         ) catch return CONTEXT.ExitCode.RUNTIME_FAILURE;
 
         return CONTEXT.ExitCode.RUNTIME_FAILURE;
