@@ -27,4 +27,6 @@ pub fn main(init: STD.process.Init) u8 {
 test {
     _ = @import("cli/main.zig");
     _ = ARTIFACTS;
+    _ = @import("platforms/meta/main.zig");
+    _ = @import("platforms/meta/payload.zig");
 }
