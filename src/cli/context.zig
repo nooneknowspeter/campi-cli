@@ -31,6 +31,7 @@ pub const Message = struct {
     pub const IMPORT_ALREADY_IMPORTED = "campaign is already imported on this platform: ";
     pub const ARTIFACT_COULD_NOT_BE_LOADED = "could not load artifact: ";
     pub const ARTIFACT_CACHE_COULD_NOT_BE_WRITTEN = "could not write artifact cache: ";
+    pub const META_COULD_NOT_BE_WRITTEN = "could not write campaigns to meta: ";
 };
 
 pub const CommandContext = struct {

@@ -149,11 +149,11 @@ fn targetingObject(allocator: STD.mem.Allocator, target: ?MANIFEST.TARGET) !STD.
     if (VALUE.locations) |locations| {
         var geo_locations = STD.json.Value{ .object = .empty };
 
-        var countries = STD.json.Value{ .array = .empty };
+        var countries = STD.json.Value{ .array = STD.json.Array.init(allocator) };
         for (locations.include) |location| {
             var entry = STD.json.Value{ .object = .empty };
             try entry.object.put(allocator, "country", .{ .string = location.country });
-            try countries.array.append(allocator, entry);
+            try countries.array.append(entry);
         }
         try geo_locations.object.put(allocator, "countries", countries);
 
@@ -167,14 +167,14 @@ fn targetingObject(allocator: STD.mem.Allocator, target: ?MANIFEST.TARGET) !STD.
         try json_payload.object.put(allocator, "age_max", .{ .integer = age_max });
 
     if (VALUE.genders) |genders| {
-        var codes = STD.json.Value{ .array = .empty };
+        var codes = STD.json.Value{ .array = STD.json.Array.init(allocator) };
         for (genders) |gender| {
             const CODE: i64 = switch (gender) {
                 .MALE => 1,
                 .FEMALE => 2,
                 .OTHER => 2,
             };
-            try codes.array.append(allocator, .{ .integer = CODE });
+            try codes.array.append(.{ .integer = CODE });
         }
         try json_payload.object.put(allocator, "genders", codes);
     }

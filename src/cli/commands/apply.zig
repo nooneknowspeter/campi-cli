@@ -1,10 +1,13 @@
 const STD = @import("std");
 
+const ARTIFACTS = @import("../../artifacts/main.zig");
 const CONFIG = @import("../../config/main.zig");
 const CONTEXT = @import("../context.zig");
 const FS = @import("../../fs/main.zig");
 const MANIFEST = @import("../../manifest/main.zig");
+const META = @import("../../platforms/meta/main.zig");
 const PARSER = @import("../parser.zig");
+const PAYLOAD = @import("../../platforms/meta/payload.zig");
 const PLAN = @import("../../plan/main.zig");
 const PLATFORMS = @import("../../platforms/main.zig");
 const STATE_MODULE = @import("../../state/main.zig");
@@ -114,6 +117,137 @@ fn buildNewState(
             .linkedin = try linkedin.toOwnedSlice(allocator),
         },
     };
+}
+
+fn hasPlatformOperations(operations: []const PLAN.SCHEMA.OPERATION, platform: []const u8) bool {
+    for (operations) |operation| {
+        if (STD.mem.eql(u8, operation.platform, platform))
+            return true;
+    }
+
+    return false;
+}
+
+fn findCampaign(
+    loaded_manifests: []const MANIFEST.LoadedManifest,
+    operation: PLAN.SCHEMA.OPERATION,
+) ?MANIFEST.SCHEMA.CAMPAIGN {
+    for (loaded_manifests) |loaded_manifest| {
+        if (!STD.mem.eql(u8, loaded_manifest.file_path, operation.input_manifest orelse ""))
+            continue;
+
+        for (loaded_manifest.value.campaigns) |campaign| {
+            if (STD.mem.eql(u8, campaign.name, operation.campaign))
+                return campaign;
+        }
+    }
+
+    return null;
+}
+
+fn imageHashFor(
+    client: *const META.Client,
+    ad_account_id: []const u8,
+    media_urls: []const []const u8,
+    artifacts: []const ARTIFACTS.SCHEMA.DownloadedArtifact,
+) ![]const u8 {
+    const SOURCE = media_urls[0];
+
+    for (artifacts) |artifact| {
+        if (STD.mem.eql(u8, artifact.source, SOURCE))
+            return client.uploadImage(ad_account_id, SOURCE, artifact.content_type, artifact.bytes);
+    }
+
+    return error.MetaCreativeMissing;
+}
+
+fn writeMetaOperations(
+    allocator: STD.mem.Allocator,
+    context: CONTEXT.CommandContext,
+    work_dir: STD.Io.Dir,
+    loaded_manifests: []const MANIFEST.LoadedManifest,
+    operations: []PLAN.SCHEMA.OPERATION,
+) !void {
+    const ENVIRON = context.environ orelse return error.MetaEnvironmentMissing;
+
+    if (!META.hasAccessToken(ENVIRON)) return error.MetaTokenMissing;
+    if (!META.hasAdAccount(ENVIRON)) return error.MetaAdAccountMissing;
+    if (!META.hasPageId(ENVIRON)) return error.MetaPageIdMissing;
+
+    const TOKEN = META.accessToken(ENVIRON).?;
+    const AD_ACCOUNT = META.adAccountId(ENVIRON).?;
+    const PAGE = META.pageId(ENVIRON).?;
+
+    const CLIENT = META.Client.init(allocator, context.io, META.graphApiUrl(ENVIRON), TOKEN);
+
+    _ = try CLIENT.fetchAccountName(AD_ACCOUNT);
+    _ = try CLIENT.fetchPageName(PAGE);
+
+    const SOURCES = try ARTIFACTS.collectCreativeSources(allocator, loaded_manifests);
+    const LOADED_ARTIFACTS = ARTIFACTS.loadArtifacts(allocator, context, work_dir, SOURCES);
+
+    if (LOADED_ARTIFACTS.invalid)
+        return error.ArtifactCouldNotBeLoaded;
+
+    for (operations) |*operation| {
+        if (!STD.mem.eql(u8, operation.platform, "meta"))
+            continue;
+
+        switch (operation.operation_type) {
+            .create, .update => {
+                const CAMPAIGN = findCampaign(loaded_manifests, operation.*) orelse
+                    return error.MetaCampaignNotFound;
+
+                if (operation.operation_type == .update) {
+                    if (operation.external_id) |old_id| {
+                        STD.log.scoped(.apply).debug("archiving meta campaign {s}", .{old_id});
+                        try CLIENT.archiveCampaign(old_id);
+                    }
+                }
+
+                const NEW_ID = try CLIENT.createCampaign(
+                    AD_ACCOUNT,
+                    try PAYLOAD.campaignPayload(allocator, CAMPAIGN),
+                );
+
+                STD.log.scoped(.apply).debug("created meta campaign {s}", .{NEW_ID});
+
+                for (CAMPAIGN.ad_groups) |ad_group| {
+                    const AD_SET_ID = try CLIENT.createAdSet(
+                        AD_ACCOUNT,
+                        try PAYLOAD.adSetPayload(allocator, ad_group, NEW_ID),
+                    );
+
+                    for (ad_group.ads) |ad| {
+                        const IMAGE_HASH = try imageHashFor(
+                            &CLIENT,
+                            AD_ACCOUNT,
+                            ad.CREATIVE.media_urls,
+                            LOADED_ARTIFACTS.artifacts,
+                        );
+
+                        const CREATIVE_ID = try CLIENT.createAdCreative(
+                            AD_ACCOUNT,
+                            try PAYLOAD.creativePayload(allocator, PAGE, ad, IMAGE_HASH),
+                        );
+
+                        _ = try CLIENT.createAd(
+                            AD_ACCOUNT,
+                            try PAYLOAD.adPayload(allocator, ad, AD_SET_ID, CREATIVE_ID),
+                        );
+                    }
+                }
+
+                operation.external_id = NEW_ID;
+            },
+            .archive => {
+                if (operation.external_id) |old_id| {
+                    STD.log.scoped(.apply).debug("archiving meta campaign {s}", .{old_id});
+                    try CLIENT.archiveCampaign(old_id);
+                }
+            },
+        }
+    }
 }
 
 fn printOperations(context: CONTEXT.CommandContext, operations: []const PLAN.SCHEMA.OPERATION, verb: []const u8) CONTEXT.ExitCode {
@@ -264,6 +398,24 @@ pub fn run(
         .held, .failed => return CONTEXT.ExitCode.RUNTIME_FAILURE,
     };
     defer lock_file.close(context.io);
+
+    if (hasPlatformOperations(filtered.items, "meta")) {
+        writeMetaOperations(
+            allocator,
+            context,
+            WORK_DIR,
+            LOADED.manifests,
+            filtered.items,
+        ) catch |err| {
+            context.stderr.print(
+                \\{s}{any}
+                \\
+            , .{ CONTEXT.Message.META_COULD_NOT_BE_WRITTEN, err }) catch
+                return CONTEXT.ExitCode.RUNTIME_FAILURE;
+
+            return CONTEXT.ExitCode.RUNTIME_FAILURE;
+        };
+    }
 
     const NEW_STATE = buildNewState(
         allocator,

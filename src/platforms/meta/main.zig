@@ -279,5 +279,5 @@ fn multipartBody(
     try body.writer.writeAll(bytes);
     try body.writer.print("\r\n--{s}--\r\n", .{BOUNDARY});
 
-    return .{ .boundary = BOUNDARY, .body = body.toOwnedSlice() };
+    return .{ .boundary = BOUNDARY, .body = try body.toOwnedSlice() };
 }
