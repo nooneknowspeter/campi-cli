@@ -1,6 +1,7 @@
 const STD = @import("std");
 
 const CONTEXT = @import("../../context.zig");
+const ENV = @import("../../env.zig");
 const PARSER = @import("../../parser.zig");
 const TIKTOK_SDK = @import("../../../platforms/tiktok/main.zig");
 
@@ -30,10 +31,10 @@ pub fn run(
         return CONTEXT.ExitCode.RUNTIME_FAILURE;
     };
 
-    if (!TIKTOK_SDK.hasAccessToken(ENVIRON)) {
+    if (ENV.findMissingEnvVar(ENVIRON, &TIKTOK_SDK.ENV)) |missing| {
         context.stderr.print(
             "could not find the {s} environment variable\n",
-            .{TIKTOK_SDK.ACCESS_TOKEN_ENV},
+            .{missing.env_var},
         ) catch return CONTEXT.ExitCode.RUNTIME_FAILURE;
 
         return CONTEXT.ExitCode.RUNTIME_FAILURE;

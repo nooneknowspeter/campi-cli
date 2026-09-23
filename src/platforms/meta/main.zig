@@ -2,40 +2,16 @@ const STD = @import("std");
 
 pub const SCHEMA = @import("schema.zig");
 
-pub const ACCESS_TOKEN_ENV = "CAMPI_META_TOKEN";
-pub const AD_ACCOUNT_ENV = "CAMPI_META_AD_ACCOUNT";
-pub const PAGE_ID_ENV = "CAMPI_META_PAGE_ID";
-pub const GRAPH_API_URL_ENV = "CAMPI_META_GRAPH_API_URL";
+const ENV_MODULE = @import("../../cli/env.zig");
 
 pub const DEFAULT_GRAPH_API_URL = "https://graph.facebook.com";
 
-pub fn hasAccessToken(environ: STD.process.Environ) bool {
-    return STD.process.Environ.containsUnemptyConstant(environ, ACCESS_TOKEN_ENV);
-}
-
-pub fn hasAdAccount(environ: STD.process.Environ) bool {
-    return STD.process.Environ.containsUnemptyConstant(environ, AD_ACCOUNT_ENV);
-}
-
-pub fn hasPageId(environ: STD.process.Environ) bool {
-    return STD.process.Environ.containsUnemptyConstant(environ, PAGE_ID_ENV);
-}
-
-pub fn accessToken(environ: STD.process.Environ) ?[]const u8 {
-    return STD.process.Environ.getPosix(environ, ACCESS_TOKEN_ENV);
-}
-
-pub fn adAccountId(environ: STD.process.Environ) ?[]const u8 {
-    return STD.process.Environ.getPosix(environ, AD_ACCOUNT_ENV);
-}
-
-pub fn pageId(environ: STD.process.Environ) ?[]const u8 {
-    return STD.process.Environ.getPosix(environ, PAGE_ID_ENV);
-}
-
-pub fn graphApiUrl(environ: STD.process.Environ) []const u8 {
-    return STD.process.Environ.getPosix(environ, GRAPH_API_URL_ENV) orelse DEFAULT_GRAPH_API_URL;
-}
+pub const ENV = [_]ENV_MODULE.Field{
+    .{ .key = "token", .env_var = "CAMPI_META_TOKEN" },
+    .{ .key = "ad_account_id", .env_var = "CAMPI_META_AD_ACCOUNT" },
+    .{ .key = "page_id", .env_var = "CAMPI_META_PAGE_ID" },
+    .{ .key = "graph_api_url", .env_var = "CAMPI_META_GRAPH_API_URL", .default = DEFAULT_GRAPH_API_URL },
+};
 
 const MultipartBody = struct {
     boundary: []const u8,

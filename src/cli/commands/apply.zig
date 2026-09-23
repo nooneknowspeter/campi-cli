@@ -3,6 +3,7 @@ const STD = @import("std");
 const ARTIFACTS = @import("../../artifacts/main.zig");
 const CONFIG = @import("../../config/main.zig");
 const CONTEXT = @import("../context.zig");
+const ENV = @import("../env.zig");
 const FS = @import("../../fs/main.zig");
 const MANIFEST = @import("../../manifest/main.zig");
 const META = @import("../../platforms/meta/main.zig");
@@ -170,15 +171,24 @@ fn writeMetaOperations(
 ) !void {
     const ENVIRON = context.environ orelse return error.MetaEnvironmentMissing;
 
-    if (!META.hasAccessToken(ENVIRON)) return error.MetaTokenMissing;
-    if (!META.hasAdAccount(ENVIRON)) return error.MetaAdAccountMissing;
-    if (!META.hasPageId(ENVIRON)) return error.MetaPageIdMissing;
+    if (ENV.findMissingEnvVar(ENVIRON, &META.ENV)) |missing| {
+        context.stderr.print(
+            "could not find the {s} environment variable\n",
+            .{missing.env_var},
+        ) catch {};
 
-    const TOKEN = META.accessToken(ENVIRON).?;
-    const AD_ACCOUNT = META.adAccountId(ENVIRON).?;
-    const PAGE = META.pageId(ENVIRON).?;
+        return error.MetaEnvironmentMissing;
+    }
 
-    const CLIENT = META.Client.init(allocator, context.io, META.graphApiUrl(ENVIRON), TOKEN);
+    const TOKEN = ENV.findEnvVarValue(ENVIRON, &META.ENV, "token").?;
+    const AD_ACCOUNT = ENV.findEnvVarValue(ENVIRON, &META.ENV, "ad_account_id").?;
+    const PAGE = ENV.findEnvVarValue(ENVIRON, &META.ENV, "page_id").?;
+    const CLIENT = META.Client.init(
+        allocator,
+        context.io,
+        ENV.findEnvVarValue(ENVIRON, &META.ENV, "graph_api_url").?,
+        TOKEN,
+    );
 
     _ = try CLIENT.fetchAccountName(AD_ACCOUNT);
     _ = try CLIENT.fetchPageName(PAGE);
@@ -407,6 +417,9 @@ pub fn run(
             LOADED.manifests,
             filtered.items,
         ) catch |err| {
+            if (err == error.MetaEnvironmentMissing)
+                return CONTEXT.ExitCode.RUNTIME_FAILURE;
+
             context.stderr.print(
                 \\{s}{any}
                 \\

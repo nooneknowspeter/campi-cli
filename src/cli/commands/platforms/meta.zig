@@ -1,6 +1,7 @@
 const STD = @import("std");
 
 const CONTEXT = @import("../../context.zig");
+const ENV = @import("../../env.zig");
 const PARSER = @import("../../parser.zig");
 const META_SDK = @import("../../../platforms/meta/main.zig");
 
@@ -30,10 +31,10 @@ pub fn run(
         return CONTEXT.ExitCode.RUNTIME_FAILURE;
     };
 
-    if (!META_SDK.hasAccessToken(ENVIRON)) {
+    if (ENV.findMissingEnvVar(ENVIRON, &META_SDK.ENV)) |missing| {
         context.stderr.print(
             "could not find the {s} environment variable\n",
-            .{META_SDK.ACCESS_TOKEN_ENV},
+            .{missing.env_var},
         ) catch return CONTEXT.ExitCode.RUNTIME_FAILURE;
 
         return CONTEXT.ExitCode.RUNTIME_FAILURE;
