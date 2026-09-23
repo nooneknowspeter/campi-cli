@@ -29,7 +29,7 @@ pub fn run(
         context.stderr.print(
             \\{s}
             \\
-        , .{CONTEXT.Message.NOT_IMPLEMENTED}) catch
+        , .{CONTEXT.Message.Generic.NOT_IMPLEMENTED}) catch
             return CONTEXT.ExitCode.RUNTIME_FAILURE;
 
         return CONTEXT.ExitCode.RUNTIME_FAILURE;
@@ -41,7 +41,7 @@ pub fn run(
         context.stderr.print(
             \\{s}
             \\
-        , .{CONTEXT.Message.COULD_NOT_DETERMINE_WORKING_DIRECTORY}) catch
+        , .{CONTEXT.Message.Generic.COULD_NOT_DETERMINE_WORKING_DIRECTORY}) catch
             return CONTEXT.ExitCode.RUNTIME_FAILURE;
 
         return CONTEXT.ExitCode.RUNTIME_FAILURE;
@@ -51,7 +51,7 @@ pub fn run(
         context.stderr.print(
             \\{s}{s}
             \\
-        , .{ CONTEXT.Message.WORKING_DIRECTORY_DOES_NOT_EXIST, DIR_PATH }) catch
+        , .{ CONTEXT.Message.Generic.WORKING_DIRECTORY_DOES_NOT_EXIST, DIR_PATH }) catch
             return CONTEXT.ExitCode.RUNTIME_FAILURE;
 
         return CONTEXT.ExitCode.RUNTIME_FAILURE;
@@ -66,7 +66,7 @@ pub fn run(
             context.stderr.print(
                 \\{s}{s}
                 \\
-            , .{ CONTEXT.Message.CONFIG_COULD_NOT_BE_WRITTEN, DIR_PATH }) catch
+            , .{ CONTEXT.Message.Generic.CONFIG_COULD_NOT_BE_WRITTEN, DIR_PATH }) catch
                 return CONTEXT.ExitCode.RUNTIME_FAILURE;
 
             return CONTEXT.ExitCode.RUNTIME_FAILURE;
@@ -88,7 +88,7 @@ pub fn run(
         context.stderr.print(
             \\{s}{s}
             \\
-        , .{ CONTEXT.Message.CONFIG_COULD_NOT_BE_LOADED, DIR_PATH }) catch
+        , .{ CONTEXT.Message.Generic.CONFIG_COULD_NOT_BE_LOADED, DIR_PATH }) catch
             return CONTEXT.ExitCode.RUNTIME_FAILURE;
 
         return CONTEXT.ExitCode.RUNTIME_FAILURE;

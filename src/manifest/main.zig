@@ -22,7 +22,7 @@ pub fn filePaths(context: CONTEXT.CommandContext, config: CONFIG.SCHEMA.CONFIG) 
             context.stderr.print(
                 \\{s}
                 \\
-            , .{CONTEXT.Message.NOT_IMPLEMENTED}) catch
+            , .{CONTEXT.Message.Generic.NOT_IMPLEMENTED}) catch
                 return null;
 
             return null;
@@ -32,7 +32,7 @@ pub fn filePaths(context: CONTEXT.CommandContext, config: CONFIG.SCHEMA.CONFIG) 
                 context.stderr.print(
                     \\{s}
                     \\
-                , .{CONTEXT.Message.NO_MANIFEST_FILES_CONFIGURED}) catch
+                , .{CONTEXT.Message.Generic.NO_MANIFEST_FILES_CONFIGURED}) catch
                     return null;
 
                 return null;
@@ -42,7 +42,7 @@ pub fn filePaths(context: CONTEXT.CommandContext, config: CONFIG.SCHEMA.CONFIG) 
                 context.stderr.print(
                     \\{s}
                     \\
-                , .{CONTEXT.Message.NO_MANIFEST_FILES_CONFIGURED}) catch
+                , .{CONTEXT.Message.Generic.NO_MANIFEST_FILES_CONFIGURED}) catch
                     return null;
 
                 return null;
@@ -76,7 +76,7 @@ pub fn loadAll(
                 \\
                 \\{any}
                 \\
-            , .{ CONTEXT.Message.INVALID_MANIFEST, manifest_file, err }) catch
+            , .{ CONTEXT.Message.Generic.INVALID_MANIFEST, manifest_file, err }) catch
                 return .{ .manifests = manifests.items, .invalid = true };
 
             invalid = true;
@@ -95,7 +95,7 @@ pub fn loadAll(
                 \\
                 \\{any}
                 \\
-            , .{ CONTEXT.Message.INVALID_MANIFEST, manifest_file, err }) catch
+            , .{ CONTEXT.Message.Generic.INVALID_MANIFEST, manifest_file, err }) catch
                 return .{ .manifests = manifests.items, .invalid = true };
 
             invalid = true;
@@ -105,7 +105,7 @@ pub fn loadAll(
         context.stdout.print(
             \\{s}{s}
             \\
-        , .{ CONTEXT.Message.VALID_MANIFEST, manifest_file }) catch
+        , .{ CONTEXT.Message.Generic.VALID_MANIFEST, manifest_file }) catch
             return .{ .manifests = manifests.items, .invalid = true };
 
         manifests.append(allocator, .{

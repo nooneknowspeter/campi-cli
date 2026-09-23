@@ -285,7 +285,7 @@ pub fn run(
         context.stderr.print(
             \\{s}
             \\
-        , .{CONTEXT.Message.COULD_NOT_DETERMINE_WORKING_DIRECTORY}) catch
+        , .{CONTEXT.Message.Generic.COULD_NOT_DETERMINE_WORKING_DIRECTORY}) catch
             return CONTEXT.ExitCode.RUNTIME_FAILURE;
 
         return CONTEXT.ExitCode.RUNTIME_FAILURE;
@@ -295,7 +295,7 @@ pub fn run(
         context.stderr.print(
             \\{s}{s}
             \\
-        , .{ CONTEXT.Message.WORKING_DIRECTORY_DOES_NOT_EXIST, DIR_PATH }) catch
+        , .{ CONTEXT.Message.Generic.WORKING_DIRECTORY_DOES_NOT_EXIST, DIR_PATH }) catch
             return CONTEXT.ExitCode.RUNTIME_FAILURE;
 
         return CONTEXT.ExitCode.RUNTIME_FAILURE;
@@ -306,7 +306,7 @@ pub fn run(
         context.stderr.print(
             \\{s}
             \\
-        , .{CONTEXT.Message.CONFIG_NOT_FOUND}) catch
+        , .{CONTEXT.Message.Generic.CONFIG_NOT_FOUND}) catch
             return CONTEXT.ExitCode.RUNTIME_FAILURE;
 
         return CONTEXT.ExitCode.RUNTIME_FAILURE;
@@ -341,7 +341,7 @@ pub fn run(
         context.stderr.print(
             \\{s}
             \\
-        , .{CONTEXT.Message.PLAN_NOT_COMPUTED}) catch
+        , .{CONTEXT.Message.Generic.PLAN_NOT_COMPUTED}) catch
             return CONTEXT.ExitCode.RUNTIME_FAILURE;
 
         return CONTEXT.ExitCode.RUNTIME_FAILURE;
@@ -373,7 +373,7 @@ pub fn run(
         context.stdout.print(
             \\{s}
             \\
-        , .{CONTEXT.Message.NO_CHANGES}) catch
+        , .{CONTEXT.Message.Generic.NO_CHANGES}) catch
             return CONTEXT.ExitCode.RUNTIME_FAILURE;
 
         return CONTEXT.ExitCode.SUCCESS;
@@ -410,7 +410,7 @@ pub fn run(
             context.stderr.print(
                 \\{s}{any}
                 \\
-            , .{ CONTEXT.Message.META_COULD_NOT_BE_WRITTEN, err }) catch
+            , .{ CONTEXT.Message.Platform.META_COULD_NOT_BE_WRITTEN, err }) catch
                 return CONTEXT.ExitCode.RUNTIME_FAILURE;
 
             return CONTEXT.ExitCode.RUNTIME_FAILURE;
@@ -428,7 +428,7 @@ pub fn run(
         context.stderr.print(
             \\{s}
             \\
-        , .{CONTEXT.Message.PLAN_NOT_COMPUTED}) catch
+        , .{CONTEXT.Message.Generic.PLAN_NOT_COMPUTED}) catch
             return CONTEXT.ExitCode.RUNTIME_FAILURE;
 
         return CONTEXT.ExitCode.RUNTIME_FAILURE;
@@ -440,7 +440,7 @@ pub fn run(
             \\
             \\{any}
             \\
-        , .{ CONTEXT.Message.STATE_COULD_NOT_BE_WRITTEN, STATE_FILE, err }) catch
+        , .{ CONTEXT.Message.Generic.STATE_COULD_NOT_BE_WRITTEN, STATE_FILE, err }) catch
             return CONTEXT.ExitCode.RUNTIME_FAILURE;
 
         return CONTEXT.ExitCode.RUNTIME_FAILURE;

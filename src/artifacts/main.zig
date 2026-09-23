@@ -210,7 +210,7 @@ fn writeCache(
             \\{s}{any}
             \\
         ,
-            .{ CONTEXT.Message.ARTIFACT_CACHE_COULD_NOT_BE_WRITTEN, err },
+            .{ CONTEXT.Message.Generic.ARTIFACT_CACHE_COULD_NOT_BE_WRITTEN, err },
         ) catch {};
 
         return;
@@ -224,7 +224,7 @@ fn writeCache(
             \\{s}{any}
             \\
         ,
-            .{ CONTEXT.Message.ARTIFACT_CACHE_COULD_NOT_BE_WRITTEN, err },
+            .{ CONTEXT.Message.Generic.ARTIFACT_CACHE_COULD_NOT_BE_WRITTEN, err },
         ) catch {};
     };
 }
@@ -279,7 +279,7 @@ pub fn loadArtifacts(
                 \\
                 \\{any}
                 \\
-            , .{ CONTEXT.Message.ARTIFACT_COULD_NOT_BE_LOADED, source, err }) catch
+            , .{ CONTEXT.Message.Generic.ARTIFACT_COULD_NOT_BE_LOADED, source, err }) catch
                 return .{ .artifacts = artifacts.items, .failed = failed.items, .invalid = true };
 
             failed.append(allocator, source) catch

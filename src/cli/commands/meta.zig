@@ -42,7 +42,7 @@ pub fn run(
     context.stderr.print(
         \\{s}
         \\
-    , .{CONTEXT.Message.NOT_IMPLEMENTED}) catch
+    , .{CONTEXT.Message.Generic.NOT_IMPLEMENTED}) catch
         return CONTEXT.ExitCode.RUNTIME_FAILURE;
 
     return CONTEXT.ExitCode.RUNTIME_FAILURE;

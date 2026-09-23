@@ -60,7 +60,7 @@ pub fn resolveStateLocation(
             context.stderr.print(
                 \\{s}{s}
                 \\
-            , .{ CONTEXT.Message.NOT_IMPLEMENTED, config.state_file_uri }) catch
+            , .{ CONTEXT.Message.Generic.NOT_IMPLEMENTED, config.state_file_uri }) catch
                 return null;
 
             return null;
@@ -90,7 +90,7 @@ pub fn load(
                     \\
                     \\{any}
                     \\
-                , .{ CONTEXT.Message.INVALID_STATE, file_name, unexpected }) catch
+                , .{ CONTEXT.Message.Generic.INVALID_STATE, file_name, unexpected }) catch
                     return .invalid;
 
                 return .invalid;
@@ -104,7 +104,7 @@ pub fn load(
             \\
             \\{any}
             \\
-        , .{ CONTEXT.Message.INVALID_STATE, file_name, err }) catch
+        , .{ CONTEXT.Message.Generic.INVALID_STATE, file_name, err }) catch
             return .invalid;
 
         return .invalid;
@@ -113,7 +113,7 @@ pub fn load(
     context.stdout.print(
         \\{s}{s}
         \\
-    , .{ CONTEXT.Message.VALID_STATE, file_name }) catch
+    , .{ CONTEXT.Message.Generic.VALID_STATE, file_name }) catch
         return .invalid;
 
     return .{
@@ -138,7 +138,7 @@ pub fn acquireLock(context: CONTEXT.CommandContext, work_dir: STD.Io.Dir) LockSt
                 context.stderr.print(
                     \\{s}{any}
                     \\
-                , .{ CONTEXT.Message.STATE_LOCK_FAILED, unexpected }) catch
+                , .{ CONTEXT.Message.Generic.STATE_LOCK_FAILED, unexpected }) catch
                     return .failed;
 
                 return .failed;
@@ -155,7 +155,7 @@ pub fn lockForWrite(context: CONTEXT.CommandContext, work_dir: STD.Io.Dir) LockR
         context.stderr.print(
             \\{s}{any}
             \\
-        , .{ CONTEXT.Message.STATE_LOCK_COULD_NOT_BE_TAKEN, err }) catch
+        , .{ CONTEXT.Message.Generic.STATE_LOCK_COULD_NOT_BE_TAKEN, err }) catch
             return .failed;
 
         return .failed;
@@ -167,7 +167,7 @@ pub fn lockForWrite(context: CONTEXT.CommandContext, work_dir: STD.Io.Dir) LockR
         context.stderr.print(
             \\{s}{any}
             \\
-        , .{ CONTEXT.Message.STATE_LOCK_COULD_NOT_BE_TAKEN, err }) catch
+        , .{ CONTEXT.Message.Generic.STATE_LOCK_COULD_NOT_BE_TAKEN, err }) catch
             return .failed;
 
         return .failed;
@@ -179,7 +179,7 @@ pub fn lockForWrite(context: CONTEXT.CommandContext, work_dir: STD.Io.Dir) LockR
         context.stderr.print(
             \\{s}
             \\
-        , .{CONTEXT.Message.STATE_LOCK_HELD}) catch
+        , .{CONTEXT.Message.Generic.STATE_LOCK_HELD}) catch
             return .failed;
 
         return .held;
