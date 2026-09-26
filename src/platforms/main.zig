@@ -16,3 +16,9 @@ pub fn index(name: []const u8) ?usize {
 
     return null;
 }
+
+test {
+    _ = @import("meta/tests/payload.zig");
+    _ = @import("meta/tests/schema.zig");
+    _ = @import("tiktok/tests/schema.zig");
+}

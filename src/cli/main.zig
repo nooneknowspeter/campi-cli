@@ -140,4 +140,5 @@ pub fn main(init: STD.process.Init) u8 {
 test {
     _ = @import("tests/parser.zig");
     _ = @import("tests/runner.zig");
+    _ = @import("tests/env.zig");
 }
