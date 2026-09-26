@@ -19,6 +19,7 @@ to persist changes.
   `import <PLATFORM> <CAMPAIGN> <EXTERNAL_ID>`; `-w / --write`
 - `platform` - fetch and format platform marketing API data;
   `platform <PLATFORM>`; the platform must be one of `meta`, `x`, `tiktok`,
-  `google`, `reddit`, `linkedin`
+  `google`, `reddit`, `linkedin`; the `meta` platform covers Facebook,
+  Instagram, Messenger and other Meta destinations through the Marketing API
 
 See `campi-cli help <COMMAND>` for the flags of a specific command.

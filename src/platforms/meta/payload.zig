@@ -92,9 +92,14 @@ pub fn adSetPayload(
     return STD.json.Stringify.valueAlloc(allocator, json_payload, .{});
 }
 
+pub const CREATIVE_DESTINATION = struct {
+    page_id: ?[]const u8 = null,
+    instagram_actor_id: ?[]const u8 = null,
+};
+
 pub fn creativePayload(
     allocator: STD.mem.Allocator,
-    page_id: []const u8,
+    destination: CREATIVE_DESTINATION,
     ad: MANIFEST.AD,
     image_hash: []const u8,
 ) ![]const u8 {
@@ -113,7 +118,10 @@ pub fn creativePayload(
 
     var spec = STD.json.Value{ .object = .empty };
     try spec.object.put(allocator, "type", .{ .string = "link" });
-    try spec.object.put(allocator, "page_id", .{ .string = page_id });
+    if (destination.page_id) |page_id|
+        try spec.object.put(allocator, "page_id", .{ .string = page_id });
+    if (destination.instagram_actor_id) |instagram_actor_id|
+        try spec.object.put(allocator, "instagram_actor_id", .{ .string = instagram_actor_id });
     try spec.object.put(allocator, "link_data", link_data);
 
     var json_payload = STD.json.Value{ .object = .empty };

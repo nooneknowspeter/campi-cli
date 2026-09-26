@@ -183,7 +183,8 @@ fn writeMetaOperations(
 
     const TOKEN = ENV.findEnvVarValue(ENVIRON, &META_ENV.ENV, "token").?;
     const AD_ACCOUNT = ENV.findEnvVarValue(ENVIRON, &META_ENV.ENV, "ad_account_id").?;
-    const PAGE = ENV.findEnvVarValue(ENVIRON, &META_ENV.ENV, "page_id").?;
+    const PAGE = ENV.findEnvVarValue(ENVIRON, &META_ENV.ENV, "page_id");
+    const INSTAGRAM_ACTOR = ENV.findEnvVarValue(ENVIRON, &META_ENV.ENV, "instagram_actor_id");
     const CLIENT = META.Client.init(
         allocator,
         context.io,
@@ -192,7 +193,10 @@ fn writeMetaOperations(
     );
 
     _ = try CLIENT.fetchAccountName(AD_ACCOUNT);
-    _ = try CLIENT.fetchPageName(PAGE);
+    if (PAGE) |page|
+        _ = try CLIENT.fetchPageName(page);
+    if (INSTAGRAM_ACTOR) |instagram_actor|
+        _ = try CLIENT.fetchPageName(instagram_actor);
 
     const SOURCES = try ARTIFACTS.collectCreativeSources(allocator, loaded_manifests);
     const LOADED_ARTIFACTS = ARTIFACTS.loadArtifacts(allocator, context, work_dir, SOURCES);
@@ -237,9 +241,24 @@ fn writeMetaOperations(
                             LOADED_ARTIFACTS.artifacts,
                         );
 
+                        var destination = PAYLOAD.CREATIVE_DESTINATION{};
+                        if (PAGE) |page|
+                            destination.page_id = page;
+                        if (INSTAGRAM_ACTOR) |instagram_actor|
+                            destination.instagram_actor_id = instagram_actor;
+
+                        if (destination.page_id == null and destination.instagram_actor_id == null) {
+                            context.stderr.print(
+                                "could not find the CAMPI_META_PAGE_ID or CAMPI_META_INSTAGRAM_ACTOR_ID environment variables; one is required to write ad creatives\n",
+                                .{},
+                            ) catch {};
+
+                            return error.MetaEnvironmentMissing;
+                        }
+
                         const CREATIVE_ID = try CLIENT.createAdCreative(
                             AD_ACCOUNT,
-                            try PAYLOAD.creativePayload(allocator, PAGE, ad, IMAGE_HASH),
+                            try PAYLOAD.creativePayload(allocator, destination, ad, IMAGE_HASH),
                         );
 
                         _ = try CLIENT.createAd(

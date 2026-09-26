@@ -3,22 +3,23 @@ const STD = @import("std");
 const ENV = @import("../env.zig");
 
 const TEST_FIELDS = [_]ENV.Field{
-    .{ .key = "token", .env_var = "CAMPI_META_TOKEN" },
+    .{ .key = "token", .env_var = "CAMPI_META_ACCESS_TOKEN" },
     .{ .key = "ad_account_id", .env_var = "CAMPI_META_AD_ACCOUNT" },
     .{ .key = "page_id", .env_var = "CAMPI_META_PAGE_ID", .required = false },
+    .{ .key = "instagram_actor_id", .env_var = "CAMPI_META_INSTAGRAM_ACTOR_ID", .required = false },
     .{ .key = "graph_api_url", .env_var = "CAMPI_META_GRAPH_API_URL", .default = "https://graph.facebook.com" },
 };
 
 const TOKEN_ONLY: STD.process.Environ = .{
     .block = .{
         .slice = &[1:null]?[*:0]const u8{
-            @as(?[*:0]const u8, "CAMPI_META_TOKEN=tok123"),
+            @as(?[*:0]const u8, "CAMPI_META_ACCESS_TOKEN=tok123"),
         },
     },
 };
 
 const TOKEN_AND_ACCOUNT: STD.process.Environ = .{ .block = .{ .slice = &[2:null]?[*:0]const u8{
-    @as(?[*:0]const u8, "CAMPI_META_TOKEN=tok123"),
+    @as(?[*:0]const u8, "CAMPI_META_ACCESS_TOKEN=tok123"),
     @as(?[*:0]const u8, "CAMPI_META_AD_ACCOUNT=act_456"),
 } } };
 
@@ -44,5 +45,12 @@ test "findEnvVarValue falls back to the declared default" {
     try STD.testing.expectEqualStrings(
         "https://graph.facebook.com",
         ENV.findEnvVarValue(TOKEN_ONLY, &TEST_FIELDS, "graph_api_url").?,
+    );
+}
+
+test "findEnvVarValue returns null for an absent optional field" {
+    try STD.testing.expectEqual(
+        @as(?[]const u8, null),
+        ENV.findEnvVarValue(TOKEN_AND_ACCOUNT, &TEST_FIELDS, "page_id"),
     );
 }

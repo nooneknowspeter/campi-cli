@@ -82,26 +82,35 @@ on `state.campi.lock` and appends the record; the platform must be one of
 `platform`
 : Fetch and format platform marketing API data;
 `campi-cli platform <PLATFORM>`. The platform must be one of `meta`, `x`,
-`tiktok`, `google`, `reddit`, `linkedin`. Data fetching is reported as
-not implemented yet.
+`tiktok`, `google`, `reddit`, `linkedin`; the `meta` platform covers
+Facebook, Instagram, Messenger and other Meta destinations through the
+Marketing API. Data fetching is reported as not implemented yet.
 
 # ENVIRONMENT
 
 Platform credentials are read from the environment:
 
-`CAMPI_META_TOKEN`
-: Meta (Facebook) marketing API access token.
+`CAMPI_META_ACCESS_TOKEN`
+: Meta (Facebook) user access token for the marketing API; long lived and
+granted the `ads_management` permission.
 
 `CAMPI_META_AD_ACCOUNT`
 : Meta ad account id, in the form `act_<id>`.
 
 `CAMPI_META_PAGE_ID`
-: Meta page id used to publish ad creatives.
+: Optional; Meta page id used to publish ad creatives to a Facebook page.
+One of this or `CAMPI_META_INSTAGRAM_ACTOR_ID` is required to write ad
+creatives.
+
+`CAMPI_META_INSTAGRAM_ACTOR_ID`
+: Optional; Instagram business account id used to publish ad creatives to
+Instagram; the account must be linked to the ad account in Business Manager.
+One of this or `CAMPI_META_PAGE_ID` is required to write ad creatives.
 
 `CAMPI_META_GRAPH_API_URL`
 : Meta Graph API base URL; defaults to `https://graph.facebook.com`.
 
-`CAMPI_TIKTOK_TOKEN`
+`CAMPI_TIKTOK_ACCESS_TOKEN`
 : TikTok marketing API access token.
 
 # EXIT CODES
