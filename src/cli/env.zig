@@ -45,9 +45,13 @@ const TEST_FIELDS = [_]Field{
     .{ .key = "graph_api_url", .env_var = "CAMPI_META_GRAPH_API_URL", .default = "https://graph.facebook.com" },
 };
 
-const TOKEN_ONLY: STD.process.Environ = .{ .block = .{ .slice = &[1:null]?[*:0]const u8{
-    @as(?[*:0]const u8, "CAMPI_META_TOKEN=tok123"),
-} } };
+const TOKEN_ONLY: STD.process.Environ = .{
+    .block = .{
+        .slice = &[1:null]?[*:0]const u8{
+            @as(?[*:0]const u8, "CAMPI_META_TOKEN=tok123"),
+        },
+    },
+};
 
 const TOKEN_AND_ACCOUNT: STD.process.Environ = .{ .block = .{ .slice = &[2:null]?[*:0]const u8{
     @as(?[*:0]const u8, "CAMPI_META_TOKEN=tok123"),
