@@ -79,6 +79,31 @@ dry run when changes would be applied, `0` otherwise.
 on `state.campi.lock` and appends the record; the platform must be one of
 `meta`, `x`, `tiktok`, `google`, `reddit`, `linkedin`.
 
+`platform`
+: Fetch and format platform marketing API data;
+`campi-cli platform <PLATFORM>`. The platform must be one of `meta`, `x`,
+`tiktok`, `google`, `reddit`, `linkedin`. Data fetching is reported as
+not implemented yet.
+
+# ENVIRONMENT
+
+Platform credentials are read from the environment:
+
+`CAMPI_META_TOKEN`
+: Meta (Facebook) marketing API access token.
+
+`CAMPI_META_AD_ACCOUNT`
+: Meta ad account id, in the form `act_<id>`.
+
+`CAMPI_META_PAGE_ID`
+: Meta page id used to publish ad creatives.
+
+`CAMPI_META_GRAPH_API_URL`
+: Meta Graph API base URL; defaults to `https://graph.facebook.com`.
+
+`CAMPI_TIKTOK_TOKEN`
+: TikTok marketing API access token.
+
 # EXIT CODES
 
 `0`

@@ -14,9 +14,11 @@ Print the main help, or the help of a specific command:
 
 ```sh
 campi-cli --help
-campi-cli help
-campi-cli help plan
-campi-cli plan --help
+ campi-cli help
+ campi-cli help plan
+ campi-cli plan --help
+ campi-cli help platform
+ campi-cli platform meta --help
 ```
 
 ## Shared options
@@ -41,6 +43,8 @@ campaigns stay reproducible.
 - `0` - success
 - `1` - runtime failure
 - `2` - usage failure
+- `3` - pending updates; `plan` / `apply` in dry run computed changes that
+  would be applied
 
 ## See also
 

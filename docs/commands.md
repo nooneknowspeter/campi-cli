@@ -1,7 +1,7 @@
 # Commands
 
-Every command runs in dry run mode by default; use `-w` / `--write` to persist
-changes.
+Commands that change files run in dry run mode by default; use `-w` / `--write`
+to persist changes.
 
 - `help` - print the tool and commands help text; `campi-cli help <COMMAND>`
 - `version` - print the tool version
@@ -17,5 +17,8 @@ changes.
 - `apply` - apply the plan and persist state; `-w / --write`, `--exclude <VALUE>`
 - `import` - import a hand-created campaign into state:
   `import <PLATFORM> <CAMPAIGN> <EXTERNAL_ID>`; `-w / --write`
+- `platform` - fetch and format platform marketing API data;
+  `platform <PLATFORM>`; the platform must be one of `meta`, `x`, `tiktok`,
+  `google`, `reddit`, `linkedin`
 
 See `campi-cli help <COMMAND>` for the flags of a specific command.

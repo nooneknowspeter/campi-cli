@@ -29,8 +29,10 @@ Root markdown files are rendered into the quarto website; see the `render` and
 
 ## Testing
 
-The test suites live next to the code they cover in `src/`. Run everything
-with:
+Tests live in per-area `tests/` directories under `src/`: `src/cli/tests/`,
+`src/artifacts/tests/` and `src/platforms/<PLATFORM>/tests/`. Each entrypoint
+module aggregates its own tests and `zig build test` runs everything from a
+single test root:
 
 ```sh
 zig build test
