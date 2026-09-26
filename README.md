@@ -47,11 +47,18 @@ zig build --prefix ~/.local
   - [x] init; scaffold a new project
   - [ ] fmt; format manifest files
   - [x] validate; validate the config and manifests
-  - [ ] state; read and compare the state and lock files
+  - [x] state; read and compare the state and lock files
   - [x] config; manage the config file
   - [x] plan; compute what would change
   - [x] apply; apply the changes
   - [x] import; import hand-created campaigns into state
+  - [ ] platform; fetch the platform marketing API data
+    - [x] meta
+    - [x] tiktok
+    - [ ] x
+    - [ ] google
+    - [ ] reddit
+    - [ ] linkedin
 - [ ] file handling
   - [ ] state reads and compares the state and lock files
   - [x] plan and apply read the campaign manifest
@@ -60,6 +67,12 @@ zig build --prefix ~/.local
   - [ ] cli
     - [x] parser
     - [x] runner
+    - [x] env
+  - [ ] platforms
+    - [x] meta; payload and schema
+    - [x] tiktok; schema
+  - [ ] artifacts
+    - [x] source resolution and caching
 
 ## Documentation
 
