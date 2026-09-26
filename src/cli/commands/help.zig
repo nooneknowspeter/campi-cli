@@ -17,6 +17,7 @@ pub const MAIN =
     \\ plan - fetch and show state data
     \\ apply - apply current manifests and configuration
     \\ import - import hand-created campaigns into state
+    \\ platform - fetch and format platform marketing API data
     \\
 ;
 
@@ -148,70 +149,18 @@ pub const IMPORT =
     \\
 ;
 
-pub const META =
-    \\ campi-cli meta [ARGS]
+pub const PLATFORM =
+    \\ campi-cli platform <NAME> [ARGS]
     \\
-    \\ Fetch and format Meta Marketing API SDK data
+    \\ Fetch and format platform marketing API data
     \\
-    \\ Args:
-    \\ -h / --help - Show this help output
-    \\ -v / --verbose - Show verbose output and debug logs
-    \\ -d <WORK_DIR> / --dir <WORK_DIR> - Run command in the specified working directory
-    \\
-;
-
-pub const TIKTOK =
-    \\ campi-cli tiktok [ARGS]
-    \\
-    \\ Fetch and format TikTok Marketing API SDK data
-    \\
-    \\ Args:
-    \\ -h / --help - Show this help output
-    \\ -v / --verbose - Show verbose output and debug logs
-    \\ -d <WORK_DIR> / --dir <WORK_DIR> - Run command in the specified working directory
-    \\
-;
-
-pub const X =
-    \\ campi-cli x [ARGS]
-    \\
-    \\ Fetch and format X Ads API data
-    \\
-    \\ Args:
-    \\ -h / --help - Show this help output
-    \\ -v / --verbose - Show verbose output and debug logs
-    \\ -d <WORK_DIR> / --dir <WORK_DIR> - Run command in the specified working directory
-    \\
-;
-
-pub const GOOGLE =
-    \\ campi-cli google [ARGS]
-    \\
-    \\ Fetch and format Google Ads API data
-    \\
-    \\ Args:
-    \\ -h / --help - Show this help output
-    \\ -v / --verbose - Show verbose output and debug logs
-    \\ -d <WORK_DIR> / --dir <WORK_DIR> - Run command in the specified working directory
-    \\
-;
-
-pub const REDDIT =
-    \\ campi-cli reddit [ARGS]
-    \\
-    \\ Fetch and format Reddit Ads API data
-    \\
-    \\ Args:
-    \\ -h / --help - Show this help output
-    \\ -v / --verbose - Show verbose output and debug logs
-    \\ -d <WORK_DIR> / --dir <WORK_DIR> - Run command in the specified working directory
-    \\
-;
-
-pub const LINKEDIN =
-    \\ campi-cli linkedin [ARGS]
-    \\
-    \\ Fetch and format LinkedIn Marketing API data
+    \\ Platforms:
+    \\ meta - Meta Marketing API
+    \\ tiktok - TikTok Marketing API
+    \\ x - X Ads API
+    \\ google - Google Ads API
+    \\ reddit - Reddit Ads API
+    \\ linkedin - LinkedIn Marketing API
     \\
     \\ Args:
     \\ -h / --help - Show this help output

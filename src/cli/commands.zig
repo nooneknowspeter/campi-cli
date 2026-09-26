@@ -7,18 +7,13 @@ const APPLY_CMD = @import("commands/apply.zig");
 const CONFIG_CMD = @import("commands/config.zig");
 const FMT_CMD = @import("commands/fmt.zig");
 pub const HELP = @import("commands/help.zig");
-const GOOGLE_CMD = @import("commands/platforms/google.zig");
 const IMPORT_CMD = @import("commands/import.zig");
 const INIT_CMD = @import("commands/init.zig");
-const LINKEDIN_CMD = @import("commands/platforms/linkedin.zig");
-const META_CMD = @import("commands/platforms/meta.zig");
 const PLAN_CMD = @import("commands/plan.zig");
-const REDDIT_CMD = @import("commands/platforms/reddit.zig");
+const PLATFORM_CMD = @import("commands/platform.zig");
 const STATE_CMD = @import("commands/state.zig");
-const TIKTOK_CMD = @import("commands/platforms/tiktok.zig");
 const VALIDATE_CMD = @import("commands/validate.zig");
 const VERSION_CMD = @import("commands/version.zig");
-const X_CMD = @import("commands/platforms/x.zig");
 
 pub const CommandHandler = *const fn (
     allocator: STD.mem.Allocator,
@@ -59,12 +54,7 @@ const STATE_FLAGS = SHARED_FLAGS ++ STATE_CMD.FLAGS;
 const PLAN_FLAGS = SHARED_FLAGS ++ PLAN_CMD.FLAGS;
 const APPLY_FLAGS = SHARED_FLAGS ++ APPLY_CMD.FLAGS;
 const IMPORT_FLAGS = SHARED_FLAGS ++ IMPORT_CMD.FLAGS;
-const META_FLAGS = SHARED_FLAGS ++ META_CMD.FLAGS;
-const TIKTOK_FLAGS = SHARED_FLAGS ++ TIKTOK_CMD.FLAGS;
-const X_FLAGS = SHARED_FLAGS ++ X_CMD.FLAGS;
-const GOOGLE_FLAGS = SHARED_FLAGS ++ GOOGLE_CMD.FLAGS;
-const REDDIT_FLAGS = SHARED_FLAGS ++ REDDIT_CMD.FLAGS;
-const LINKEDIN_FLAGS = SHARED_FLAGS ++ LINKEDIN_CMD.FLAGS;
+const PLATFORM_FLAGS = SHARED_FLAGS ++ PLATFORM_CMD.FLAGS;
 
 pub const COMMAND_REGISTRY = [_]CommandDefinition{
     .{
@@ -128,40 +118,10 @@ pub const COMMAND_REGISTRY = [_]CommandDefinition{
         .run = IMPORT_CMD.run,
     },
     .{
-        .name = "meta",
-        .help = HELP.META,
-        .flags = &META_FLAGS,
-        .run = META_CMD.run,
-    },
-    .{
-        .name = "tiktok",
-        .help = HELP.TIKTOK,
-        .flags = &TIKTOK_FLAGS,
-        .run = TIKTOK_CMD.run,
-    },
-    .{
-        .name = "x",
-        .help = HELP.X,
-        .flags = &X_FLAGS,
-        .run = X_CMD.run,
-    },
-    .{
-        .name = "google",
-        .help = HELP.GOOGLE,
-        .flags = &GOOGLE_FLAGS,
-        .run = GOOGLE_CMD.run,
-    },
-    .{
-        .name = "reddit",
-        .help = HELP.REDDIT,
-        .flags = &REDDIT_FLAGS,
-        .run = REDDIT_CMD.run,
-    },
-    .{
-        .name = "linkedin",
-        .help = HELP.LINKEDIN,
-        .flags = &LINKEDIN_FLAGS,
-        .run = LINKEDIN_CMD.run,
+        .name = "platform",
+        .help = HELP.PLATFORM,
+        .flags = &PLATFORM_FLAGS,
+        .run = PLATFORM_CMD.run,
     },
 };
 

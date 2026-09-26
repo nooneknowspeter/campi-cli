@@ -1,18 +1,9 @@
 const STD = @import("std");
 
-const CONTEXT = @import("../../context.zig");
-const ENV = @import("../../env.zig");
-const PARSER = @import("../../parser.zig");
-const META_SDK = @import("../../../platforms/meta/main.zig");
-
-pub const FLAGS = [_]PARSER.FlagDefinition{
-    .{
-        .long_flag = "dir",
-        .short_flag = 'd',
-        .is_flag_a_boolean = false,
-        .description = "Run command in the specified working directory",
-    },
-};
+const CONTEXT = @import("../../cli/context.zig");
+const ENV = @import("../../cli/env.zig");
+const PARSER = @import("../../cli/parser.zig");
+const SDK = @import("main.zig");
 
 pub fn run(
     allocator: STD.mem.Allocator,
@@ -31,7 +22,7 @@ pub fn run(
         return CONTEXT.ExitCode.RUNTIME_FAILURE;
     };
 
-    if (ENV.findMissingEnvVar(ENVIRON, &META_SDK.ENV)) |missing| {
+    if (ENV.findMissingEnvVar(ENVIRON, &SDK.ENV)) |missing| {
         context.stderr.print(
             "could not find the {s} environment variable\n",
             .{missing.env_var},

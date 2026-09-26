@@ -1,16 +1,7 @@
 const STD = @import("std");
 
-const CONTEXT = @import("../../context.zig");
-const PARSER = @import("../../parser.zig");
-
-pub const FLAGS = [_]PARSER.FlagDefinition{
-    .{
-        .long_flag = "dir",
-        .short_flag = 'd',
-        .is_flag_a_boolean = false,
-        .description = "Run command in the specified working directory",
-    },
-};
+const CONTEXT = @import("../../cli/context.zig");
+const PARSER = @import("../../cli/parser.zig");
 
 pub fn run(
     allocator: STD.mem.Allocator,
