@@ -29,5 +29,6 @@ test {
     _ = ARTIFACTS;
     _ = @import("cli/env.zig");
     _ = @import("platforms/meta/main.zig");
+    _ = @import("platforms/meta/env.zig");
     _ = @import("platforms/meta/payload.zig");
 }

@@ -7,6 +7,7 @@ const ENV = @import("../env.zig");
 const FS = @import("../../fs/main.zig");
 const MANIFEST = @import("../../manifest/main.zig");
 const META = @import("../../platforms/meta/main.zig");
+const META_ENV = @import("../../platforms/meta/env.zig");
 const PARSER = @import("../parser.zig");
 const PAYLOAD = @import("../../platforms/meta/payload.zig");
 const PLAN = @import("../../plan/main.zig");
@@ -171,7 +172,7 @@ fn writeMetaOperations(
 ) !void {
     const ENVIRON = context.environ orelse return error.MetaEnvironmentMissing;
 
-    if (ENV.findMissingEnvVar(ENVIRON, &META.ENV)) |missing| {
+    if (ENV.findMissingEnvVar(ENVIRON, &META_ENV.ENV)) |missing| {
         context.stderr.print(
             "could not find the {s} environment variable\n",
             .{missing.env_var},
@@ -180,13 +181,13 @@ fn writeMetaOperations(
         return error.MetaEnvironmentMissing;
     }
 
-    const TOKEN = ENV.findEnvVarValue(ENVIRON, &META.ENV, "token").?;
-    const AD_ACCOUNT = ENV.findEnvVarValue(ENVIRON, &META.ENV, "ad_account_id").?;
-    const PAGE = ENV.findEnvVarValue(ENVIRON, &META.ENV, "page_id").?;
+    const TOKEN = ENV.findEnvVarValue(ENVIRON, &META_ENV.ENV, "token").?;
+    const AD_ACCOUNT = ENV.findEnvVarValue(ENVIRON, &META_ENV.ENV, "ad_account_id").?;
+    const PAGE = ENV.findEnvVarValue(ENVIRON, &META_ENV.ENV, "page_id").?;
     const CLIENT = META.Client.init(
         allocator,
         context.io,
-        ENV.findEnvVarValue(ENVIRON, &META.ENV, "graph_api_url").?,
+        ENV.findEnvVarValue(ENVIRON, &META_ENV.ENV, "graph_api_url").?,
         TOKEN,
     );
 

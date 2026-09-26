@@ -3,7 +3,7 @@ const STD = @import("std");
 const CONTEXT = @import("../../cli/context.zig");
 const ENV = @import("../../cli/env.zig");
 const PARSER = @import("../../cli/parser.zig");
-const SDK = @import("main.zig");
+const TIKTOK_ENV = @import("env.zig");
 
 pub fn run(
     allocator: STD.mem.Allocator,
@@ -22,7 +22,7 @@ pub fn run(
         return CONTEXT.ExitCode.RUNTIME_FAILURE;
     };
 
-    if (ENV.findMissingEnvVar(ENVIRON, &SDK.ENV)) |missing| {
+    if (ENV.findMissingEnvVar(ENVIRON, &TIKTOK_ENV.ENV)) |missing| {
         context.stderr.print(
             "could not find the {s} environment variable\n",
             .{missing.env_var},
