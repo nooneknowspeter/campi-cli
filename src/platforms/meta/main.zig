@@ -7,6 +7,13 @@ const MultipartBody = struct {
     body: []const u8,
 };
 
+pub const Campaign = struct {
+    name: []const u8,
+    status: []const u8,
+    objective: []const u8,
+    daily_budget: []const u8,
+};
+
 pub const Client = struct {
     allocator: STD.mem.Allocator,
     io: STD.Io,
@@ -208,6 +215,39 @@ pub const Client = struct {
         const NAME = PARSED.value.object.get("name") orelse return error.MetaRequestFailed;
 
         return self.allocator.dupe(u8, NAME.string);
+    }
+
+    pub fn fetchCampaigns(
+        self: *const Client,
+        ad_account_id: []const u8,
+    ) ![]Campaign {
+        const PATH = try STD.fmt.allocPrint(self.allocator, "/act_{s}/campaigns?fields=name,status,objective,daily_budget&limit=100", .{ad_account_id});
+        defer self.allocator.free(PATH);
+
+        const RESPONSE = try self.postJson(PATH, "application/json", "");
+        defer self.allocator.free(RESPONSE);
+
+        const PARSED = try STD.json.parseFromSlice(STD.json.Value, self.allocator, RESPONSE, .{});
+        defer PARSED.deinit();
+
+        const DATA = PARSED.value.object.get("data") orelse return error.MetaRequestFailed;
+
+        var campaigns = STD.ArrayList(Campaign).empty;
+        for (DATA.array.items) |entry| {
+            const NAME = entry.object.get("name") orelse continue;
+            const STATUS = entry.object.get("status") orelse continue;
+            const OBJECTIVE = entry.object.get("objective") orelse continue;
+            const BUDGET = if (entry.object.get("daily_budget")) |budget| budget.string else "";
+
+            try campaigns.append(self.allocator, .{
+                .name = try self.allocator.dupe(u8, NAME.string),
+                .status = try self.allocator.dupe(u8, STATUS.string),
+                .objective = try self.allocator.dupe(u8, OBJECTIVE.string),
+                .daily_budget = try self.allocator.dupe(u8, BUDGET),
+            });
+        }
+
+        return campaigns.toOwnedSlice(self.allocator);
     }
 };
 

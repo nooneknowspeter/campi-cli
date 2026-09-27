@@ -20,6 +20,8 @@ to persist changes.
 - `platform` - fetch and format platform marketing API data;
   `platform <PLATFORM>`; the platform must be one of `meta`, `x`, `tiktok`,
   `google`, `reddit`, `linkedin`; the `meta` platform covers Facebook,
-  Instagram, Messenger and other Meta destinations through the Marketing API
+  Instagram, Messenger and other Meta destinations through the Marketing API;
+  data fetching is implemented for `meta`, the remaining platforms are
+  reported as not implemented yet
 
 See `campi-cli help <COMMAND>` for the flags of a specific command.

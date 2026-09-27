@@ -84,7 +84,9 @@ on `state.campi.lock` and appends the record; the platform must be one of
 `campi-cli platform <PLATFORM>`. The platform must be one of `meta`, `x`,
 `tiktok`, `google`, `reddit`, `linkedin`; the `meta` platform covers
 Facebook, Instagram, Messenger and other Meta destinations through the
-Marketing API. Data fetching is reported as not implemented yet.
+Marketing API. `campi-cli platform meta` lists the ad account's campaigns
+with their objective, status and daily budget. Data fetching is implemented
+for `meta`; the remaining platforms are reported as not implemented yet.
 
 # ENVIRONMENT
 
