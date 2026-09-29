@@ -1,5 +1,6 @@
 const STD = @import("std");
 
+const CONFIG = @import("../../config/main.zig");
 const CONTEXT = @import("../../cli/context.zig");
 const ENV = @import("../../cli/env.zig");
 const PARSER = @import("../../cli/parser.zig");
@@ -22,22 +23,37 @@ pub fn run(
         return CONTEXT.ExitCode.RUNTIME_FAILURE;
     };
 
-    if (ENV.findMissingEnvVar(ENVIRON, &META_ENV.ENV)) |missing| {
+    const OVERRIDES = ENV.overridesFromConfig(
+        allocator,
+        if (CONFIG.current_config) |CONFIGURATION|
+            CONFIGURATION.platform_configs.meta
+        else
+            null,
+    ) catch {
+        context.stderr.print(
+            "could not build the environment variable overrides\n",
+            .{},
+        ) catch return CONTEXT.ExitCode.RUNTIME_FAILURE;
+
+        return CONTEXT.ExitCode.RUNTIME_FAILURE;
+    };
+
+    if (ENV.findMissingEnvVar(ENVIRON, &META_ENV.ENV, OVERRIDES)) |missing| {
         context.stderr.print(
             "could not find the {s} environment variable\n",
-            .{missing.env_var},
+            .{ENV.effectiveEnvVar(&META_ENV.ENV, missing.key, OVERRIDES)},
         ) catch return CONTEXT.ExitCode.RUNTIME_FAILURE;
 
         return CONTEXT.ExitCode.RUNTIME_FAILURE;
     }
 
-    const TOKEN = ENV.findEnvVarValue(ENVIRON, &META_ENV.ENV, "token").?;
-    const AD_ACCOUNT = ENV.findEnvVarValue(ENVIRON, &META_ENV.ENV, "ad_account_id").?;
+    const TOKEN = ENV.findEnvVarValue(ENVIRON, &META_ENV.ENV, "token", OVERRIDES).?;
+    const AD_ACCOUNT = ENV.findEnvVarValue(ENVIRON, &META_ENV.ENV, "ad_account_id", OVERRIDES).?;
 
     const CLIENT = META.Client.init(
         allocator,
         context.io,
-        ENV.findEnvVarValue(ENVIRON, &META_ENV.ENV, "graph_api_url").?,
+        ENV.findEnvVarValue(ENVIRON, &META_ENV.ENV, "graph_api_url", OVERRIDES).?,
         TOKEN,
     );
 

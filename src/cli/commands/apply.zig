@@ -169,26 +169,27 @@ fn writeMetaOperations(
     work_dir: STD.Io.Dir,
     loaded_manifests: []const MANIFEST.LoadedManifest,
     operations: []PLAN.SCHEMA.OPERATION,
+    overrides: ?[]const ENV.Override,
 ) !void {
     const ENVIRON = context.environ orelse return error.MetaEnvironmentMissing;
 
-    if (ENV.findMissingEnvVar(ENVIRON, &META_ENV.ENV)) |missing| {
+    if (ENV.findMissingEnvVar(ENVIRON, &META_ENV.ENV, overrides)) |missing| {
         context.stderr.print(
             "could not find the {s} environment variable\n",
-            .{missing.env_var},
+            .{ENV.effectiveEnvVar(&META_ENV.ENV, missing.key, overrides)},
         ) catch {};
 
         return error.MetaEnvironmentMissing;
     }
 
-    const TOKEN = ENV.findEnvVarValue(ENVIRON, &META_ENV.ENV, "token").?;
-    const AD_ACCOUNT = ENV.findEnvVarValue(ENVIRON, &META_ENV.ENV, "ad_account_id").?;
-    const PAGE = ENV.findEnvVarValue(ENVIRON, &META_ENV.ENV, "page_id");
-    const INSTAGRAM_ACTOR = ENV.findEnvVarValue(ENVIRON, &META_ENV.ENV, "instagram_actor_id");
+    const TOKEN = ENV.findEnvVarValue(ENVIRON, &META_ENV.ENV, "token", overrides).?;
+    const AD_ACCOUNT = ENV.findEnvVarValue(ENVIRON, &META_ENV.ENV, "ad_account_id", overrides).?;
+    const PAGE = ENV.findEnvVarValue(ENVIRON, &META_ENV.ENV, "page_id", overrides);
+    const INSTAGRAM_ACTOR = ENV.findEnvVarValue(ENVIRON, &META_ENV.ENV, "instagram_actor_id", overrides);
     const CLIENT = META.Client.init(
         allocator,
         context.io,
-        ENV.findEnvVarValue(ENVIRON, &META_ENV.ENV, "graph_api_url").?,
+        ENV.findEnvVarValue(ENVIRON, &META_ENV.ENV, "graph_api_url", overrides).?,
         TOKEN,
     );
 
@@ -430,12 +431,21 @@ pub fn run(
     defer lock_file.close(context.io);
 
     if (hasPlatformOperations(filtered.items, "meta")) {
+        const OVERRIDES = ENV.overridesFromConfig(
+            allocator,
+            if (CONFIG.current_config) |CONFIGURATION|
+                CONFIGURATION.platform_configs.meta
+            else
+                null,
+        ) catch return CONTEXT.ExitCode.RUNTIME_FAILURE;
+
         writeMetaOperations(
             allocator,
             context,
             WORK_DIR,
             LOADED.manifests,
             filtered.items,
+            OVERRIDES,
         ) catch |err| {
             if (err == error.MetaEnvironmentMissing)
                 return CONTEXT.ExitCode.RUNTIME_FAILURE;

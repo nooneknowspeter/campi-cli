@@ -5,7 +5,8 @@ to persist changes.
 
 - `help` - print the tool and commands help text; `campi-cli help <COMMAND>`
 - `version` - print the tool version
-- `init` - create the base config file and prepare the working directory;
+- `init` - create the base config file and prepare the working directory,
+  scaffolding `config.campi`, `example.manifest.campi` and `.env.example`;
   the interactive mode is reported as not implemented yet
 - `fmt` - format campi files; `-w / --write`, `--lsp`
 - `validate` - check the config and manifests for correctness

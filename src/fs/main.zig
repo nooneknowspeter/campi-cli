@@ -57,4 +57,10 @@ pub fn writeFiles(
         .data = @embedFile("../manifest/examples/manifest.example.zon"),
         .flags = .{ .exclusive = true },
     });
+
+    try work_dir.writeFile(context.io, .{
+        .sub_path = ".env.example",
+        .data = @embedFile("../cli/envs/env.example"),
+        .flags = .{ .exclusive = true },
+    });
 }

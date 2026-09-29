@@ -42,8 +42,9 @@ Some commands also accept a working directory:
 : Print the tool version.
 
 `init`
-: Create the base config file and prepare the working directory; on an
-existing config, reports the directory as already initialized. The
+: Create the base config file and prepare the working directory,
+scaffolding `config.campi`, `example.manifest.campi` and `.env.example`; on
+an existing config, reports the directory as already initialized. The
 interactive mode is reported as not implemented yet.
 
 `fmt`
@@ -90,6 +91,12 @@ for `meta`; the remaining platforms are reported as not implemented yet.
 
 # ENVIRONMENT
 
+A file named `.env` in the working directory is loaded into the current
+session on every command. Values from the file take precedence over
+environment variables already set in the current session. Lines are
+`KEY=VALUE`; blank lines and lines starting with `#` are ignored, and a value
+wrapped in double quotes has the quotes removed.
+
 Platform credentials are read from the environment:
 
 `CAMPI_META_ACCESS_TOKEN`
@@ -115,6 +122,13 @@ One of this or `CAMPI_META_PAGE_ID` is required to write ad creatives.
 `CAMPI_TIKTOK_ACCESS_TOKEN`
 : TikTok marketing API access token.
 
+Per platform, `config.campi` can override the variable names under
+`platform_configs`; a field is named after the key above with the `_env`
+suffix. For `meta`: `token_env`, `ad_account_id_env`, `page_id_env`,
+`instagram_actor_id_env`, `graph_api_url_env`. For `tiktok`: `token_env`. The
+field value is the environment variable used for that key instead of the
+default `CAMPI_...` one above.
+
 # EXIT CODES
 
 `0`
@@ -137,6 +151,14 @@ One of this or `CAMPI_META_PAGE_ID` is required to write ad creatives.
 
 `example.manifest.campi`
 : Example campaign manifest; scaffolded by `campi-cli init`, read by `campi-cli plan` and `campi-cli apply`.
+
+`.env.example`
+: Template credentials file scaffolded by `campi-cli init`; copy it to `.env`
+and fill in the real values.
+
+`.env`
+: Optional file of `KEY=VALUE` credential lines, loaded into the session with
+precedence over the current environment; ignored by `git` by default.
 
 `state.campi`
 : The state file; read by `campi-cli state`, `plan` and `apply`, written by

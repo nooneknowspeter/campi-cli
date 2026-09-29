@@ -26,6 +26,23 @@ pub fn defaultConfig(project_name: []const u8) SCHEMA.CONFIG {
     };
 }
 
+/// Load the config from the working directory when a config file is present;
+/// a missing config file is not an error. Returns whether a config was loaded.
+pub fn loadOptional(
+    allocator: STD.mem.Allocator,
+    context: CONTEXT.CommandContext,
+    work_dir: STD.Io.Dir,
+) !bool {
+    var file = work_dir.openFile(context.io, "config.campi", .{}) catch |err| switch (err) {
+        error.FileNotFound => return false,
+        else => return err,
+    };
+    file.close(context.io);
+
+    try load(allocator, context, work_dir);
+    return true;
+}
+
 pub fn load(
     allocator: STD.mem.Allocator,
     context: CONTEXT.CommandContext,

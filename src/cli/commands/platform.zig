@@ -1,6 +1,8 @@
 const STD = @import("std");
 
+const CONFIG = @import("../../config/main.zig");
 const CONTEXT = @import("../context.zig");
+const FS = @import("../../fs/main.zig");
 const PARSER = @import("../parser.zig");
 const PLATFORMS = @import("../../platforms/main.zig");
 
@@ -52,6 +54,38 @@ pub fn run(
     }
 
     const NAME = context.positionals[0];
+
+    var path_buffer: [STD.Io.Dir.max_path_bytes]u8 = undefined;
+    const DIR_PATH = FS.dirPath(context, flags, &path_buffer) catch {
+        context.stderr.print(
+            \\{s}
+            \\
+        , .{CONTEXT.Message.Generic.COULD_NOT_DETERMINE_WORKING_DIRECTORY}) catch
+            return CONTEXT.ExitCode.RUNTIME_FAILURE;
+
+        return CONTEXT.ExitCode.RUNTIME_FAILURE;
+    };
+
+    const WORK_DIR = FS.openWorkDir(context, DIR_PATH) catch {
+        context.stderr.print(
+            \\{s}{s}
+            \\
+        , .{ CONTEXT.Message.Generic.WORKING_DIRECTORY_DOES_NOT_EXIST, DIR_PATH }) catch
+            return CONTEXT.ExitCode.RUNTIME_FAILURE;
+
+        return CONTEXT.ExitCode.RUNTIME_FAILURE;
+    };
+    defer WORK_DIR.close(context.io);
+
+    _ = CONFIG.loadOptional(allocator, context, WORK_DIR) catch {
+        context.stderr.print(
+            \\{s}{s}
+            \\
+        , .{ CONTEXT.Message.Generic.CONFIG_COULD_NOT_BE_LOADED, DIR_PATH }) catch
+            return CONTEXT.ExitCode.RUNTIME_FAILURE;
+
+        return CONTEXT.ExitCode.RUNTIME_FAILURE;
+    };
 
     for (PLATFORM_COMMANDS) |entry| {
         if (STD.mem.eql(u8, entry.name, NAME))

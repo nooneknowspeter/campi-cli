@@ -2,6 +2,7 @@ const STD = @import("std");
 
 const COMMANDS = @import("commands.zig");
 const CONTEXT = @import("context.zig");
+const DOTENV = @import("dotenv.zig");
 const PARSER = @import("parser.zig");
 
 pub const ExitCode = CONTEXT.ExitCode;
@@ -96,8 +97,16 @@ pub fn dispatchCommand(
 
     STD.log.debug("resolved {d} flags", .{RESOLVED_FLAGS.flags.len});
 
+    var path_buffer: [STD.Io.Dir.max_path_bytes]u8 = undefined;
     var command_context = context;
     command_context.positionals = RESOLVED_FLAGS.positionals;
+    command_context.environ = DOTENV.apply(
+        allocator,
+        context,
+        command_context.environ,
+        RESOLVED_FLAGS.flags,
+        &path_buffer,
+    ) orelse context.environ;
 
     return COMMAND.run(allocator, command_context, RESOLVED_FLAGS.flags);
 }
@@ -141,4 +150,5 @@ test {
     _ = @import("tests/parser.zig");
     _ = @import("tests/runner.zig");
     _ = @import("tests/env.zig");
+    _ = @import("tests/dotenv.zig");
 }

@@ -31,6 +31,22 @@ Some commands also accept a working directory:
 - `-d <WORK_DIR>` / `--dir <WORK_DIR>` - run a command in the specified
   working directory
 
+## Credentials
+
+Platform credentials are read from environment variables; see the
+[man page](man/campi-cli.md#environment) for the full list. A file named
+`.env` in the working directory is loaded on every command and takes
+precedence over variables already set in the session:
+
+```sh
+cd <WORK_DIR>
+cp .env.example .env
+# fill in the real values
+campi-cli platform meta
+```
+
+`campi-cli init` scaffolds `.env.example`; `.env` is ignored by `git`.
+
 ## Dry run
 
 Commands that change files run in dry run mode by default; they report what
