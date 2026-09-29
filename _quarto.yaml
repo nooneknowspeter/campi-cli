@@ -10,7 +10,7 @@ project:
     - SECURITY.md
     - SUPPORT.md
   resources:
-    - _vendor
+    - branding/_vendor
   preview:
     host: 0.0.0.0
     port: 4010
@@ -39,7 +39,7 @@ format:
   html:
     toc: true
     embed-resources: false
-    include-after-body: _vendor/mermaid/load.html
+    include-after-body: branding/src/mermaid/load.html
   typst:
     toc: true
     number-sections: true
