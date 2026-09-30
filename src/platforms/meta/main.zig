@@ -20,7 +20,6 @@ pub const Campaign = struct {
     name: []const u8,
     status: []const u8,
     objective: []const u8,
-    daily_budget: []const u8,
 };
 
 pub const Client = struct {
@@ -79,8 +78,19 @@ pub const Client = struct {
             .{ path, @intFromEnum(RESULT.status), RESULT.status.phrase() orelse "" },
         );
 
-        if (RESULT.status.class() != .success)
+        if (RESULT.status.class() != .success) {
+            STD.log.scoped(.meta).err(
+                "POST {s} failed with {d} {s}: {s}",
+                .{
+                    path,
+                    @intFromEnum(RESULT.status),
+                    RESULT.status.phrase() orelse "",
+                    writer.written(),
+                },
+            );
+
             return error.MetaRequestFailed;
+        }
 
         return writer.toOwnedSlice();
     }
@@ -230,7 +240,7 @@ pub const Client = struct {
         self: *const Client,
         ad_account_id: []const u8,
     ) ![]Campaign {
-        const PATH = try STD.fmt.allocPrint(self.allocator, "/act_{s}/campaigns?fields=name,status,objective,daily_budget&limit=100", .{ad_account_id});
+        const PATH = try STD.fmt.allocPrint(self.allocator, "/act_{s}/campaigns?fields=name,status,objective&limit=100", .{ad_account_id});
         defer self.allocator.free(PATH);
 
         const RESPONSE = try self.postJson(PATH, "application/json", "");
@@ -246,13 +256,11 @@ pub const Client = struct {
             const NAME = entry.object.get("name") orelse continue;
             const STATUS = entry.object.get("status") orelse continue;
             const OBJECTIVE = entry.object.get("objective") orelse continue;
-            const BUDGET = if (entry.object.get("daily_budget")) |budget| budget.string else "";
 
             try campaigns.append(self.allocator, .{
                 .name = try self.allocator.dupe(u8, NAME.string),
                 .status = try self.allocator.dupe(u8, STATUS.string),
                 .objective = try self.allocator.dupe(u8, OBJECTIVE.string),
-                .daily_budget = try self.allocator.dupe(u8, BUDGET),
             });
         }
 

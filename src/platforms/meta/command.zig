@@ -83,7 +83,7 @@ pub fn run(
         return CONTEXT.ExitCode.SUCCESS;
     }
 
-    formatCampaigns(context.stdout, allocator, CAMPAIGNS) catch
+    formatCampaigns(context.stdout, CAMPAIGNS) catch
         return CONTEXT.ExitCode.RUNTIME_FAILURE;
 
     return CONTEXT.ExitCode.SUCCESS;
@@ -91,31 +91,14 @@ pub fn run(
 
 pub fn formatCampaigns(
     writer: *STD.Io.Writer,
-    allocator: STD.mem.Allocator,
     campaigns: []const META.Campaign,
 ) !void {
     for (campaigns) |campaign| {
-        const DOLLARS = budgetDollars(allocator, campaign.daily_budget) catch continue;
-        defer allocator.free(DOLLARS);
-
         const OBJECTIVE = if (STD.mem.startsWith(u8, campaign.objective, "OUTCOME_"))
             campaign.objective["OUTCOME_".len..]
         else
             campaign.objective;
 
-        try writer.print(
-            "{s} [{s}] {s} {s}\n",
-            .{
-                campaign.name,
-                OBJECTIVE,
-                campaign.status,
-                DOLLARS,
-            },
-        );
+        try writer.print("{s} [{s}] {s}\n", .{ campaign.name, OBJECTIVE, campaign.status });
     }
-}
-
-fn budgetDollars(allocator: STD.mem.Allocator, cents: []const u8) ![]const u8 {
-    const VALUE = try STD.fmt.parseInt(u64, cents, 10);
-    return STD.fmt.allocPrint(allocator, "${d}.{d:0>2}", .{ VALUE / 100, VALUE % 100 });
 }
