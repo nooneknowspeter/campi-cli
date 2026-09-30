@@ -175,7 +175,9 @@ fn writeMetaOperations(
 
     if (ENV.findMissingEnvVar(ENVIRON, &META_ENV.ENV, overrides)) |missing| {
         context.stderr.print(
-            "could not find the {s} environment variable\n",
+            \\could not find the {s} environment variable
+            \\
+            ,
             .{ENV.effectiveEnvVar(&META_ENV.ENV, missing.key, overrides)},
         ) catch {};
 
@@ -250,7 +252,11 @@ fn writeMetaOperations(
 
                         if (destination.page_id == null and destination.instagram_actor_id == null) {
                             context.stderr.print(
-                                "could not find the CAMPI_META_PAGE_ID or CAMPI_META_INSTAGRAM_ACTOR_ID environment variables; one is required to write ad creatives\n",
+                                \\could not find the CAMPI_META_PAGE_ID
+                                \\or CAMPI_META_INSTAGRAM_ACTOR_ID environment variables;
+                                \\one is required to write ad creatives,
+                                \\
+                                ,
                                 .{},
                             ) catch {};
 
