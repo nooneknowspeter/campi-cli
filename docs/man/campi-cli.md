@@ -86,7 +86,7 @@ on `state.campi.lock` and appends the record; the platform must be one of
 `tiktok`, `google`, `reddit`, `linkedin`; the `meta` platform covers
 Facebook, Instagram, Messenger and other Meta destinations through the
 Marketing API. `campi-cli platform meta` lists the ad account's campaigns
-with their objective, status and daily budget. Data fetching is implemented
+with their objective and status. Data fetching is implemented
 for `meta`; the remaining platforms are reported as not implemented yet.
 
 # ENVIRONMENT
@@ -117,7 +117,7 @@ Instagram; the account must be linked to the ad account in Business Manager.
 One of this or `CAMPI_META_PAGE_ID` is required to write ad creatives.
 
 `CAMPI_META_GRAPH_API_URL`
-: Meta Graph API base URL; defaults to `https://graph.facebook.com`.
+: Meta Graph API base URL; defaults to `https://graph.facebook.com/v26.0`.
 
 `CAMPI_TIKTOK_ACCESS_TOKEN`
 : TikTok marketing API access token.

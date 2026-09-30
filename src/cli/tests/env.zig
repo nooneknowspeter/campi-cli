@@ -7,7 +7,7 @@ const TEST_FIELDS = [_]ENV.Field{
     .{ .key = "ad_account_id", .env_var = "CAMPI_META_AD_ACCOUNT" },
     .{ .key = "page_id", .env_var = "CAMPI_META_PAGE_ID", .required = false },
     .{ .key = "instagram_actor_id", .env_var = "CAMPI_META_INSTAGRAM_ACTOR_ID", .required = false },
-    .{ .key = "graph_api_url", .env_var = "CAMPI_META_GRAPH_API_URL", .default = "https://graph.facebook.com" },
+    .{ .key = "graph_api_url", .env_var = "CAMPI_META_GRAPH_API_URL", .default = "https://graph.facebook.com/v26.0" },
 };
 
 const TOKEN_ONLY: STD.process.Environ = .{
@@ -43,7 +43,7 @@ test "findEnvVarValue returns the value for a present key" {
 
 test "findEnvVarValue falls back to the declared default" {
     try STD.testing.expectEqualStrings(
-        "https://graph.facebook.com",
+        "https://graph.facebook.com/v26.0",
         ENV.findEnvVarValue(TOKEN_ONLY, &TEST_FIELDS, "graph_api_url", null).?,
     );
 }
