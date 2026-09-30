@@ -1,5 +1,14 @@
 const STD = @import("std");
 
+const ARTIFACTS = @import("../../artifacts/main.zig");
+const CONFIG = @import("../../config/main.zig");
+const CONTEXT = @import("../../cli/context.zig");
+const ENVIRONMENT = @import("../../cli/env.zig");
+const MANIFEST = @import("../../manifest/main.zig");
+const META_ENV = @import("env.zig");
+const PAYLOAD = @import("payload.zig");
+const PLAN = @import("../../plan/main.zig");
+
 pub const SCHEMA = @import("schema.zig");
 
 const MultipartBody = struct {
@@ -285,4 +294,179 @@ fn multipartBody(
     try body.writer.print("\r\n--{s}--\r\n", .{BOUNDARY});
 
     return .{ .boundary = BOUNDARY, .body = try body.toOwnedSlice() };
+}
+
+fn hasOperations(operations: []const PLAN.SCHEMA.OPERATION) bool {
+    for (operations) |operation| {
+        if (STD.mem.eql(u8, operation.platform, "meta"))
+            return true;
+    }
+
+    return false;
+}
+
+fn findCampaign(
+    loaded_manifests: []const MANIFEST.LoadedManifest,
+    operation: PLAN.SCHEMA.OPERATION,
+) ?MANIFEST.SCHEMA.CAMPAIGN {
+    for (loaded_manifests) |loaded_manifest| {
+        if (!STD.mem.eql(u8, loaded_manifest.file_path, operation.input_manifest orelse ""))
+            continue;
+
+        for (loaded_manifest.value.campaigns) |campaign| {
+            if (STD.mem.eql(u8, campaign.name, operation.campaign))
+                return campaign;
+        }
+    }
+
+    return null;
+}
+
+fn imageHashFor(
+    client: *const Client,
+    ad_account_id: []const u8,
+    media_urls: []const []const u8,
+    artifacts: []const ARTIFACTS.SCHEMA.DownloadedArtifact,
+) ![]const u8 {
+    const SOURCE = media_urls[0];
+
+    for (artifacts) |artifact| {
+        if (STD.mem.eql(u8, artifact.source, SOURCE))
+            return client.uploadImage(ad_account_id, SOURCE, artifact.content_type, artifact.bytes);
+    }
+
+    return error.MetaCreativeMissing;
+}
+
+pub fn writeOperations(
+    allocator: STD.mem.Allocator,
+    context: CONTEXT.CommandContext,
+    work_dir: STD.Io.Dir,
+    loaded_manifests: []const MANIFEST.LoadedManifest,
+    operations: []PLAN.SCHEMA.OPERATION,
+) !void {
+    if (!hasOperations(operations)) return;
+
+    const OVERRIDES = try ENVIRONMENT.overridesFromConfig(
+        allocator,
+        if (CONFIG.current_config) |CONFIGURATION|
+            CONFIGURATION.platform_configs.meta
+        else
+            null,
+    );
+
+    const ENVIRON = context.environ orelse return error.MetaEnvironmentMissing;
+
+    if (ENVIRONMENT.findMissingEnvVar(ENVIRON, &META_ENV.ENV, OVERRIDES)) |missing| {
+        context.stderr.print(
+            \\could not find the {s} environment variable
+            \\
+        ,
+            .{ENVIRONMENT.effectiveEnvVar(&META_ENV.ENV, missing.key, OVERRIDES)},
+        ) catch {};
+
+        return error.MetaEnvironmentMissing;
+    }
+
+    const TOKEN = ENVIRONMENT.findEnvVarValue(ENVIRON, &META_ENV.ENV, "token", OVERRIDES).?;
+    const AD_ACCOUNT = ENVIRONMENT.findEnvVarValue(ENVIRON, &META_ENV.ENV, "ad_account_id", OVERRIDES).?;
+    const PAGE = ENVIRONMENT.findEnvVarValue(ENVIRON, &META_ENV.ENV, "page_id", OVERRIDES);
+    const INSTAGRAM_ACTOR = ENVIRONMENT.findEnvVarValue(ENVIRON, &META_ENV.ENV, "instagram_actor_id", OVERRIDES);
+    const CLIENT = Client.init(
+        allocator,
+        context.io,
+        ENVIRONMENT.findEnvVarValue(ENVIRON, &META_ENV.ENV, "graph_api_url", OVERRIDES).?,
+        TOKEN,
+    );
+
+    _ = try CLIENT.fetchAccountName(AD_ACCOUNT);
+    if (PAGE) |page|
+        _ = try CLIENT.fetchPageName(page);
+    if (INSTAGRAM_ACTOR) |instagram_actor|
+        _ = try CLIENT.fetchPageName(instagram_actor);
+
+    const SOURCES = try ARTIFACTS.collectCreativeSources(allocator, loaded_manifests);
+    const LOADED_ARTIFACTS = ARTIFACTS.loadArtifacts(allocator, context, work_dir, SOURCES);
+
+    if (LOADED_ARTIFACTS.invalid)
+        return error.ArtifactCouldNotBeLoaded;
+
+    for (operations) |*operation| {
+        if (!STD.mem.eql(u8, operation.platform, "meta"))
+            continue;
+
+        switch (operation.operation_type) {
+            .create, .update => {
+                const CAMPAIGN = findCampaign(loaded_manifests, operation.*) orelse
+                    return error.MetaCampaignNotFound;
+
+                if (operation.operation_type == .update) {
+                    if (operation.external_id) |old_id| {
+                        STD.log.scoped(.meta).debug("archiving meta campaign {s}", .{old_id});
+                        try CLIENT.archiveCampaign(old_id);
+                    }
+                }
+
+                const NEW_ID = try CLIENT.createCampaign(
+                    AD_ACCOUNT,
+                    try PAYLOAD.campaignPayload(allocator, CAMPAIGN),
+                );
+
+                STD.log.scoped(.meta).debug("created meta campaign {s}", .{NEW_ID});
+
+                for (CAMPAIGN.ad_groups) |ad_group| {
+                    const AD_SET_ID = try CLIENT.createAdSet(
+                        AD_ACCOUNT,
+                        try PAYLOAD.adSetPayload(allocator, ad_group, NEW_ID),
+                    );
+
+                    for (ad_group.ads) |ad| {
+                        const IMAGE_HASH = try imageHashFor(
+                            &CLIENT,
+                            AD_ACCOUNT,
+                            ad.CREATIVE.media_urls,
+                            LOADED_ARTIFACTS.artifacts,
+                        );
+
+                        var destination = PAYLOAD.CREATIVE_DESTINATION{};
+                        if (PAGE) |page|
+                            destination.page_id = page;
+                        if (INSTAGRAM_ACTOR) |instagram_actor|
+                            destination.instagram_actor_id = instagram_actor;
+
+                        if (destination.page_id == null and destination.instagram_actor_id == null) {
+                            context.stderr.print(
+                                \\could not find the CAMPI_META_PAGE_ID
+                                \\or CAMPI_META_INSTAGRAM_ACTOR_ID environment variables;
+                                \\one is required to write ad creatives,
+                                \\
+                            ,
+                                .{},
+                            ) catch {};
+
+                            return error.MetaEnvironmentMissing;
+                        }
+
+                        const CREATIVE_ID = try CLIENT.createAdCreative(
+                            AD_ACCOUNT,
+                            try PAYLOAD.creativePayload(allocator, destination, ad, IMAGE_HASH),
+                        );
+
+                        _ = try CLIENT.createAd(
+                            AD_ACCOUNT,
+                            try PAYLOAD.adPayload(allocator, ad, AD_SET_ID, CREATIVE_ID),
+                        );
+                    }
+                }
+
+                operation.external_id = NEW_ID;
+            },
+            .archive => {
+                if (operation.external_id) |old_id| {
+                    STD.log.scoped(.meta).debug("archiving meta campaign {s}", .{old_id});
+                    try CLIENT.archiveCampaign(old_id);
+                }
+            },
+        }
+    }
 }
