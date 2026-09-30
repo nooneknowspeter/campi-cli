@@ -12,7 +12,7 @@ const PARSER = @import("../parser.zig");
 const PAYLOAD = @import("../../platforms/meta/payload.zig");
 const PLAN = @import("../../plan/main.zig");
 const PLATFORMS = @import("../../platforms/main.zig");
-const STATE_MODULE = @import("../../state/main.zig");
+const STATE = @import("../../state/main.zig");
 
 pub const FLAGS = [_]PARSER.FlagDefinition{
     .{
@@ -41,16 +41,16 @@ fn buildNewState(
     config: CONFIG.SCHEMA.CONFIG,
     manifest_paths: []const []const u8,
     operations: []const PLAN.SCHEMA.OPERATION,
-    previous_state: STATE_MODULE.SCHEMA.STATE,
-) !STATE_MODULE.SCHEMA.STATE {
-    var meta = STD.ArrayList(STATE_MODULE.SCHEMA.CAMPAIGN).empty;
-    var x = STD.ArrayList(STATE_MODULE.SCHEMA.CAMPAIGN).empty;
-    var tiktok = STD.ArrayList(STATE_MODULE.SCHEMA.CAMPAIGN).empty;
-    var google = STD.ArrayList(STATE_MODULE.SCHEMA.CAMPAIGN).empty;
-    var reddit = STD.ArrayList(STATE_MODULE.SCHEMA.CAMPAIGN).empty;
-    var linkedin = STD.ArrayList(STATE_MODULE.SCHEMA.CAMPAIGN).empty;
+    previous_state: STATE.SCHEMA.STATE,
+) !STATE.SCHEMA.STATE {
+    var meta = STD.ArrayList(STATE.SCHEMA.CAMPAIGN).empty;
+    var x = STD.ArrayList(STATE.SCHEMA.CAMPAIGN).empty;
+    var tiktok = STD.ArrayList(STATE.SCHEMA.CAMPAIGN).empty;
+    var google = STD.ArrayList(STATE.SCHEMA.CAMPAIGN).empty;
+    var reddit = STD.ArrayList(STATE.SCHEMA.CAMPAIGN).empty;
+    var linkedin = STD.ArrayList(STATE.SCHEMA.CAMPAIGN).empty;
 
-    var platforms = [_]*STD.ArrayList(STATE_MODULE.SCHEMA.CAMPAIGN){
+    var platforms = [_]*STD.ArrayList(STATE.SCHEMA.CAMPAIGN){
         &meta,
         &x,
         &tiktok,
@@ -108,7 +108,7 @@ fn buildNewState(
             config.campi_version
         else
             previous_state.state_version,
-        .applied_at = try STATE_MODULE.appliedAt(allocator, io),
+        .applied_at = try STATE.appliedAt(allocator, io),
         .manifest_files = manifest_paths,
         .platforms = .{
             .meta = try meta.toOwnedSlice(allocator),
@@ -349,7 +349,7 @@ pub fn run(
         return CONTEXT.ExitCode.RUNTIME_FAILURE;
     };
 
-    const STATE_LOCATION = STATE_MODULE.resolveStateLocation(context, CONFIG.current_config.?) orelse
+    const STATE_LOCATION = STATE.resolveStateLocation(context, CONFIG.current_config.?) orelse
         return CONTEXT.ExitCode.RUNTIME_FAILURE;
 
     const STATE_FILE = switch (STATE_LOCATION) {
@@ -363,9 +363,9 @@ pub fn run(
     const LOADED = MANIFEST.loadAll(allocator, context, WORK_DIR, MANIFEST_PATHS);
     if (LOADED.invalid) return CONTEXT.ExitCode.RUNTIME_FAILURE;
 
-    const state_value: STATE_MODULE.SCHEMA.STATE = switch (STATE_MODULE.load(allocator, context, WORK_DIR, STATE_FILE)) {
+    const state_value: STATE.SCHEMA.STATE = switch (STATE.load(allocator, context, WORK_DIR, STATE_FILE)) {
         .loaded => |loaded_state| loaded_state.value,
-        .missing => STATE_MODULE.EMPTY_STATE,
+        .missing => STATE.EMPTY_STATE,
         .invalid => return CONTEXT.ExitCode.RUNTIME_FAILURE,
     };
 
@@ -428,7 +428,7 @@ pub fn run(
         return CONTEXT.ExitCode.PENDING_UPDATES;
     }
 
-    const lock_result = STATE_MODULE.lockForWrite(context, WORK_DIR);
+    const lock_result = STATE.lockForWrite(context, WORK_DIR);
 
     const lock_file = switch (lock_result) {
         .acquired => |file| file,
@@ -483,7 +483,7 @@ pub fn run(
         return CONTEXT.ExitCode.RUNTIME_FAILURE;
     };
 
-    STATE_MODULE.write(context, WORK_DIR, STATE_FILE, NEW_STATE) catch |err| {
+    STATE.write(context, WORK_DIR, STATE_FILE, NEW_STATE) catch |err| {
         context.stderr.print(
             \\{s}{s}
             \\

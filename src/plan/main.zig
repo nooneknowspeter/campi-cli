@@ -2,7 +2,7 @@ const STD = @import("std");
 
 const CONFIG = @import("../config/main.zig");
 const MANIFEST = @import("../manifest/main.zig");
-const STATE_MODULE = @import("../state/main.zig");
+const STATE = @import("../state/main.zig");
 
 pub const SCHEMA = @import("schema.zig");
 
@@ -15,10 +15,10 @@ pub fn computePlan(
     allocator: STD.mem.Allocator,
     config: CONFIG.SCHEMA.CONFIG,
     loaded_manifests: []const MANIFEST.LoadedManifest,
-    recorded_state: ?STATE_MODULE.SCHEMA.STATE,
+    recorded_state: ?STATE.SCHEMA.STATE,
 ) !SCHEMA.PLAN {
     var operations = STD.ArrayList(SCHEMA.OPERATION).empty;
-    const BASE_STATE = recorded_state orelse STATE_MODULE.EMPTY_STATE;
+    const BASE_STATE = recorded_state orelse STATE.EMPTY_STATE;
 
     inline for (STD.meta.fields(@TypeOf(config.platform_configs))) |platform| {
         if (@field(config.platform_configs, platform.name) != null) {
@@ -46,7 +46,7 @@ pub fn computePlan(
                 }
             }
 
-            var recorded = STD.ArrayList(STATE_MODULE.SCHEMA.CAMPAIGN).empty;
+            var recorded = STD.ArrayList(STATE.SCHEMA.CAMPAIGN).empty;
 
             if (@field(BASE_STATE.platforms, platform.name)) |campaigns|
                 for (campaigns) |campaign|

@@ -4,7 +4,7 @@ const CONFIG = @import("../../config/main.zig");
 const CONTEXT = @import("../context.zig");
 const FS = @import("../../fs/main.zig");
 const PARSER = @import("../parser.zig");
-const STATE_MODULE = @import("../../state/main.zig");
+const STATE = @import("../../state/main.zig");
 
 pub const FLAGS = [_]PARSER.FlagDefinition{
     .{
@@ -53,7 +53,7 @@ pub fn run(
         return CONTEXT.ExitCode.RUNTIME_FAILURE;
     };
 
-    const STATE_LOCATION = STATE_MODULE.resolveStateLocation(context, CONFIG.current_config.?) orelse
+    const STATE_LOCATION = STATE.resolveStateLocation(context, CONFIG.current_config.?) orelse
         return CONTEXT.ExitCode.RUNTIME_FAILURE;
 
     const STATE_FILE = switch (STATE_LOCATION) {
@@ -61,13 +61,13 @@ pub fn run(
         .cloud => return CONTEXT.ExitCode.RUNTIME_FAILURE,
     };
 
-    switch (STATE_MODULE.acquireLock(context, WORK_DIR)) {
+    switch (STATE.acquireLock(context, WORK_DIR)) {
         .available => STD.log.debug("state lock is available", .{}),
         .held => STD.log.debug("state lock is held by another process", .{}),
         .failed => return CONTEXT.ExitCode.RUNTIME_FAILURE,
     }
 
-    switch (STATE_MODULE.load(allocator, context, WORK_DIR, STATE_FILE)) {
+    switch (STATE.load(allocator, context, WORK_DIR, STATE_FILE)) {
         .loaded => |loaded_state| {
             context.stdout.print("state version: {s}\n", .{loaded_state.value.state_version}) catch
                 return CONTEXT.ExitCode.RUNTIME_FAILURE;
