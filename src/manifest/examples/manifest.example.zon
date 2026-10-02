@@ -5,6 +5,7 @@
             .objective = .AWARENESS,
             .status = .PAUSED,
             .budget = null,
+            .special_ad_categories = .{},
             .ad_groups = .{},
         },
     },

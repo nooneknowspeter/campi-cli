@@ -114,11 +114,22 @@ pub const OBJECTIVE = enum {
     APP_INSTALLS,
 };
 
+pub const SPECIAL_AD_CATEGORY = enum {
+    NONE,
+    EMPLOYMENT,
+    HOUSING,
+    CREDIT,
+    ISSUES_ELECTIONS_POLITICS,
+    ONLINE_GAMBLING_AND_GAMING,
+    FINANCIAL_PRODUCTS_SERVICES,
+};
+
 pub const CAMPAIGN = struct {
     name: []const u8,
     objective: OBJECTIVE,
     status: ?STATUS,
     budget: ?BUDGET,
+    special_ad_categories: []const SPECIAL_AD_CATEGORY = &.{},
     ad_groups: []AD_GROUP,
 };
 
