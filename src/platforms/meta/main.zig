@@ -42,8 +42,9 @@ pub const Client = struct {
         };
     }
 
-    fn postJson(
+    fn requestJson(
         self: *const Client,
+        method: STD.http.Method,
         path: []const u8,
         content_type: []const u8,
         body: []const u8,
@@ -51,7 +52,7 @@ pub const Client = struct {
         var client = STD.http.Client{ .allocator = self.allocator, .io = self.io };
         defer client.deinit();
 
-        STD.log.scoped(.meta).debug("POST {s}", .{path});
+        STD.log.scoped(.meta).debug("{s} {s}", .{ @tagName(method), path });
 
         const URL = try STD.fmt.allocPrint(self.allocator, "{s}{s}", .{ self.base_url, path });
         defer self.allocator.free(URL);
@@ -64,8 +65,8 @@ pub const Client = struct {
 
         const RESULT = try client.fetch(.{
             .location = .{ .url = URL },
-            .method = .POST,
-            .payload = body,
+            .method = method,
+            .payload = if (method.requestHasBody()) body else null,
             .headers = .{
                 .authorization = .{ .override = AUTHORIZATION },
                 .content_type = .{ .override = content_type },
@@ -74,14 +75,20 @@ pub const Client = struct {
         });
 
         STD.log.scoped(.meta).debug(
-            "POST {s} -> {d} {s}",
-            .{ path, @intFromEnum(RESULT.status), RESULT.status.phrase() orelse "" },
+            "{s} {s} -> {d} {s}",
+            .{
+                @tagName(method),
+                path,
+                @intFromEnum(RESULT.status),
+                RESULT.status.phrase() orelse "",
+            },
         );
 
         if (RESULT.status.class() != .success) {
             STD.log.scoped(.meta).err(
-                "POST {s} failed with {d} {s}: {s}",
+                "{s} {s} failed with {d} {s}: {s}",
                 .{
+                    @tagName(method),
                     path,
                     @intFromEnum(RESULT.status),
                     RESULT.status.phrase() orelse "",
@@ -103,7 +110,7 @@ pub const Client = struct {
         const PATH = try STD.fmt.allocPrint(self.allocator, "/act_{s}/campaigns", .{ad_account_id});
         defer self.allocator.free(PATH);
 
-        const RESPONSE = try self.postJson(PATH, "application/json", payload);
+        const RESPONSE = try self.requestJson(.POST, PATH, "application/json", payload);
         defer self.allocator.free(RESPONSE);
 
         return responseId(self.allocator, RESPONSE);
@@ -117,7 +124,7 @@ pub const Client = struct {
         const PATH = try STD.fmt.allocPrint(self.allocator, "/act_{s}/adsets", .{ad_account_id});
         defer self.allocator.free(PATH);
 
-        const RESPONSE = try self.postJson(PATH, "application/json", payload);
+        const RESPONSE = try self.requestJson(.POST, PATH, "application/json", payload);
         defer self.allocator.free(RESPONSE);
 
         return responseId(self.allocator, RESPONSE);
@@ -146,7 +153,7 @@ pub const Client = struct {
         );
         defer self.allocator.free(CONTENT_TYPE);
 
-        const RESPONSE = try self.postJson(PATH, CONTENT_TYPE, MULTIPART.body);
+        const RESPONSE = try self.requestJson(.POST, PATH, CONTENT_TYPE, MULTIPART.body);
         defer self.allocator.free(RESPONSE);
 
         const PARSED = try STD.json.parseFromSlice(STD.json.Value, self.allocator, RESPONSE, .{});
@@ -169,7 +176,7 @@ pub const Client = struct {
         const PATH = try STD.fmt.allocPrint(self.allocator, "/act_{s}/adcreatives", .{ad_account_id});
         defer self.allocator.free(PATH);
 
-        const RESPONSE = try self.postJson(PATH, "application/json", payload);
+        const RESPONSE = try self.requestJson(.POST, PATH, "application/json", payload);
         defer self.allocator.free(RESPONSE);
 
         return responseId(self.allocator, RESPONSE);
@@ -183,7 +190,7 @@ pub const Client = struct {
         const PATH = try STD.fmt.allocPrint(self.allocator, "/act_{s}/ads", .{ad_account_id});
         defer self.allocator.free(PATH);
 
-        const RESPONSE = try self.postJson(PATH, "application/json", payload);
+        const RESPONSE = try self.requestJson(.POST, PATH, "application/json", payload);
         defer self.allocator.free(RESPONSE);
 
         return responseId(self.allocator, RESPONSE);
@@ -196,7 +203,7 @@ pub const Client = struct {
         const PATH = try STD.fmt.allocPrint(self.allocator, "/{s}", .{campaign_id});
         defer self.allocator.free(PATH);
 
-        const RESPONSE = try self.postJson(PATH, "application/json", "{\"status\":\"ARCHIVED\"}");
+        const RESPONSE = try self.requestJson(.POST, PATH, "application/json", "{\"status\":\"ARCHIVED\"}");
         defer self.allocator.free(RESPONSE);
     }
 
@@ -207,7 +214,7 @@ pub const Client = struct {
         const PATH = try STD.fmt.allocPrint(self.allocator, "/act_{s}?fields=name", .{ad_account_id});
         defer self.allocator.free(PATH);
 
-        const RESPONSE = try self.postJson(PATH, "application/json", "");
+        const RESPONSE = try self.requestJson(.GET, PATH, "application/json", "");
         defer self.allocator.free(RESPONSE);
 
         const PARSED = try STD.json.parseFromSlice(STD.json.Value, self.allocator, RESPONSE, .{});
@@ -225,7 +232,7 @@ pub const Client = struct {
         const PATH = try STD.fmt.allocPrint(self.allocator, "/{s}?fields=name", .{page_id});
         defer self.allocator.free(PATH);
 
-        const RESPONSE = try self.postJson(PATH, "application/json", "");
+        const RESPONSE = try self.requestJson(.GET, PATH, "application/json", "");
         defer self.allocator.free(RESPONSE);
 
         const PARSED = try STD.json.parseFromSlice(STD.json.Value, self.allocator, RESPONSE, .{});
@@ -240,10 +247,14 @@ pub const Client = struct {
         self: *const Client,
         ad_account_id: []const u8,
     ) ![]Campaign {
-        const PATH = try STD.fmt.allocPrint(self.allocator, "/act_{s}/campaigns?fields=name,status,objective&limit=100", .{ad_account_id});
+        const PATH = try STD.fmt.allocPrint(
+            self.allocator,
+            "/act_{s}/campaigns?fields=name,status,objective&limit=100",
+            .{ad_account_id},
+        );
         defer self.allocator.free(PATH);
 
-        const RESPONSE = try self.postJson(PATH, "application/json", "");
+        const RESPONSE = try self.requestJson(.GET, PATH, "application/json", "");
         defer self.allocator.free(RESPONSE);
 
         const PARSED = try STD.json.parseFromSlice(STD.json.Value, self.allocator, RESPONSE, .{});
