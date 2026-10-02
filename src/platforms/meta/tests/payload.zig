@@ -19,7 +19,29 @@ test "campaign payload maps objective and budget" {
     const PAYLOAD = try MODULE.campaignPayload(ALLOCATOR, CAMPAIGN);
 
     try STD.testing.expectEqualStrings(
-        "{\"name\":\"Spring Sale\",\"objective\":\"OUTCOME_TRAFFIC\",\"status\":\"ACTIVE\",\"daily_budget\":\"10000\"}",
+        "{\"name\":\"Spring Sale\",\"objective\":\"OUTCOME_TRAFFIC\",\"status\":\"ACTIVE\",\"special_ad_categories\":[],\"daily_budget\":\"10000\"}",
+        PAYLOAD,
+    );
+}
+
+test "campaign payload reports ad set budget sharing when no campaign budget is set" {
+    var arena = STD.heap.ArenaAllocator.init(STD.testing.allocator);
+    defer arena.deinit();
+    const ALLOCATOR = arena.allocator();
+
+    const CAMPAIGN = MANIFEST.CAMPAIGN{
+        .name = "Housing Push",
+        .objective = .LEADS,
+        .status = .PAUSED,
+        .budget = null,
+        .special_ad_categories = &.{.HOUSING},
+        .ad_groups = &.{},
+    };
+
+    const PAYLOAD = try MODULE.campaignPayload(ALLOCATOR, CAMPAIGN);
+
+    try STD.testing.expectEqualStrings(
+        "{\"name\":\"Housing Push\",\"objective\":\"OUTCOME_LEADS\",\"status\":\"PAUSED\",\"special_ad_categories\":[\"HOUSING\"],\"is_adset_budget_sharing_enabled\":false}",
         PAYLOAD,
     );
 }

@@ -42,6 +42,18 @@ pub fn callToActionFor(cta: MANIFEST.CALL_TO_ACTION) []const u8 {
     };
 }
 
+pub fn specialAdCategoryFor(category: MANIFEST.SPECIAL_AD_CATEGORY) []const u8 {
+    return switch (category) {
+        .NONE => "NONE",
+        .EMPLOYMENT => "EMPLOYMENT",
+        .HOUSING => "HOUSING",
+        .CREDIT => "CREDIT",
+        .ISSUES_ELECTIONS_POLITICS => "ISSUES_ELECTIONS_POLITICS",
+        .ONLINE_GAMBLING_AND_GAMING => "ONLINE_GAMBLING_AND_GAMING",
+        .FINANCIAL_PRODUCTS_SERVICES => "FINANCIAL_PRODUCTS_SERVICES",
+    };
+}
+
 pub fn dailyBudget(allocator: STD.mem.Allocator, amount_in_cents: usize) ![]const u8 {
     return STD.fmt.allocPrint(allocator, "{d}", .{amount_in_cents});
 }
@@ -53,10 +65,17 @@ fn campaignObject(allocator: STD.mem.Allocator, campaign: MANIFEST.CAMPAIGN) !ST
     try json_payload.object.put(allocator, "objective", .{ .string = outcomeFor(campaign.objective) });
     try json_payload.object.put(allocator, "status", .{ .string = statusFor(campaign.status) });
 
+    var special_ad_categories = STD.json.Value{ .array = STD.json.Array.init(allocator) };
+    for (campaign.special_ad_categories) |category|
+        try special_ad_categories.array.append(.{ .string = specialAdCategoryFor(category) });
+    try json_payload.object.put(allocator, "special_ad_categories", special_ad_categories);
+
     if (campaign.budget) |budget|
         try json_payload.object.put(allocator, "daily_budget", .{
             .string = try dailyBudget(allocator, budget.amount_in_cents),
-        });
+        })
+    else
+        try json_payload.object.put(allocator, "is_adset_budget_sharing_enabled", .{ .bool = false });
 
     return json_payload;
 }
