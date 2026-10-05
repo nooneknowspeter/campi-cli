@@ -15,4 +15,5 @@ pub const OPERATION = struct {
 
 pub const PLAN = struct {
     operations: []OPERATION,
+    unconfigured_platforms: []const []const u8,
 };

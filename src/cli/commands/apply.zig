@@ -236,6 +236,11 @@ pub fn run(
             return CONTEXT.ExitCode.RUNTIME_FAILURE;
     }
 
+    for (PLAN_VALUE.unconfigured_platforms) |platform| {
+        context.stdout.print("{s}{s}\n", .{ CONTEXT.Message.Generic.UNCONFIGURED_PLATFORM, platform }) catch
+            return CONTEXT.ExitCode.RUNTIME_FAILURE;
+    }
+
     if (filtered.items.len == 0) {
         context.stdout.print(
             \\{s}

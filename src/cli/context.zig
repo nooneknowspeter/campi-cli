@@ -26,6 +26,7 @@ pub const Message = struct {
         pub const STATE_LOCK_HELD = "state file is locked by another process";
         pub const NO_CHANGES = "no changes";
         pub const PLAN_NOT_COMPUTED = "could not compute plan";
+        pub const UNCONFIGURED_PLATFORM = "skipped platform (not configured in config.campi): ";
         pub const STATE_COULD_NOT_BE_WRITTEN = "could not write state: ";
         pub const IMPORT_USAGE = "campi-cli import <platform> <campaign> <external-id>";
         pub const IMPORT_UNKNOWN_PLATFORM = "unknown platform: ";

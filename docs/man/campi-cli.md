@@ -65,8 +65,9 @@ manifest files.
 `plan`
 : Compute what would change by comparing the current campaign manifests
 against the recorded state, one section per enabled platform; `+` creates,
-`~` updates, `-` archives. `--export` prints the plan as ZON. Exits `3` when
-changes are pending, `0` otherwise.
+`~` updates, `-` archives. `--export` prints the plan as ZON. Platforms
+enabled in a manifest but not configured in `config.campi` are reported as
+skipped. Exits `3` when changes are pending, `0` otherwise.
 
 `apply`
 : Apply the plan from the current manifests; dry run by default. `-w` /

@@ -28,4 +28,5 @@ test {
     _ = @import("cli/main.zig");
     _ = @import("artifacts/main.zig");
     _ = @import("platforms/main.zig");
+    _ = @import("plan/main.zig");
 }

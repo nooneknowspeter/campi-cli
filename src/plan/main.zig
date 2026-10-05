@@ -18,6 +18,7 @@ pub fn computePlan(
     recorded_state: ?STATE.SCHEMA.STATE,
 ) !SCHEMA.PLAN {
     var operations = STD.ArrayList(SCHEMA.OPERATION).empty;
+    var unconfigured_platforms = STD.ArrayList([]const u8).empty;
     const BASE_STATE = recorded_state orelse STATE.EMPTY_STATE;
 
     inline for (STD.meta.fields(@TypeOf(config.platform_configs))) |platform| {
@@ -99,12 +100,25 @@ pub fn computePlan(
                     .manifest_hash = "",
                 });
             }
+        } else {
+            for (loaded_manifests) |loaded_manifest| {
+                if (@field(loaded_manifest.value.platforms, platform.name) != true) continue;
+
+                try unconfigured_platforms.append(allocator, platform.name);
+
+                break;
+            }
         }
     }
 
     return .{
         .operations = try operations.toOwnedSlice(allocator),
+        .unconfigured_platforms = try unconfigured_platforms.toOwnedSlice(allocator),
     };
+}
+
+test {
+    _ = @import("tests/main.zig");
 }
 
 pub fn fingerprint(allocator: STD.mem.Allocator, campaign: MANIFEST.SCHEMA.CAMPAIGN) ![]const u8 {
