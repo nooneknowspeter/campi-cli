@@ -211,6 +211,8 @@ pub const Client = struct {
         self: *const Client,
         ad_account_id: []const u8,
     ) ![]const u8 {
+        if (ad_account_id.len == 0) return error.MetaEnvironmentMissing;
+
         const PATH = try STD.fmt.allocPrint(self.allocator, "/act_{s}?fields=name", .{ad_account_id});
         defer self.allocator.free(PATH);
 
@@ -229,6 +231,8 @@ pub const Client = struct {
         self: *const Client,
         page_id: []const u8,
     ) ![]const u8 {
+        if (page_id.len == 0) return error.MetaEnvironmentMissing;
+
         const PATH = try STD.fmt.allocPrint(self.allocator, "/{s}?fields=name", .{page_id});
         defer self.allocator.free(PATH);
 
@@ -341,6 +345,24 @@ fn findCampaign(
     return null;
 }
 
+fn checkIfAnyOperationsNeedCreativeDestination(
+    loaded_manifests: []const MANIFEST.LoadedManifest,
+    operations: []const PLAN.SCHEMA.OPERATION,
+) bool {
+    for (operations) |operation| {
+        if (!STD.mem.eql(u8, operation.platform, "meta")) continue;
+        if (operation.operation_type == .archive) continue;
+
+        const CAMPAIGN = findCampaign(loaded_manifests, operation) orelse continue;
+
+        for (CAMPAIGN.ad_groups) |ad_group| {
+            if (ad_group.ads.len > 0) return true;
+        }
+    }
+
+    return false;
+}
+
 fn imageHashFor(
     client: *const Client,
     ad_account_id: []const u8,
@@ -391,6 +413,20 @@ pub fn writeOperations(
     const AD_ACCOUNT = ENVIRONMENT.findEnvVarValue(ENVIRON, &META_ENV.ENV, "ad_account_id", OVERRIDES).?;
     const PAGE = ENVIRONMENT.findEnvVarValue(ENVIRON, &META_ENV.ENV, "page_id", OVERRIDES);
     const INSTAGRAM_ACTOR = ENVIRONMENT.findEnvVarValue(ENVIRON, &META_ENV.ENV, "instagram_actor_id", OVERRIDES);
+
+    if (PAGE == null and INSTAGRAM_ACTOR == null and checkIfAnyOperationsNeedCreativeDestination(loaded_manifests, operations)) {
+        context.stderr.print(
+            \\could not find the CAMPI_META_PAGE_ID
+            \\or CAMPI_META_INSTAGRAM_ACTOR_ID environment variables;
+            \\one is required to write ad creatives,
+            \\
+        ,
+            .{},
+        ) catch {};
+
+        return error.MetaEnvironmentMissing;
+    }
+
     const CLIENT = Client.init(
         allocator,
         context.io,
@@ -452,19 +488,6 @@ pub fn writeOperations(
                             destination.page_id = page;
                         if (INSTAGRAM_ACTOR) |instagram_actor|
                             destination.instagram_actor_id = instagram_actor;
-
-                        if (destination.page_id == null and destination.instagram_actor_id == null) {
-                            context.stderr.print(
-                                \\could not find the CAMPI_META_PAGE_ID
-                                \\or CAMPI_META_INSTAGRAM_ACTOR_ID environment variables;
-                                \\one is required to write ad creatives,
-                                \\
-                            ,
-                                .{},
-                            ) catch {};
-
-                            return error.MetaEnvironmentMissing;
-                        }
 
                         const CREATIVE_ID = try CLIENT.createAdCreative(
                             AD_ACCOUNT,
