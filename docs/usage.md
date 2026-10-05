@@ -45,7 +45,9 @@ cp .env.example .env
 campi-cli platform meta
 ```
 
-`campi-cli init` scaffolds `.env.example`; `.env` is ignored by `git`.
+`campi-cli init` scaffolds `.env.example`; `.env` is ignored by `git`. Values
+that are empty or whitespace only count as unset, so leave the entries you do
+not use empty.
 
 ## Dry run
 
