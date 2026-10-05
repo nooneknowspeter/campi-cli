@@ -85,6 +85,10 @@ pub fn overridesFromConfig(
     return null;
 }
 
+fn isEnvVarValueBlank(value: []const u8) bool {
+    return STD.mem.trim(u8, value, " \t\r").len == 0;
+}
+
 pub fn findMissingEnvVar(
     environ: STD.process.Environ,
     comptime fields: []const Field,
@@ -93,8 +97,10 @@ pub fn findMissingEnvVar(
     inline for (fields) |field| {
         if (!field.required) continue;
         if (field.default != null) continue;
-        if (STD.process.Environ.getPosix(environ, envVarFor(fields, field.key, overrides)) == null)
-            return field;
+
+        const VALUE = STD.process.Environ.getPosix(environ, envVarFor(fields, field.key, overrides));
+
+        if (VALUE == null or isEnvVarValueBlank(VALUE.?)) return field;
     }
 
     return null;
@@ -106,8 +112,9 @@ pub fn findEnvVarValue(
     comptime key: []const u8,
     overrides: ?[]const Override,
 ) ?[]const u8 {
-    if (STD.process.Environ.getPosix(environ, envVarFor(fields, key, overrides))) |value|
-        return value;
+    if (STD.process.Environ.getPosix(environ, envVarFor(fields, key, overrides))) |value| {
+        if (!isEnvVarValueBlank(value)) return value;
+    }
 
     inline for (fields) |field| {
         if (comptime STD.mem.eql(u8, field.key, key))

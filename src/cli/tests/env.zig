@@ -23,6 +23,13 @@ const TOKEN_AND_ACCOUNT: STD.process.Environ = .{ .block = .{ .slice = &[2:null]
     @as(?[*:0]const u8, "CAMPI_META_AD_ACCOUNT=act_456"),
 } } };
 
+const BLANK_VALUES: STD.process.Environ = .{ .block = .{ .slice = &[4:null]?[*:0]const u8{
+    @as(?[*:0]const u8, "CAMPI_META_ACCESS_TOKEN=tok123"),
+    @as(?[*:0]const u8, "CAMPI_META_AD_ACCOUNT="),
+    @as(?[*:0]const u8, "CAMPI_META_PAGE_ID="),
+    @as(?[*:0]const u8, "CAMPI_META_GRAPH_API_URL="),
+} } };
+
 test "findMissingEnvVar returns the first absent required field" {
     const MISSING = ENV.findMissingEnvVar(TOKEN_ONLY, &TEST_FIELDS, null);
     try STD.testing.expect(MISSING != null);
@@ -52,6 +59,26 @@ test "findEnvVarValue returns null for an absent optional field" {
     try STD.testing.expectEqual(
         @as(?[]const u8, null),
         ENV.findEnvVarValue(TOKEN_AND_ACCOUNT, &TEST_FIELDS, "page_id", null),
+    );
+}
+
+test "findMissingEnvVar treats a blank required variable as missing" {
+    const MISSING = ENV.findMissingEnvVar(BLANK_VALUES, &TEST_FIELDS, null);
+    try STD.testing.expect(MISSING != null);
+    try STD.testing.expectEqualStrings("ad_account_id", MISSING.?.key);
+}
+
+test "findEnvVarValue ignores a blank variable" {
+    try STD.testing.expectEqual(
+        @as(?[]const u8, null),
+        ENV.findEnvVarValue(BLANK_VALUES, &TEST_FIELDS, "page_id", null),
+    );
+}
+
+test "findEnvVarValue falls back to the declared default when the variable is blank" {
+    try STD.testing.expectEqualStrings(
+        "https://graph.facebook.com/v26.0",
+        ENV.findEnvVarValue(BLANK_VALUES, &TEST_FIELDS, "graph_api_url", null).?,
     );
 }
 
