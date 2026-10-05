@@ -1,0 +1,70 @@
+.{
+    .campaigns = .{
+        .{
+            .name = "Demo campaign",
+            .objective = .TRAFFIC,
+            .status = .PAUSED,
+            .budget = null,
+            .special_ad_categories = .{},
+            .ad_groups = .{
+                .{
+                    .name = .{"Demo ad set"},
+                    .status = .PAUSED,
+                    .budget = .{
+                        .type = .DAILY,
+                        .amount_in_cents = 500,
+                        .currency = "USD",
+                    },
+                    .target = .{
+                        .locations = .{
+                            .include = .{
+                                .{
+                                    .country = "US",
+                                    .state = null,
+                                    .city = null,
+                                    .radius_km = null,
+                                },
+                            },
+                            .exclude = null,
+                        },
+                        .genders = null,
+                        .age_min = 18,
+                        .age_max = 65,
+                        .languages = null,
+                        .interests = null,
+                        .devices_platforms = null,
+                    },
+                    .optimization_goal = .CLICKS,
+                    .bid_amount_in_cents = null,
+                    .ads = .{
+                        .{
+                            .name = "Demo ad",
+                            .status = .PAUSED,
+                            .target = null,
+                            .CREATIVE = .{
+                                .media_type = .IMAGE,
+                                .headline = "Demo headline",
+                                .body_text = "Demo body text",
+                                .call_to_action = .LEARN_MORE,
+                                .media_urls = .{
+                                    "https://example.com/demo.png",
+                                },
+                                .destination_url = "https://example.com",
+                                .display_url = null,
+                            },
+                            .tracking = null,
+                        },
+                    },
+                },
+            },
+        },
+    },
+    .platforms = .{
+        .meta = true,
+        .x = false,
+        .tiktok = false,
+        .google = false,
+        .reddit = false,
+        .linkedin = false,
+    },
+}

@@ -1,0 +1,16 @@
+.{
+    .campi_version = "0.0.0",
+    .config_version = "0.1.0",
+    .project_name = "campi demo",
+    .state_file_location_type = .local,
+    .state_file_uri = "state.campi",
+    .platform_configs = .{
+        .meta = .{},
+        .x = null,
+        .tiktok = null,
+        .google = null,
+        .reddit = null,
+        .linkedin = null,
+    },
+    .manifest_files = .{ .manifest_files = .{"demo.manifest.campi"} },
+}
