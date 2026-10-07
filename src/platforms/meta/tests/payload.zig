@@ -98,13 +98,13 @@ test "creative payload targets instagram when no page id is given" {
 
     const PAYLOAD = try MODULE.creativePayload(
         ALLOCATOR,
-        .{ .instagram_actor_id = "987654321" },
+        .{ .instagram_user_id = "987654321" },
         AD,
         "abc123",
     );
 
     try STD.testing.expectEqualStrings(
-        "{\"name\":\"Spring Ad\",\"object_story_spec\":{\"type\":\"link\",\"instagram_actor_id\":\"987654321\",\"link_data\":{\"link\":\"https://campi.example.com/landing\",\"name\":\"Headline\",\"message\":\"Body\",\"image_hash\":\"abc123\",\"call_to_action\":{\"type\":\"SIGN_UP\"}}}}",
+        "{\"name\":\"Spring Ad\",\"object_story_spec\":{\"type\":\"link\",\"instagram_user_id\":\"987654321\",\"link_data\":{\"link\":\"https://campi.example.com/landing\",\"name\":\"Headline\",\"message\":\"Body\",\"image_hash\":\"abc123\",\"call_to_action\":{\"type\":\"SIGN_UP\"}}}}",
         PAYLOAD,
     );
 }

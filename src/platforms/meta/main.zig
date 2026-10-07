@@ -412,12 +412,12 @@ pub fn writeOperations(
     const TOKEN = ENVIRONMENT.findEnvVarValue(ENVIRON, &META_ENV.ENV, "token", OVERRIDES).?;
     const AD_ACCOUNT = ENVIRONMENT.findEnvVarValue(ENVIRON, &META_ENV.ENV, "ad_account_id", OVERRIDES).?;
     const PAGE = ENVIRONMENT.findEnvVarValue(ENVIRON, &META_ENV.ENV, "page_id", OVERRIDES);
-    const INSTAGRAM_ACTOR = ENVIRONMENT.findEnvVarValue(ENVIRON, &META_ENV.ENV, "instagram_actor_id", OVERRIDES);
+    const INSTAGRAM_USER = ENVIRONMENT.findEnvVarValue(ENVIRON, &META_ENV.ENV, "instagram_user_id", OVERRIDES);
 
-    if (PAGE == null and INSTAGRAM_ACTOR == null and checkIfAnyOperationsNeedCreativeDestination(loaded_manifests, operations)) {
+    if (PAGE == null and INSTAGRAM_USER == null and checkIfAnyOperationsNeedCreativeDestination(loaded_manifests, operations)) {
         context.stderr.print(
             \\could not find the CAMPI_META_PAGE_ID
-            \\or CAMPI_META_INSTAGRAM_ACTOR_ID environment variables;
+            \\or CAMPI_META_INSTAGRAM_USER_ID environment variables;
             \\one is required to write ad creatives,
             \\
         ,
@@ -437,8 +437,8 @@ pub fn writeOperations(
     _ = try CLIENT.fetchAccountName(AD_ACCOUNT);
     if (PAGE) |page|
         _ = try CLIENT.fetchPageName(page);
-    if (INSTAGRAM_ACTOR) |instagram_actor|
-        _ = try CLIENT.fetchPageName(instagram_actor);
+    if (INSTAGRAM_USER) |instagram_user|
+        _ = try CLIENT.fetchPageName(instagram_user);
 
     const SOURCES = try ARTIFACTS.collectCreativeSources(allocator, loaded_manifests);
     const LOADED_ARTIFACTS = ARTIFACTS.loadArtifacts(allocator, context, work_dir, SOURCES);
@@ -486,8 +486,8 @@ pub fn writeOperations(
                         var destination = PAYLOAD.CREATIVE_DESTINATION{};
                         if (PAGE) |page|
                             destination.page_id = page;
-                        if (INSTAGRAM_ACTOR) |instagram_actor|
-                            destination.instagram_actor_id = instagram_actor;
+                        if (INSTAGRAM_USER) |instagram_user|
+                            destination.instagram_user_id = instagram_user;
 
                         const CREATIVE_ID = try CLIENT.createAdCreative(
                             AD_ACCOUNT,

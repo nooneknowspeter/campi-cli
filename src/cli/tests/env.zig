@@ -6,7 +6,7 @@ const TEST_FIELDS = [_]ENV.Field{
     .{ .key = "token", .env_var = "CAMPI_META_ACCESS_TOKEN" },
     .{ .key = "ad_account_id", .env_var = "CAMPI_META_AD_ACCOUNT" },
     .{ .key = "page_id", .env_var = "CAMPI_META_PAGE_ID", .required = false },
-    .{ .key = "instagram_actor_id", .env_var = "CAMPI_META_INSTAGRAM_ACTOR_ID", .required = false },
+    .{ .key = "instagram_user_id", .env_var = "CAMPI_META_INSTAGRAM_USER_ID", .required = false },
     .{ .key = "graph_api_url", .env_var = "CAMPI_META_GRAPH_API_URL", .default = "https://graph.facebook.com/v26.0" },
 };
 

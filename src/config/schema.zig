@@ -12,7 +12,7 @@ pub const META_CONFIG = struct {
     token_env: ?[]const u8 = null,
     ad_account_id_env: ?[]const u8 = null,
     page_id_env: ?[]const u8 = null,
-    instagram_actor_id_env: ?[]const u8 = null,
+    instagram_user_id_env: ?[]const u8 = null,
     graph_api_url_env: ?[]const u8 = null,
 };
 

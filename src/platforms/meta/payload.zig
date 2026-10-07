@@ -113,7 +113,7 @@ pub fn adSetPayload(
 
 pub const CREATIVE_DESTINATION = struct {
     page_id: ?[]const u8 = null,
-    instagram_actor_id: ?[]const u8 = null,
+    instagram_user_id: ?[]const u8 = null,
 };
 
 pub fn creativePayload(
@@ -139,8 +139,8 @@ pub fn creativePayload(
     try spec.object.put(allocator, "type", .{ .string = "link" });
     if (destination.page_id) |page_id|
         try spec.object.put(allocator, "page_id", .{ .string = page_id });
-    if (destination.instagram_actor_id) |instagram_actor_id|
-        try spec.object.put(allocator, "instagram_actor_id", .{ .string = instagram_actor_id });
+    if (destination.instagram_user_id) |instagram_user_id|
+        try spec.object.put(allocator, "instagram_user_id", .{ .string = instagram_user_id });
     try spec.object.put(allocator, "link_data", link_data);
 
     var json_payload = STD.json.Value{ .object = .empty };
