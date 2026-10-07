@@ -87,8 +87,10 @@ on `state.campi.lock` and appends the record; the platform must be one of
 `tiktok`, `google`, `reddit`, `linkedin`; the `meta` platform covers
 Facebook, Instagram, Messenger and other Meta destinations through the
 Marketing API. `campi-cli platform meta` lists the ad account's campaigns
-with their objective and status. Data fetching is implemented
-for `meta`; the remaining platforms are reported as not implemented yet.
+with their objective and status, and, when a page id is configured, the
+Instagram accounts linked to it with their ids. Data fetching is
+implemented for `meta`; the remaining platforms are reported as not
+implemented yet.
 
 # ENVIRONMENT
 
@@ -109,13 +111,15 @@ granted the `ads_management` permission.
 
 `CAMPI_META_PAGE_ID`
 : Optional; Meta page id used to publish ad creatives to a Facebook page.
-One of this or `CAMPI_META_INSTAGRAM_ACTOR_ID` is required to write ad
-creatives.
+One of this or `CAMPI_META_INSTAGRAM_USER_ID` is required to write ad
+creatives. The command `campi-cli platform meta` lists the Instagram
+accounts linked to the page and their ids.
 
-`CAMPI_META_INSTAGRAM_ACTOR_ID`
-: Optional; Instagram business account id used to publish ad creatives to
-Instagram; the account must be linked to the ad account in Business Manager.
-One of this or `CAMPI_META_PAGE_ID` is required to write ad creatives.
+`CAMPI_META_INSTAGRAM_USER_ID`
+: Optional; Instagram user id used to publish ad creatives to Instagram; the
+account must be linked to the page in `CAMPI_META_PAGE_ID`. One of this or
+`CAMPI_META_PAGE_ID` is required to write ad creatives. The command
+`campi-cli platform meta` lists the linked accounts and their ids.
 
 `CAMPI_META_GRAPH_API_URL`
 : Meta Graph API base URL; defaults to `https://graph.facebook.com/v26.0`.
@@ -126,7 +130,7 @@ One of this or `CAMPI_META_PAGE_ID` is required to write ad creatives.
 Per platform, `config.campi` can override the variable names under
 `platform_configs`; a field is named after the key above with the `_env`
 suffix. For `meta`: `token_env`, `ad_account_id_env`, `page_id_env`,
-`instagram_actor_id_env`, `graph_api_url_env`. For `tiktok`: `token_env`. The
+`instagram_user_id_env`, `graph_api_url_env`. For `tiktok`: `token_env`. The
 field value is the environment variable used for that key instead of the
 default `CAMPI_...` one above.
 
