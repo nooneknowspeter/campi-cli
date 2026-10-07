@@ -28,6 +28,58 @@ pub const INSIGHTS = struct {
     spend_cents: u64 = 0,
 };
 
+pub const INSTAGRAM_ACCOUNT = struct {
+    id: []const u8,
+    ig_id: ?[]const u8 = null,
+    username: ?[]const u8 = null,
+    name: ?[]const u8 = null,
+};
+
+pub fn decodeInstagramAccounts(
+    allocator: STD.mem.Allocator,
+    document: []const u8,
+) !?[]INSTAGRAM_ACCOUNT {
+    const PARSED = try STD.json.parseFromSlice(
+        STD.json.Value,
+        allocator,
+        document,
+        .{},
+    );
+    defer PARSED.deinit();
+
+    const ROOT = PARSED.value;
+    const DATA = ROOT.object.get("data") orelse return null;
+
+    const ACCOUNTS = try allocator.alloc(INSTAGRAM_ACCOUNT, DATA.array.items.len);
+
+    for (DATA.array.items, 0..) |item, i| {
+        const OBJECT = item.object;
+        const ID = OBJECT.get("id") orelse return error.MetaRequestFailed;
+
+        ACCOUNTS[i] = .{
+            .id = try allocator.dupe(u8, ID.string),
+            .ig_id = try optionalString(allocator, OBJECT, "ig_id"),
+            .username = try optionalString(allocator, OBJECT, "username"),
+            .name = try optionalString(allocator, OBJECT, "name"),
+        };
+    }
+
+    return ACCOUNTS;
+}
+
+fn optionalString(
+    allocator: STD.mem.Allocator,
+    object: STD.json.ObjectMap,
+    key: []const u8,
+) !?[]const u8 {
+    const VALUE = object.get(key) orelse return null;
+
+    return switch (VALUE) {
+        .string => |text| try allocator.dupe(u8, text),
+        else => null,
+    };
+}
+
 fn parseIdNumber(value: STD.json.Value) ?STD.json.Value {
     return switch (value) {
         .integer => |integer| STD.json.Value{ .integer = integer },

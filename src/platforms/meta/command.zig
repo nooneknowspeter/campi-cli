@@ -76,6 +76,30 @@ pub fn run(
     context.stdout.print("Account: {s} (act_{s})\n", .{ ACCOUNT_NAME, AD_ACCOUNT }) catch
         return CONTEXT.ExitCode.RUNTIME_FAILURE;
 
+    const PAGE_ID = ENV.findEnvVarValue(ENVIRON, &META_ENV.ENV, "page_id", OVERRIDES);
+
+    if (PAGE_ID) |page_id| {
+        if (CLIENT.fetchLinkedInstagramAccounts(page_id)) |accounts| {
+            defer {
+                for (accounts) |account| {
+                    allocator.free(account.id);
+                    if (account.ig_id) |ig_id| allocator.free(ig_id);
+                    if (account.username) |username| allocator.free(username);
+                    if (account.name) |name| allocator.free(name);
+                }
+                allocator.free(accounts);
+            }
+
+            formatInstagramAccounts(context, accounts) catch
+                return CONTEXT.ExitCode.RUNTIME_FAILURE;
+        } else |_| {
+            context.stderr.print(
+                "could not fetch linked instagram accounts for the configured page\n",
+                .{},
+            ) catch return CONTEXT.ExitCode.RUNTIME_FAILURE;
+        }
+    }
+
     if (CAMPAIGNS.len == 0) {
         context.stdout.print("no campaigns found\n", .{}) catch
             return CONTEXT.ExitCode.RUNTIME_FAILURE;
@@ -83,14 +107,14 @@ pub fn run(
         return CONTEXT.ExitCode.SUCCESS;
     }
 
-    formatCampaigns(context.stdout, CAMPAIGNS) catch
+    formatCampaigns(context, CAMPAIGNS) catch
         return CONTEXT.ExitCode.RUNTIME_FAILURE;
 
     return CONTEXT.ExitCode.SUCCESS;
 }
 
 pub fn formatCampaigns(
-    writer: *STD.Io.Writer,
+    context: CONTEXT.CommandContext,
     campaigns: []const META.Campaign,
 ) !void {
     for (campaigns) |campaign| {
@@ -99,6 +123,40 @@ pub fn formatCampaigns(
         else
             campaign.objective;
 
-        try writer.print("{s} [{s}] {s}\n", .{ campaign.name, OBJECTIVE, campaign.status });
+        try context.stdout.print("{s} [{s}] {s}\n", .{ campaign.name, OBJECTIVE, campaign.status });
+    }
+}
+
+pub fn formatInstagramAccounts(
+    context: CONTEXT.CommandContext,
+    accounts: []const META.INSTAGRAM_ACCOUNT,
+) !void {
+    try context.stdout.print("Linked instagram accounts:\n", .{});
+
+    if (accounts.len == 0) {
+        try context.stdout.print("  none found\n", .{});
+
+        return;
+    }
+
+    for (accounts) |account| {
+        try context.stdout.print("  ", .{});
+
+        if (account.name) |name| {
+            try context.stdout.print("{s} ", .{name});
+            if (account.username) |username|
+                try context.stdout.print("(@{s}) ", .{username});
+        } else if (account.username) |username| {
+            try context.stdout.print("@{s} ", .{username});
+        }
+
+        try context.stdout.print("id={s}", .{account.id});
+
+        if (account.ig_id) |ig_id| {
+            if (!STD.mem.eql(u8, ig_id, account.id))
+                try context.stdout.print(" ig_id={s}", .{ig_id});
+        }
+
+        try context.stdout.print("\n", .{});
     }
 }

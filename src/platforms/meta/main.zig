@@ -22,6 +22,8 @@ pub const Campaign = struct {
     objective: []const u8,
 };
 
+pub const INSTAGRAM_ACCOUNT = SCHEMA.INSTAGRAM_ACCOUNT;
+
 pub const Client = struct {
     allocator: STD.mem.Allocator,
     io: STD.Io,
@@ -247,6 +249,27 @@ pub const Client = struct {
         return self.allocator.dupe(u8, NAME.string);
     }
 
+    pub fn fetchLinkedInstagramAccounts(
+        self: *const Client,
+        page_id: []const u8,
+    ) ![]INSTAGRAM_ACCOUNT {
+        if (page_id.len == 0) return error.MetaEnvironmentMissing;
+
+        const PATH = try STD.fmt.allocPrint(
+            self.allocator,
+            "/{s}/instagram_accounts?fields=id,ig_id,username,name",
+            .{page_id},
+        );
+        defer self.allocator.free(PATH);
+
+        const RESPONSE = try self.requestJson(.GET, PATH, "application/json", "");
+        defer self.allocator.free(RESPONSE);
+
+        const ACCOUNTS = try SCHEMA.decodeInstagramAccounts(self.allocator, RESPONSE);
+
+        return ACCOUNTS orelse error.MetaRequestFailed;
+    }
+
     pub fn fetchCampaigns(
         self: *const Client,
         ad_account_id: []const u8,
@@ -437,8 +460,6 @@ pub fn writeOperations(
     _ = try CLIENT.fetchAccountName(AD_ACCOUNT);
     if (PAGE) |page|
         _ = try CLIENT.fetchPageName(page);
-    if (INSTAGRAM_USER) |instagram_user|
-        _ = try CLIENT.fetchPageName(instagram_user);
 
     const SOURCES = try ARTIFACTS.collectCreativeSources(allocator, loaded_manifests);
     const LOADED_ARTIFACTS = ARTIFACTS.loadArtifacts(allocator, context, work_dir, SOURCES);
