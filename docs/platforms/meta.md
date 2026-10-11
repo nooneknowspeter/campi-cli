@@ -5,13 +5,13 @@ and write to Meta, and how to set them in `.env`.
 
 ## Credentials
 
-| Variable | Description |
-| --- | --- |
-| `CAMPI_META_ACCESS_TOKEN` | Long-lived Meta user access token with `ads_management`. |
-| `CAMPI_META_AD_ACCOUNT` | Numeric ad account id; the tool prepends `act_`. |
-| `CAMPI_META_PAGE_ID` | Facebook Page id used as the ad creative destination. |
-| `CAMPI_META_INSTAGRAM_USER_ID` | Instagram user id used as the ad creative destination. |
-| `CAMPI_META_GRAPH_API_URL` | Graph API base URL; defaults to `https://graph.facebook.com/v26.0`. |
+| Variable                       | Description                                                         |
+| ------------------------------ | ------------------------------------------------------------------- |
+| `CAMPI_META_ACCESS_TOKEN`      | Long-lived Meta user access token with `ads_management`.            |
+| `CAMPI_META_AD_ACCOUNT`        | Numeric ad account id; the tool prepends `act_`.                    |
+| `CAMPI_META_PAGE_ID`           | Facebook Page id used as the ad creative destination.               |
+| `CAMPI_META_INSTAGRAM_USER_ID` | Instagram user id used as the ad creative destination.              |
+| `CAMPI_META_GRAPH_API_URL`     | Graph API base URL; defaults to `https://graph.facebook.com/v26.0`. |
 
 At least one of `CAMPI_META_PAGE_ID` or `CAMPI_META_INSTAGRAM_USER_ID` is
 required to create ad creatives. Leave the ones you do not use empty.
@@ -146,10 +146,10 @@ Never commit `.env`. Revoke tokens you no longer use from the
 
 ## Troubleshooting
 
-| Symptom | Cause | Fix |
-| --- | --- | --- |
-| `Error validating access token ... Session has expired` (`code 190`) | Token expired | Generate a new long-lived token. |
-| `(#190) This method must be called with a Page Access Token` | A Page-scoped endpoint was called with a user token | Use `campi-cli platform meta`, which derives the Page token. |
-| `Ads creative post was created by an app that is in development mode` (`subcode 1885183`) | App is in Development mode | Switch the app to Live (step 3). |
-| Missing permission, or a scope error | Token lacks a permission | Add the scope and regenerate the token (step 2). |
-| Ad account not found | The value includes the `act_` prefix or is wrong | Use the numeric `account_id` only. |
+| Symptom                                                                                   | Cause                                               | Fix                                                          |
+| ----------------------------------------------------------------------------------------- | --------------------------------------------------- | ------------------------------------------------------------ |
+| `Error validating access token ... Session has expired` (`code 190`)                      | Token expired                                       | Generate a new long-lived token.                             |
+| `(#190) This method must be called with a Page Access Token`                              | A Page-scoped endpoint was called with a user token | Use `campi-cli platform meta`, which derives the Page token. |
+| `Ads creative post was created by an app that is in development mode` (`subcode 1885183`) | App is in Development mode                          | Switch the app to Live (step 3).                             |
+| Missing permission, or a scope error                                                      | Token lacks a permission                            | Add the scope and regenerate the token (step 2).             |
+| Ad account not found                                                                      | The value includes the `act_` prefix or is wrong    | Use the numeric `account_id` only.                           |
