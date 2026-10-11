@@ -101,6 +101,13 @@ pub fn adSetPayload(
     });
     try json_payload.object.put(allocator, "status", .{ .string = statusFor(ad_group.status) });
 
+    if (ad_group.bid_amount_in_cents) |bid_amount| {
+        try json_payload.object.put(allocator, "bid_strategy", .{ .string = "LOWEST_COST_WITH_BID_CAP" });
+        try json_payload.object.put(allocator, "bid_amount", .{
+            .string = try dailyBudget(allocator, bid_amount),
+        });
+    } else try json_payload.object.put(allocator, "bid_strategy", .{ .string = "LOWEST_COST_WITHOUT_CAP" });
+
     if (ad_group.budget) |budget|
         try json_payload.object.put(allocator, "daily_budget", .{
             .string = try dailyBudget(allocator, budget.amount_in_cents),
