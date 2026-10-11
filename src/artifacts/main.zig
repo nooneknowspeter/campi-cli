@@ -51,6 +51,40 @@ pub fn contentTypeForSource(source: []const u8) []const u8 {
     }
 }
 
+pub fn contentTypeForBytes(bytes: []const u8) ?[]const u8 {
+    if (STD.mem.startsWith(u8, bytes, "\x89PNG\r\n\x1a\n"))
+        return "image/png";
+    if (STD.mem.startsWith(u8, bytes, "\xff\xd8\xff"))
+        return "image/jpeg";
+    if (STD.mem.startsWith(u8, bytes, "GIF87a") or STD.mem.startsWith(u8, bytes, "GIF89a"))
+        return "image/gif";
+    if (bytes.len >= 12 and STD.mem.startsWith(u8, bytes, "RIFF") and STD.mem.eql(u8, bytes[8..12], "WEBP"))
+        return "image/webp";
+    if (bytes.len >= 12 and STD.mem.eql(u8, bytes[4..8], "ftyp"))
+        return "video/mp4";
+
+    return null;
+}
+
+pub fn contentTypeForArtifact(source: []const u8, bytes: []const u8) []const u8 {
+    return contentTypeForBytes(bytes) orelse contentTypeForSource(source);
+}
+
+pub fn fileNameForContentType(content_type: []const u8) []const u8 {
+    if (STD.mem.eql(u8, content_type, "image/png"))
+        return "creative.png";
+    if (STD.mem.eql(u8, content_type, "image/jpeg"))
+        return "creative.jpg";
+    if (STD.mem.eql(u8, content_type, "image/webp"))
+        return "creative.webp";
+    if (STD.mem.eql(u8, content_type, "image/gif"))
+        return "creative.gif";
+    if (STD.mem.eql(u8, content_type, "video/mp4"))
+        return "creative.mp4";
+
+    return "creative.bin";
+}
+
 pub fn collectCreativeSources(
     allocator: STD.mem.Allocator,
     loaded_manifests: []const MANIFEST.LoadedManifest,
@@ -241,7 +275,7 @@ pub fn loadArtifact(
     if (try readCached(allocator, context, work_dir, CACHE_PATH)) |BYTES| {
         return .{
             .source = source,
-            .content_type = contentTypeForSource(source),
+            .content_type = contentTypeForArtifact(source, BYTES),
             .bytes = BYTES,
         };
     }
@@ -252,7 +286,7 @@ pub fn loadArtifact(
 
     return .{
         .source = source,
-        .content_type = contentTypeForSource(source),
+        .content_type = contentTypeForArtifact(source, BYTES),
         .bytes = BYTES,
     };
 }

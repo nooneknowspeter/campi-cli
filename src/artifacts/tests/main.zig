@@ -49,6 +49,39 @@ test "contentTypeForSource maps extensions case-insensitively" {
     }
 }
 
+test "contentTypeForBytes sniffs image and video signatures" {
+    try STD.testing.expectEqualStrings("image/png", MODULE.contentTypeForBytes("\x89PNG\r\n\x1a\n\x00").?);
+    try STD.testing.expectEqualStrings("image/jpeg", MODULE.contentTypeForBytes("\xff\xd8\xff\xe0").?);
+    try STD.testing.expectEqualStrings("image/gif", MODULE.contentTypeForBytes("GIF89a\x01").?);
+    try STD.testing.expectEqualStrings("image/webp", MODULE.contentTypeForBytes("RIFF\x00\x00\x00\x00WEBPVP8 ").?);
+    try STD.testing.expectEqualStrings("video/mp4", MODULE.contentTypeForBytes("\x00\x00\x00\x18ftypmp42").?);
+    try STD.testing.expect(MODULE.contentTypeForBytes("plain text") == null);
+}
+
+test "contentTypeForArtifact prefers the byte signature over the extension" {
+    try STD.testing.expectEqualStrings(
+        "image/png",
+        MODULE.contentTypeForArtifact("https://x.com/avatar", "\x89PNG\r\n\x1a\n\x00"),
+    );
+    try STD.testing.expectEqualStrings(
+        "image/png",
+        MODULE.contentTypeForArtifact("https://x.com/avatar.png", "\x89PNG\r\n\x1a\n\x00"),
+    );
+    try STD.testing.expectEqualStrings(
+        "application/octet-stream",
+        MODULE.contentTypeForArtifact("https://x.com/avatar", "plain text"),
+    );
+}
+
+test "fileNameForContentType maps content types to extensions" {
+    try STD.testing.expectEqualStrings("creative.png", MODULE.fileNameForContentType("image/png"));
+    try STD.testing.expectEqualStrings("creative.jpg", MODULE.fileNameForContentType("image/jpeg"));
+    try STD.testing.expectEqualStrings("creative.webp", MODULE.fileNameForContentType("image/webp"));
+    try STD.testing.expectEqualStrings("creative.gif", MODULE.fileNameForContentType("image/gif"));
+    try STD.testing.expectEqualStrings("creative.mp4", MODULE.fileNameForContentType("video/mp4"));
+    try STD.testing.expectEqualStrings("creative.bin", MODULE.fileNameForContentType("application/octet-stream"));
+}
+
 test "resolveKind distinguishes remote and local sources" {
     try STD.testing.expectEqual(MODULE.SCHEMA.SOURCE_KIND.remote, MODULE.resolveKind("https://x.com/a.png"));
     try STD.testing.expectEqual(MODULE.SCHEMA.SOURCE_KIND.remote, MODULE.resolveKind("http://x.com/a.png"));
