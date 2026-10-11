@@ -367,9 +367,9 @@ fn multipartBody(
     defer body.deinit();
 
     try body.writer.print(
-        \\--{s}\r\nContent-Disposition: form-data; name="filename"\r\n\r\n{s}\r\n
-        \\--{s}\r\nContent-Disposition: form-data; name="bytes"; filename="{s}"\r\nContent-Type: {s}\r\n\r\n
-    , .{ BOUNDARY, filename, BOUNDARY, filename, content_type });
+        "--{s}\r\nContent-Disposition: form-data; name=\"filename\"; filename=\"{s}\"\r\nContent-Type: {s}\r\n\r\n",
+        .{ BOUNDARY, filename, content_type },
+    );
     try body.writer.writeAll(bytes);
     try body.writer.print("\r\n--{s}--\r\n", .{BOUNDARY});
 
@@ -430,7 +430,12 @@ fn imageHashFor(
 
     for (artifacts) |artifact| {
         if (STD.mem.eql(u8, artifact.source, SOURCE))
-            return client.uploadImage(ad_account_id, SOURCE, artifact.content_type, artifact.bytes);
+            return client.uploadImage(
+                ad_account_id,
+                ARTIFACTS.fileNameForContentType(artifact.content_type),
+                artifact.content_type,
+                artifact.bytes,
+            );
     }
 
     return error.MetaCreativeMissing;
