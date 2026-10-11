@@ -49,6 +49,9 @@ campi-cli platform meta
 that are empty or whitespace only count as unset, so leave the entries you do
 not use empty.
 
+The [platform guides](platforms/README.md) walk through obtaining each token
+and id. For Meta, see [docs/platforms/meta.md](platforms/meta.md).
+
 ## Dry run
 
 Commands that change files run in dry run mode by default; they report what
@@ -67,4 +70,5 @@ campaigns stay reproducible.
 ## See also
 
 - [Commands](commands.md)
+- [Platform guides](platforms/README.md)
 - [Development](development.md)

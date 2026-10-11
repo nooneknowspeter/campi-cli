@@ -9,6 +9,10 @@ zig build run -- plan --dir examples/demo
 zig build run -- apply --dir examples/demo
 ```
 
+See [docs/platforms/meta.md](../../docs/platforms/meta.md) for how to obtain the
+Meta token and ids. The app must be in **Live** mode before `apply -w` can
+create the ad creative.
+
 `plan` shows a `+` create for the demo campaign. `apply` is a dry run; add
 `-w` / `--write` to create the campaign, ad set, creative, and ad on Meta.
 The generated `state.campi` and `.env` are ignored by git.

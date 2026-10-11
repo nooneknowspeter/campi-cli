@@ -107,7 +107,7 @@ Platform credentials are read from the environment:
 granted the `ads_management` permission.
 
 `CAMPI_META_AD_ACCOUNT`
-: Meta ad account id, in the form `act_<id>`.
+: Meta ad account id, as the numeric `account_id`; the tool prepends `act_`.
 
 `CAMPI_META_PAGE_ID`
 : Optional; Meta page id used to publish ad creatives to a Facebook page.

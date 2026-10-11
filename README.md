@@ -79,6 +79,7 @@ zig build --prefix ~/.local
 - [Installation](docs/installation.md)
 - [Usage](docs/usage.md)
 - [Commands](docs/commands.md)
+- [Platform guides](docs/platforms/README.md)
 - [Development](docs/development.md)
 
 ## Project
