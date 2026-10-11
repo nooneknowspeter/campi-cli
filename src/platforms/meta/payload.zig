@@ -184,11 +184,8 @@ fn targetingObject(allocator: STD.mem.Allocator, target: ?MANIFEST.TARGET) !STD.
         var geo_locations = STD.json.Value{ .object = .empty };
 
         var countries = STD.json.Value{ .array = STD.json.Array.init(allocator) };
-        for (locations.include) |location| {
-            var entry = STD.json.Value{ .object = .empty };
-            try entry.object.put(allocator, "country", .{ .string = location.country });
-            try countries.array.append(entry);
-        }
+        for (locations.include) |location|
+            try countries.array.append(.{ .string = location.country });
         try geo_locations.object.put(allocator, "countries", countries);
 
         try json_payload.object.put(allocator, "geo_locations", geo_locations);

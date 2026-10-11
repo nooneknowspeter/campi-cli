@@ -108,3 +108,43 @@ test "creative payload targets instagram when no page id is given" {
         PAYLOAD,
     );
 }
+
+test "ad set payload emits geo countries as strings" {
+    var arena = STD.heap.ArenaAllocator.init(STD.testing.allocator);
+    defer arena.deinit();
+    const ALLOCATOR = arena.allocator();
+
+    var group_names = [_][]const u8{"Demo ad set"};
+
+    var locations = [_]MANIFEST.LOCATION{
+        .{ .country = "US", .state = null, .city = null, .radius_km = null },
+    };
+
+    const AD_GROUP = MANIFEST.AD_GROUP{
+        .name = &group_names,
+        .status = .PAUSED,
+        .budget = .{ .type = .DAILY, .amount_in_cents = 500, .currency = "USD" },
+        .target = .{
+            .locations = .{
+                .include = &locations,
+                .exclude = null,
+            },
+            .genders = null,
+            .age_min = 18,
+            .age_max = 65,
+            .languages = null,
+            .interests = null,
+            .devices_platforms = null,
+        },
+        .optimization_goal = .CLICKS,
+        .bid_amount_in_cents = null,
+        .ads = &.{},
+    };
+
+    const PAYLOAD = try MODULE.adSetPayload(ALLOCATOR, AD_GROUP, "123456789");
+
+    try STD.testing.expectEqualStrings(
+        "{\"name\":\"Demo ad set\",\"campaign_id\":\"123456789\",\"billing_event\":\"IMPRESSIONS\",\"optimization_goal\":\"LINK_CLICKS\",\"status\":\"PAUSED\",\"bid_strategy\":\"LOWEST_COST_WITHOUT_CAP\",\"daily_budget\":\"500\",\"targeting\":{\"geo_locations\":{\"countries\":[\"US\"]},\"age_min\":18,\"age_max\":65}}",
+        PAYLOAD,
+    );
+}
