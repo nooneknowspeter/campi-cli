@@ -51,6 +51,17 @@ pub const Client = struct {
         content_type: []const u8,
         body: []const u8,
     ) ![]const u8 {
+        return self.requestJsonWithToken(self.access_token, method, path, content_type, body);
+    }
+
+    fn requestJsonWithToken(
+        self: *const Client,
+        access_token: []const u8,
+        method: STD.http.Method,
+        path: []const u8,
+        content_type: []const u8,
+        body: []const u8,
+    ) ![]const u8 {
         var client = STD.http.Client{ .allocator = self.allocator, .io = self.io };
         defer client.deinit();
 
@@ -62,7 +73,7 @@ pub const Client = struct {
         var writer = STD.Io.Writer.Allocating.init(self.allocator);
         defer writer.deinit();
 
-        const AUTHORIZATION = try STD.fmt.allocPrint(self.allocator, "Bearer {s}", .{self.access_token});
+        const AUTHORIZATION = try STD.fmt.allocPrint(self.allocator, "Bearer {s}", .{access_token});
         defer self.allocator.free(AUTHORIZATION);
 
         const RESULT = try client.fetch(.{
@@ -249,11 +260,34 @@ pub const Client = struct {
         return self.allocator.dupe(u8, NAME.string);
     }
 
+    pub fn fetchPageAccessToken(
+        self: *const Client,
+        page_id: []const u8,
+    ) ![]const u8 {
+        if (page_id.len == 0) return error.MetaEnvironmentMissing;
+
+        const PATH = try STD.fmt.allocPrint(self.allocator, "/{s}?fields=access_token", .{page_id});
+        defer self.allocator.free(PATH);
+
+        const RESPONSE = try self.requestJson(.GET, PATH, "application/json", "");
+        defer self.allocator.free(RESPONSE);
+
+        const PARSED = try STD.json.parseFromSlice(STD.json.Value, self.allocator, RESPONSE, .{});
+        defer PARSED.deinit();
+
+        const TOKEN = PARSED.value.object.get("access_token") orelse return error.MetaRequestFailed;
+
+        return self.allocator.dupe(u8, TOKEN.string);
+    }
+
     pub fn fetchLinkedInstagramAccounts(
         self: *const Client,
         page_id: []const u8,
     ) ![]INSTAGRAM_ACCOUNT {
         if (page_id.len == 0) return error.MetaEnvironmentMissing;
+
+        const ACCESS_TOKEN = try self.fetchPageAccessToken(page_id);
+        defer self.allocator.free(ACCESS_TOKEN);
 
         const PATH = try STD.fmt.allocPrint(
             self.allocator,
@@ -262,7 +296,7 @@ pub const Client = struct {
         );
         defer self.allocator.free(PATH);
 
-        const RESPONSE = try self.requestJson(.GET, PATH, "application/json", "");
+        const RESPONSE = try self.requestJsonWithToken(ACCESS_TOKEN, .GET, PATH, "application/json", "");
         defer self.allocator.free(RESPONSE);
 
         const ACCOUNTS = try SCHEMA.decodeInstagramAccounts(self.allocator, RESPONSE);
