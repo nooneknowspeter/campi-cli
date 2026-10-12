@@ -6,6 +6,7 @@ project:
   render:
     - index.qmd
     - docs/*.md
+    - docs/platforms/*.md
     - CONTRIBUTING.md
     - SECURITY.md
     - SUPPORT.md
@@ -27,6 +28,10 @@ website:
           - docs/usage.md
           - docs/commands.md
           - docs/development.md
+      - section: Platforms
+        contents:
+          - docs/platforms/README.md
+          - docs/platforms/meta.md
       - section: Project
         contents:
           - CONTRIBUTING.md
