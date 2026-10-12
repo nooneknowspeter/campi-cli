@@ -16,6 +16,7 @@ pub const MAIN =
     \\ state - retrieve current state and compare against provided state
     \\ plan - fetch and show state data
     \\ apply - apply current manifests and configuration
+    \\ destroy - archive the campaigns recorded in state and clear state
     \\ import - import hand-created campaigns into state
     \\ platform - fetch and format platform marketing API data
     \\
@@ -133,6 +134,20 @@ pub const APPLY =
     \\ -v / --verbose - Show verbose output and debug logs
     \\ -w / --write - Apply the plan and persist state
     \\ --exclude <VALUE>
+    \\ -d <WORK_DIR> / --dir <WORK_DIR> - Run command in the specified working directory
+    \\
+;
+
+pub const DESTROY =
+    \\ campi-cli destroy [ARGS]
+    \\
+    \\ Archive the campaigns recorded in state and clear state
+    \\ runs in dry run mode by default, use -w / --write to execute
+    \\
+    \\ Args:
+    \\ -h / --help - Show this help output
+    \\ -v / --verbose - Show verbose output and debug logs
+    \\ -w / --write - Archive campaigns and clear state
     \\ -d <WORK_DIR> / --dir <WORK_DIR> - Run command in the specified working directory
     \\
 ;

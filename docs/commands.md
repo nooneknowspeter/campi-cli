@@ -27,3 +27,8 @@ to persist changes.
   reported as not implemented yet
 
 See `campi-cli help <COMMAND>` for the flags of a specific command.
+
+## destroy
+
+Archive the campaigns recorded in state and clear state. Runs in dry run mode
+by default; use `-w` or `--write` to execute. On success the state is cleared.

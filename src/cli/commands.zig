@@ -5,6 +5,7 @@ const PARSER = @import("parser.zig");
 
 const APPLY_CMD = @import("commands/apply.zig");
 const CONFIG_CMD = @import("commands/config.zig");
+const DESTROY_CMD = @import("commands/destroy.zig");
 const FMT_CMD = @import("commands/fmt.zig");
 pub const HELP = @import("commands/help.zig");
 const IMPORT_CMD = @import("commands/import.zig");
@@ -53,6 +54,7 @@ const CONFIG_FLAGS = SHARED_FLAGS ++ CONFIG_CMD.FLAGS;
 const STATE_FLAGS = SHARED_FLAGS ++ STATE_CMD.FLAGS;
 const PLAN_FLAGS = SHARED_FLAGS ++ PLAN_CMD.FLAGS;
 const APPLY_FLAGS = SHARED_FLAGS ++ APPLY_CMD.FLAGS;
+const DESTROY_FLAGS = SHARED_FLAGS ++ DESTROY_CMD.FLAGS;
 const IMPORT_FLAGS = SHARED_FLAGS ++ IMPORT_CMD.FLAGS;
 const PLATFORM_FLAGS = SHARED_FLAGS ++ PLATFORM_CMD.FLAGS;
 
@@ -110,6 +112,12 @@ pub const COMMAND_REGISTRY = [_]CommandDefinition{
         .help = HELP.APPLY,
         .flags = &APPLY_FLAGS,
         .run = APPLY_CMD.run,
+    },
+    .{
+        .name = "destroy",
+        .help = HELP.DESTROY,
+        .flags = &DESTROY_FLAGS,
+        .run = DESTROY_CMD.run,
     },
     .{
         .name = "import",

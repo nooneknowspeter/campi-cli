@@ -179,3 +179,7 @@ working directory, `.cloud` points at a remote backend URI
 
 The campi-cli source and documentation live in the repository
 `github:nooneknowspeter/campi-cli`.
+
+**destroy**
+: Archive the campaigns recorded in state and clear state. Runs in dry run mode
+by default; use `-w` or `--write` to execute. On success the state is cleared.
