@@ -84,6 +84,13 @@ zig build --prefix ~/.local
 
 ## Project
 
+> [!NOTE]
+>
+> This project is not vibe-coded. AI is a coding companion, not a replacement for judgement.
+> Everything is reviewed, critiqued, and guided; clean-code and architecture standards are enforced.
+> This project wouldn't exist without the time AI saves.
+> Locally hosted, energy-efficient models are being used when possible.
+
 - [Contributing](CONTRIBUTING.md)
 - [Support](SUPPORT.md)
 - [Security](SECURITY.md)
