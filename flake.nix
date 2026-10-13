@@ -129,6 +129,14 @@
 
             shellHook = "";
           };
+
+          docs = pkgs.mkShell {
+            packages = [ ] ++ doc_pkgs;
+
+            shellHook = ''
+              export QUARTO_PANDOC=${pandoc_38}/bin/pandoc
+            '';
+          };
         };
       }
     );
