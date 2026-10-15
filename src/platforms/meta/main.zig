@@ -16,12 +16,6 @@ const MultipartBody = struct {
     body: []const u8,
 };
 
-pub const Campaign = struct {
-    name: []const u8,
-    status: []const u8,
-    objective: []const u8,
-};
-
 pub const INSTAGRAM_ACCOUNT = SCHEMA.INSTAGRAM_ACCOUNT;
 
 pub const Client = struct {
@@ -62,13 +56,24 @@ pub const Client = struct {
         content_type: []const u8,
         body: []const u8,
     ) ![]const u8 {
+        const URL = try STD.fmt.allocPrint(self.allocator, "{s}{s}", .{ self.base_url, path });
+        defer self.allocator.free(URL);
+
+        return self.requestAbsolute(access_token, method, URL, content_type, body);
+    }
+
+    fn requestAbsolute(
+        self: *const Client,
+        access_token: []const u8,
+        method: STD.http.Method,
+        url: []const u8,
+        content_type: []const u8,
+        body: []const u8,
+    ) ![]const u8 {
         var client = STD.http.Client{ .allocator = self.allocator, .io = self.io };
         defer client.deinit();
 
-        STD.log.scoped(.meta).debug("{s} {s}", .{ @tagName(method), path });
-
-        const URL = try STD.fmt.allocPrint(self.allocator, "{s}{s}", .{ self.base_url, path });
-        defer self.allocator.free(URL);
+        STD.log.scoped(.meta).debug("{s} {s}", .{ @tagName(method), url });
 
         var writer = STD.Io.Writer.Allocating.init(self.allocator);
         defer writer.deinit();
@@ -77,7 +82,7 @@ pub const Client = struct {
         defer self.allocator.free(AUTHORIZATION);
 
         const RESULT = try client.fetch(.{
-            .location = .{ .url = URL },
+            .location = .{ .url = url },
             .method = method,
             .payload = if (method.requestHasBody()) body else null,
             .headers = .{
@@ -91,7 +96,7 @@ pub const Client = struct {
             "{s} {s} -> {d} {s}",
             .{
                 @tagName(method),
-                path,
+                url,
                 @intFromEnum(RESULT.status),
                 RESULT.status.phrase() orelse "",
             },
@@ -102,7 +107,7 @@ pub const Client = struct {
                 "{s} {s} failed with {d} {s}: {s}",
                 .{
                     @tagName(method),
-                    path,
+                    url,
                     @intFromEnum(RESULT.status),
                     RESULT.status.phrase() orelse "",
                     writer.written(),
@@ -113,6 +118,45 @@ pub const Client = struct {
         }
 
         return writer.toOwnedSlice();
+    }
+
+    fn collect(
+        self: *const Client,
+        comptime T: type,
+        comptime destroy: fn (STD.mem.Allocator, []T) void,
+        first_path: []const u8,
+        decode: fn (STD.mem.Allocator, []const u8) anyerror!?[]T,
+    ) ![]T {
+        var full_url: []const u8 = try STD.fmt.allocPrint(self.allocator, "{s}{s}", .{ self.base_url, first_path });
+        defer self.allocator.free(full_url);
+
+        var items: []T = &.{};
+        errdefer destroy(self.allocator, items);
+
+        while (true) {
+            const RESPONSE = try self.requestAbsolute(self.access_token, .GET, full_url, "application/json", "");
+            defer self.allocator.free(RESPONSE);
+
+            const DECODED = try decode(self.allocator, RESPONSE);
+            const PAGE = DECODED orelse break;
+
+            const LENGTH = items.len;
+            items = if (LENGTH == 0)
+                try self.allocator.alloc(T, PAGE.len)
+            else
+                try self.allocator.realloc(items, LENGTH + PAGE.len);
+
+            @memcpy(items[LENGTH..], PAGE);
+            self.allocator.free(PAGE);
+
+            const NEXT_URL = try nextPageUrl(self.allocator, RESPONSE);
+            const NEXT = NEXT_URL orelse break;
+
+            self.allocator.free(full_url);
+            full_url = NEXT;
+        }
+
+        return items;
     }
 
     pub fn createCampaign(
@@ -307,38 +351,66 @@ pub const Client = struct {
     pub fn fetchCampaigns(
         self: *const Client,
         ad_account_id: []const u8,
-    ) ![]Campaign {
+    ) ![]SCHEMA.CAMPAIGN {
         const PATH = try STD.fmt.allocPrint(
             self.allocator,
-            "/act_{s}/campaigns?fields=name,status,objective&limit=100",
+            "/act_{s}/campaigns?fields=id,name,status,objective&limit=100",
             .{ad_account_id},
         );
         defer self.allocator.free(PATH);
 
-        const RESPONSE = try self.requestJson(.GET, PATH, "application/json", "");
-        defer self.allocator.free(RESPONSE);
+        return self.collect(SCHEMA.CAMPAIGN, SCHEMA.freeCampaigns, PATH, SCHEMA.decodeCampaigns);
+    }
 
-        const PARSED = try STD.json.parseFromSlice(STD.json.Value, self.allocator, RESPONSE, .{});
-        defer PARSED.deinit();
+    pub fn fetchAdSets(
+        self: *const Client,
+        ad_account_id: []const u8,
+    ) ![]SCHEMA.AD_SET {
+        const PATH = try STD.fmt.allocPrint(
+            self.allocator,
+            "/act_{s}/adsets?fields=id,name,status,campaign_id&limit=100",
+            .{ad_account_id},
+        );
+        defer self.allocator.free(PATH);
 
-        const DATA = PARSED.value.object.get("data") orelse return error.MetaRequestFailed;
+        return self.collect(SCHEMA.AD_SET, SCHEMA.freeAdSets, PATH, SCHEMA.decodeAdSets);
+    }
 
-        var campaigns = STD.ArrayList(Campaign).empty;
-        for (DATA.array.items) |entry| {
-            const NAME = entry.object.get("name") orelse continue;
-            const STATUS = entry.object.get("status") orelse continue;
-            const OBJECTIVE = entry.object.get("objective") orelse continue;
+    pub fn fetchAds(
+        self: *const Client,
+        ad_account_id: []const u8,
+    ) ![]SCHEMA.AD {
+        const PATH = try STD.fmt.allocPrint(
+            self.allocator,
+            "/act_{s}/ads?fields=id,name,status,adset_id&limit=100",
+            .{ad_account_id},
+        );
+        defer self.allocator.free(PATH);
 
-            try campaigns.append(self.allocator, .{
-                .name = try self.allocator.dupe(u8, NAME.string),
-                .status = try self.allocator.dupe(u8, STATUS.string),
-                .objective = try self.allocator.dupe(u8, OBJECTIVE.string),
-            });
-        }
+        return self.collect(SCHEMA.AD, SCHEMA.freeAds, PATH, SCHEMA.decodeAds);
+    }
 
-        return campaigns.toOwnedSlice(self.allocator);
+    pub fn fetchPages(
+        self: *const Client,
+    ) ![]SCHEMA.PAGE {
+        const PATH = "/me/accounts?fields=id,name,category&limit=100";
+
+        return self.collect(SCHEMA.PAGE, SCHEMA.freePages, PATH, SCHEMA.decodePages);
     }
 };
+
+fn nextPageUrl(allocator: STD.mem.Allocator, document: []const u8) !?[]const u8 {
+    const PARSED = try STD.json.parseFromSlice(STD.json.Value, allocator, document, .{});
+    defer PARSED.deinit();
+
+    const PAGING = PARSED.value.object.get("paging") orelse return null;
+    const NEXT = PAGING.object.get("next") orelse return null;
+
+    return switch (NEXT) {
+        .string => |url| try allocator.dupe(u8, url),
+        else => null,
+    };
+}
 
 fn responseId(allocator: STD.mem.Allocator, response: []const u8) ![]const u8 {
     const PARSED = try STD.json.parseFromSlice(STD.json.Value, allocator, response, .{});
