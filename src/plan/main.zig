@@ -3,6 +3,7 @@ const STD = @import("std");
 const CONFIG = @import("../config/main.zig");
 const MANIFEST = @import("../manifest/main.zig");
 const STATE = @import("../state/main.zig");
+const TREE = @import("../render/tree.zig");
 
 pub const SCHEMA = @import("schema.zig");
 
@@ -119,6 +120,113 @@ pub fn computePlan(
 
 test {
     _ = @import("tests/main.zig");
+}
+
+pub fn printTree(
+    writer: *STD.Io.Writer,
+    operations: []const SCHEMA.OPERATION,
+    loaded_manifests: []const MANIFEST.LoadedManifest,
+) !void {
+    var current_platform: ?[]const u8 = null;
+
+    for (operations) |operation| {
+        if (current_platform == null or !STD.mem.eql(u8, current_platform.?, operation.platform)) {
+            current_platform = operation.platform;
+
+            var count: usize = 0;
+
+            for (operations) |candidate| {
+                if (STD.mem.eql(u8, candidate.platform, operation.platform)) count += 1;
+            }
+
+            try writer.print("{s}: {d} change(s)\n", .{ operation.platform, count });
+        }
+
+        const SYMBOL = operationSymbol(operation.operation_type);
+        const CAMPAIGN = findCampaign(loaded_manifests, operation) orelse {
+            try TREE.printNodeLine(writer, 0, "{s} {s}", .{ SYMBOL, operation.campaign });
+
+            continue;
+        };
+
+        try printCampaignNode(writer, SYMBOL, CAMPAIGN);
+
+        for (CAMPAIGN.ad_groups) |ad_group| {
+            try printAdGroupNode(writer, SYMBOL, ad_group);
+
+            for (ad_group.ads) |ad| {
+                try printAdNode(writer, SYMBOL, ad);
+            }
+        }
+    }
+}
+
+pub fn findCampaign(
+    loaded_manifests: []const MANIFEST.LoadedManifest,
+    operation: SCHEMA.OPERATION,
+) ?MANIFEST.SCHEMA.CAMPAIGN {
+    const FILE = operation.input_manifest orelse return null;
+
+    for (loaded_manifests) |loaded_manifest| {
+        if (!STD.mem.eql(u8, loaded_manifest.file_path, FILE)) continue;
+
+        for (loaded_manifest.value.campaigns) |campaign| {
+            if (STD.mem.eql(u8, campaign.name, operation.campaign))
+                return campaign;
+        }
+    }
+
+    return null;
+}
+
+fn operationSymbol(operation_type: SCHEMA.OPERATION_TYPE) []const u8 {
+    return switch (operation_type) {
+        .create => "+",
+        .update => "~",
+        .archive => "-",
+    };
+}
+
+fn printCampaignNode(
+    writer: *STD.Io.Writer,
+    symbol: []const u8,
+    campaign: MANIFEST.SCHEMA.CAMPAIGN,
+) !void {
+    if (campaign.status) |status| {
+        try TREE.printNodeLine(writer, 0, "{s} {s} [{s}] {s}", .{
+            symbol, campaign.name, @tagName(campaign.objective), @tagName(status),
+        });
+    } else {
+        try TREE.printNodeLine(writer, 0, "{s} {s} [{s}]", .{
+            symbol, campaign.name, @tagName(campaign.objective),
+        });
+    }
+}
+
+fn printAdGroupNode(
+    writer: *STD.Io.Writer,
+    symbol: []const u8,
+    ad_group: MANIFEST.SCHEMA.AD_GROUP,
+) !void {
+    const NAME = if (ad_group.name.len > 0) ad_group.name[0] else "(unnamed)";
+
+    if (ad_group.status) |status| {
+        try TREE.printNodeLine(writer, 1, "{s} {s} [{s}]", .{ symbol, NAME, @tagName(status) });
+    } else {
+        try TREE.printNodeLine(writer, 1, "{s} {s}", .{ symbol, NAME });
+    }
+}
+
+fn printAdNode(
+    writer: *STD.Io.Writer,
+    symbol: []const u8,
+    ad: MANIFEST.SCHEMA.AD,
+) !void {
+    if (ad.status) |status| {
+        try TREE.printNodeLine(writer, 2, "{s} {s} [{s}]", .{ symbol, ad.name, @tagName(status) });
+    } else {
+        try TREE.printNodeLine(writer, 2, "{s} {s}", .{ symbol, ad.name });
+    }
 }
 
 pub fn fingerprint(allocator: STD.mem.Allocator, campaign: MANIFEST.SCHEMA.CAMPAIGN) ![]const u8 {

@@ -137,31 +137,8 @@ pub fn run(
         return CONTEXT.ExitCode.SUCCESS;
     }
 
-    var current_platform: ?[]const u8 = null;
-
-    for (PLAN_VALUE.operations) |operation| {
-        if (current_platform == null or !STD.mem.eql(u8, current_platform.?, operation.platform)) {
-            current_platform = operation.platform;
-
-            var count: usize = 0;
-
-            for (PLAN_VALUE.operations) |candidate| {
-                if (STD.mem.eql(u8, candidate.platform, operation.platform)) count += 1;
-            }
-
-            context.stdout.print("{s}: {d} change(s)\n", .{ operation.platform, count }) catch
-                return CONTEXT.ExitCode.RUNTIME_FAILURE;
-        }
-
-        const SYMBOL = switch (operation.operation_type) {
-            .create => "+",
-            .update => "~",
-            .archive => "-",
-        };
-
-        context.stdout.print("  {s} {s}\n", .{ SYMBOL, operation.campaign }) catch
-            return CONTEXT.ExitCode.RUNTIME_FAILURE;
-    }
+    PLAN.printTree(context.stdout, PLAN_VALUE.operations, LOADED.manifests) catch
+        return CONTEXT.ExitCode.RUNTIME_FAILURE;
 
     return CONTEXT.ExitCode.PENDING_UPDATES;
 }

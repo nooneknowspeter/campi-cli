@@ -457,23 +457,6 @@ fn hasOperations(operations: []const PLAN.SCHEMA.OPERATION) bool {
     return false;
 }
 
-fn findCampaign(
-    loaded_manifests: []const MANIFEST.LoadedManifest,
-    operation: PLAN.SCHEMA.OPERATION,
-) ?MANIFEST.SCHEMA.CAMPAIGN {
-    for (loaded_manifests) |loaded_manifest| {
-        if (!STD.mem.eql(u8, loaded_manifest.file_path, operation.input_manifest orelse ""))
-            continue;
-
-        for (loaded_manifest.value.campaigns) |campaign| {
-            if (STD.mem.eql(u8, campaign.name, operation.campaign))
-                return campaign;
-        }
-    }
-
-    return null;
-}
-
 fn checkIfAnyOperationsNeedCreativeDestination(
     loaded_manifests: []const MANIFEST.LoadedManifest,
     operations: []const PLAN.SCHEMA.OPERATION,
@@ -482,7 +465,7 @@ fn checkIfAnyOperationsNeedCreativeDestination(
         if (!STD.mem.eql(u8, operation.platform, "meta")) continue;
         if (operation.operation_type == .archive) continue;
 
-        const CAMPAIGN = findCampaign(loaded_manifests, operation) orelse continue;
+        const CAMPAIGN = PLAN.findCampaign(loaded_manifests, operation) orelse continue;
 
         for (CAMPAIGN.ad_groups) |ad_group| {
             if (ad_group.ads.len > 0) return true;
@@ -584,7 +567,7 @@ pub fn writeOperations(
 
         switch (operation.operation_type) {
             .create, .update => {
-                const CAMPAIGN = findCampaign(loaded_manifests, operation.*) orelse
+                const CAMPAIGN = PLAN.findCampaign(loaded_manifests, operation.*) orelse
                     return error.MetaCampaignNotFound;
 
                 if (operation.operation_type == .update) {
