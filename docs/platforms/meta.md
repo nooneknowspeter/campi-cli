@@ -124,15 +124,23 @@ cd <WORK_DIR>
 campi-cli platform meta
 ```
 
-The command lists the account, any Instagram accounts linked to the page, and
-existing campaigns:
+The command renders the account, the pages the token can see, any Instagram
+accounts linked to the configured page, and the campaign tree of ad sets and
+ads:
 
 ```
 Account: <name> (act_<id>)
-Linked instagram accounts:
-  <name> (@<username>) id=<instagram user id>
-...
+|- Pages
+|  |- <page name> [<page id>]
+|- Instagram accounts
+|  |- <name> (@<username>) id=<instagram user id>
+|- Campaigns
+|  |- <campaign name> [<objective>] <status>
+|  |  |- <ad set name> [<status>]
+|  |  |  |- <ad name> [<status>]
 ```
+
+The pages come from `/me/accounts`, which requires `pages_show_list` (step 2).
 
 ## Token lifetime
 
