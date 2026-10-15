@@ -7,6 +7,7 @@ const PARSER = @import("../../cli/parser.zig");
 const META_ENV = @import("env.zig");
 const META = @import("main.zig");
 const SCHEMA = META.SCHEMA;
+const TREE = @import("../../render/tree.zig");
 
 pub fn run(
     allocator: STD.mem.Allocator,
@@ -145,26 +146,26 @@ pub fn printTree(
 ) !void {
     try writer.print("Account: {s} (act_{s})\n", .{ account_name, ad_account_id });
 
-    try printNodeLine(writer, 0, "Pages", .{});
+    try TREE.printNodeLine(writer, 0, "Pages", .{});
 
     if (pages.len == 0) {
-        try printEmptyLine(writer, 1);
+        try TREE.printEmptyLine(writer, 1);
     } else for (pages) |page| {
-        try printNodeLine(writer, 1, "{s} [{s}]", .{ page.name, page.id });
+        try TREE.printNodeLine(writer, 1, "{s} [{s}]", .{ page.name, page.id });
     }
 
-    try printNodeLine(writer, 0, "Instagram accounts", .{});
+    try TREE.printNodeLine(writer, 0, "Instagram accounts", .{});
 
     if (instagram.len == 0) {
-        try printEmptyLine(writer, 1);
+        try TREE.printEmptyLine(writer, 1);
     } else for (instagram) |account| {
         try printInstagramNodeLine(writer, 1, account);
     }
 
-    try printNodeLine(writer, 0, "Campaigns", .{});
+    try TREE.printNodeLine(writer, 0, "Campaigns", .{});
 
     if (campaigns.len == 0) {
-        try printEmptyLine(writer, 1);
+        try TREE.printEmptyLine(writer, 1);
 
         return;
     }
@@ -175,7 +176,7 @@ pub fn printTree(
         else
             campaign.objective;
 
-        try printNodeLine(
+        try TREE.printNodeLine(
             writer,
             1,
             "{s} [{s}] {s}",
@@ -185,35 +186,15 @@ pub fn printTree(
         for (ad_sets) |ad_set| {
             if (!STD.mem.eql(u8, ad_set.campaign_id, campaign.id)) continue;
 
-            try printNodeLine(writer, 2, "{s} [{s}]", .{ ad_set.name, ad_set.status });
+            try TREE.printNodeLine(writer, 2, "{s} [{s}]", .{ ad_set.name, ad_set.status });
 
             for (ads) |ad| {
                 if (!STD.mem.eql(u8, ad.ad_set_id, ad_set.id)) continue;
 
-                try printNodeLine(writer, 3, "{s} [{s}]", .{ ad.name, ad.status });
+                try TREE.printNodeLine(writer, 3, "{s} [{s}]", .{ ad.name, ad.status });
             }
         }
     }
-}
-
-fn printNodeLine(
-    writer: *STD.Io.Writer,
-    depth: usize,
-    comptime format: []const u8,
-    args: anytype,
-) !void {
-    try printDepth(writer, depth);
-    try writer.writeAll("|- ");
-    try writer.print(format, args);
-    try writer.writeAll("\n");
-}
-
-fn printEmptyLine(
-    writer: *STD.Io.Writer,
-    depth: usize,
-) !void {
-    try printDepth(writer, depth);
-    try writer.writeAll("- none found\n");
 }
 
 fn printInstagramNodeLine(
@@ -221,7 +202,7 @@ fn printInstagramNodeLine(
     depth: usize,
     account: META.INSTAGRAM_ACCOUNT,
 ) !void {
-    try printDepth(writer, depth);
+    try TREE.printDepth(writer, depth);
     try writer.writeAll("|- ");
 
     if (account.name) |name| {
@@ -240,11 +221,4 @@ fn printInstagramNodeLine(
     }
 
     try writer.writeAll("\n");
-}
-
-fn printDepth(
-    writer: *STD.Io.Writer,
-    depth: usize,
-) !void {
-    for (0..depth) |_| try writer.writeAll("|  ");
 }

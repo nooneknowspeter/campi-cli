@@ -29,4 +29,5 @@ test {
     _ = @import("artifacts/main.zig");
     _ = @import("platforms/main.zig");
     _ = @import("plan/main.zig");
+    _ = @import("render/tree.zig");
 }
