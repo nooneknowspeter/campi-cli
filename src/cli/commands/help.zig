@@ -113,7 +113,7 @@ pub const STATE =
 pub const PLAN =
     \\ campi-cli plan [ARGS]
     \\
-    \\ Fetch and show state data as a plan
+    \\ Fetch and show state data as a tree of planned changes
     \\
     \\ Args:
     \\ -h / --help - Show this help output

@@ -14,8 +14,9 @@ to persist changes.
 - `state` - retrieve the current state and compare it against the provided
   state
 - `plan` - compare the current manifests against the recorded state and show
-  what would change per enabled platform; `--export`; platforms enabled in a
-  manifest but not configured in `config.campi` are reported as skipped
+  what would change per enabled platform as a tree of campaigns, ad sets and
+  ads; `--export`; platforms enabled in a manifest but not configured in
+  `config.campi` are reported as skipped
 - `apply` - apply the plan and persist state; `-w / --write`, `--exclude <VALUE>`
 - `import` - import a hand-created campaign into state:
   `import <PLATFORM> <CAMPAIGN> <EXTERNAL_ID>`; `-w / --write`
