@@ -4,6 +4,8 @@ campi-cli will connect to many marketing platforms directly; Meta, TikTok and
 such, so you can manage campaigns as code; reviewable, version controlled and
 reproducible.
 
+![demo gif](https://raw.githubusercontent.com/nooneknowspeter/campi-cli/refs/heads/develop/public/cli_demo.gif)
+
 ## Build
 
 ```sh
