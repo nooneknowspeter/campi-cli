@@ -1,5 +1,6 @@
 # nix artifacts
 .direnv/
+result
 
 # quarto artifacts
 /.quarto/
