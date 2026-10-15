@@ -64,12 +64,58 @@ test "decode instagram accounts tolerates missing optional fields" {
     try STD.testing.expectEqual(@as(?[]const u8, null), accounts.?[0].name);
 }
 
+test "decode ad sets" {
+    const fixture =
+        \\{"data": [
+        \\  {"id": "10", "name": "Prospecting", "campaign_id": "1", "status": "ACTIVE"}
+        \\]}
+    ;
+
+    const ad_sets = try SCHEMA.decodeAdSets(STD.testing.allocator, fixture);
+    defer SCHEMA.freeAdSets(STD.testing.allocator, ad_sets.?);
+
+    try STD.testing.expectEqual(@as(usize, 1), ad_sets.?.len);
+    try STD.testing.expectEqualStrings("10", ad_sets.?[0].id);
+    try STD.testing.expectEqualStrings("Prospecting", ad_sets.?[0].name);
+    try STD.testing.expectEqualStrings("1", ad_sets.?[0].campaign_id);
+    try STD.testing.expectEqualStrings("ACTIVE", ad_sets.?[0].status);
+}
+
+test "decode ads" {
+    const fixture =
+        \\{"data": [
+        \\  {"id": "100", "name": "Image ad", "adset_id": "10", "status": "PAUSED"}
+        \\]}
+    ;
+
+    const ads = try SCHEMA.decodeAds(STD.testing.allocator, fixture);
+    defer SCHEMA.freeAds(STD.testing.allocator, ads.?);
+
+    try STD.testing.expectEqual(@as(usize, 1), ads.?.len);
+    try STD.testing.expectEqualStrings("100", ads.?[0].id);
+    try STD.testing.expectEqualStrings("Image ad", ads.?[0].name);
+    try STD.testing.expectEqualStrings("10", ads.?[0].ad_set_id);
+    try STD.testing.expectEqualStrings("PAUSED", ads.?[0].status);
+}
+
+test "decode pages tolerates a missing category" {
+    const fixture =
+        \\{"data": [
+        \\  {"id": "1443546992166726", "name": "Campi hq", "category": "Business"},
+        \\  {"id": "2", "name": "No category"}
+        \\]}
+    ;
+
+    const pages = try SCHEMA.decodePages(STD.testing.allocator, fixture);
+    defer SCHEMA.freePages(STD.testing.allocator, pages.?);
+
+    try STD.testing.expectEqual(@as(usize, 2), pages.?.len);
+    try STD.testing.expectEqualStrings("1443546992166726", pages.?[0].id);
+    try STD.testing.expectEqualStrings("Campi hq", pages.?[0].name);
+    try STD.testing.expectEqualStrings("Business", pages.?[0].category.?);
+    try STD.testing.expectEqual(@as(?[]const u8, null), pages.?[1].category);
+}
+
 fn freeInstagramAccounts(accounts: []SCHEMA.INSTAGRAM_ACCOUNT) void {
-    for (accounts) |account| {
-        STD.testing.allocator.free(account.id);
-        if (account.ig_id) |ig_id| STD.testing.allocator.free(ig_id);
-        if (account.username) |username| STD.testing.allocator.free(username);
-        if (account.name) |name| STD.testing.allocator.free(name);
-    }
-    STD.testing.allocator.free(accounts);
+    SCHEMA.freeInstagramAccounts(STD.testing.allocator, accounts);
 }

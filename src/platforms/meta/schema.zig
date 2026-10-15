@@ -35,6 +35,12 @@ pub const INSTAGRAM_ACCOUNT = struct {
     name: ?[]const u8 = null,
 };
 
+pub const PAGE = struct {
+    id: []const u8,
+    name: []const u8,
+    category: ?[]const u8 = null,
+};
+
 pub fn decodeInstagramAccounts(
     allocator: STD.mem.Allocator,
     document: []const u8,
@@ -137,4 +143,159 @@ pub fn decodeCampaigns(
     }
 
     return ITEMS;
+}
+
+pub fn decodeAdSets(
+    allocator: STD.mem.Allocator,
+    document: []const u8,
+) !?[]AD_SET {
+    const PARSED = try STD.json.parseFromSlice(
+        STD.json.Value,
+        allocator,
+        document,
+        .{},
+    );
+    defer PARSED.deinit();
+
+    const ROOT = PARSED.value;
+    const DATA = ROOT.object.get("data") orelse return null;
+
+    const ITEMS = try allocator.alloc(AD_SET, DATA.array.items.len);
+
+    for (DATA.array.items, 0..) |item, i| {
+        const OBJECT = item.object;
+
+        ITEMS[i] = .{
+            .id = try allocator.dupe(u8, OBJECT.get("id").?.string),
+            .name = try allocator.dupe(u8, OBJECT.get("name").?.string),
+            .campaign_id = try allocator.dupe(
+                u8,
+                OBJECT.get("campaign_id").?.string,
+            ),
+            .status = try allocator.dupe(u8, OBJECT.get("status").?.string),
+        };
+    }
+
+    return ITEMS;
+}
+
+pub fn decodeAds(
+    allocator: STD.mem.Allocator,
+    document: []const u8,
+) !?[]AD {
+    const PARSED = try STD.json.parseFromSlice(
+        STD.json.Value,
+        allocator,
+        document,
+        .{},
+    );
+    defer PARSED.deinit();
+
+    const ROOT = PARSED.value;
+    const DATA = ROOT.object.get("data") orelse return null;
+
+    const ITEMS = try allocator.alloc(AD, DATA.array.items.len);
+
+    for (DATA.array.items, 0..) |item, i| {
+        const OBJECT = item.object;
+
+        ITEMS[i] = .{
+            .id = try allocator.dupe(u8, OBJECT.get("id").?.string),
+            .name = try allocator.dupe(u8, OBJECT.get("name").?.string),
+            .ad_set_id = try allocator.dupe(
+                u8,
+                OBJECT.get("adset_id").?.string,
+            ),
+            .status = try allocator.dupe(u8, OBJECT.get("status").?.string),
+        };
+    }
+
+    return ITEMS;
+}
+
+pub fn decodePages(
+    allocator: STD.mem.Allocator,
+    document: []const u8,
+) !?[]PAGE {
+    const PARSED = try STD.json.parseFromSlice(
+        STD.json.Value,
+        allocator,
+        document,
+        .{},
+    );
+    defer PARSED.deinit();
+
+    const ROOT = PARSED.value;
+    const DATA = ROOT.object.get("data") orelse return null;
+
+    const ITEMS = try allocator.alloc(PAGE, DATA.array.items.len);
+
+    for (DATA.array.items, 0..) |item, i| {
+        const OBJECT = item.object;
+
+        ITEMS[i] = .{
+            .id = try allocator.dupe(u8, OBJECT.get("id").?.string),
+            .name = try allocator.dupe(u8, OBJECT.get("name").?.string),
+            .category = try optionalString(allocator, OBJECT, "category"),
+        };
+    }
+
+    return ITEMS;
+}
+
+pub fn freeCampaigns(allocator: STD.mem.Allocator, campaigns: []CAMPAIGN) void {
+    for (campaigns) |campaign| {
+        allocator.free(campaign.id);
+        allocator.free(campaign.name);
+        allocator.free(campaign.status);
+        allocator.free(campaign.objective);
+    }
+
+    allocator.free(campaigns);
+}
+
+pub fn freeAdSets(allocator: STD.mem.Allocator, ad_sets: []AD_SET) void {
+    for (ad_sets) |ad_set| {
+        allocator.free(ad_set.id);
+        allocator.free(ad_set.name);
+        allocator.free(ad_set.campaign_id);
+        allocator.free(ad_set.status);
+    }
+
+    allocator.free(ad_sets);
+}
+
+pub fn freeAds(allocator: STD.mem.Allocator, ads: []AD) void {
+    for (ads) |ad| {
+        allocator.free(ad.id);
+        allocator.free(ad.name);
+        allocator.free(ad.ad_set_id);
+        allocator.free(ad.status);
+    }
+
+    allocator.free(ads);
+}
+
+pub fn freePages(allocator: STD.mem.Allocator, pages: []PAGE) void {
+    for (pages) |page| {
+        allocator.free(page.id);
+        allocator.free(page.name);
+        if (page.category) |category| allocator.free(category);
+    }
+
+    allocator.free(pages);
+}
+
+pub fn freeInstagramAccounts(
+    allocator: STD.mem.Allocator,
+    accounts: []INSTAGRAM_ACCOUNT,
+) void {
+    for (accounts) |account| {
+        allocator.free(account.id);
+        if (account.ig_id) |ig_id| allocator.free(ig_id);
+        if (account.username) |username| allocator.free(username);
+        if (account.name) |name| allocator.free(name);
+    }
+
+    allocator.free(accounts);
 }
