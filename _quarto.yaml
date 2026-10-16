@@ -20,6 +20,9 @@ project:
 website:
   title: campi cli
   sidebar:
+    tools:
+      - icon: github
+        href: https://github.com/nooneknowspeter/campi-cli
     contents:
       - index.qmd
       - section: Documentation
