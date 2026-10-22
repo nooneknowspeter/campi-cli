@@ -263,6 +263,16 @@ pub fn run(
         return CONTEXT.ExitCode.PENDING_UPDATES;
     }
 
+    if (PLATFORMS.firstPlatformWithoutWriteSupport(filtered.items)) |platform| {
+        context.stderr.print(
+            \\{s}{s}
+            \\
+        , .{ CONTEXT.Message.Generic.PERSISTENCE_NOT_IMPLEMENTED, platform }) catch
+            return CONTEXT.ExitCode.RUNTIME_FAILURE;
+
+        return CONTEXT.ExitCode.RUNTIME_FAILURE;
+    }
+
     const lock_result = STATE.lockForWrite(context, WORK_DIR);
 
     const lock_file = switch (lock_result) {

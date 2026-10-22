@@ -33,6 +33,7 @@ pub const Message = struct {
         pub const IMPORT_ALREADY_IMPORTED = "campaign is already imported on this platform: ";
         pub const ARTIFACT_COULD_NOT_BE_LOADED = "could not load artifact: ";
         pub const ARTIFACT_CACHE_COULD_NOT_BE_WRITTEN = "could not write artifact cache: ";
+        pub const PERSISTENCE_NOT_IMPLEMENTED = "persistence is not implemented yet; unable to write: ";
     };
 
     pub const Platform = struct {

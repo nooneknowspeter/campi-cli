@@ -7,6 +7,7 @@ const MANIFEST = @import("../../manifest/main.zig");
 const META = @import("../../platforms/meta/main.zig");
 const PARSER = @import("../parser.zig");
 const PLAN = @import("../../plan/main.zig");
+const PLATFORMS = @import("../../platforms/main.zig");
 const STATE = @import("../../state/main.zig");
 
 pub const FLAGS = [_]PARSER.FlagDefinition{
@@ -177,6 +178,16 @@ pub fn run(
             return CONTEXT.ExitCode.RUNTIME_FAILURE;
 
         return CONTEXT.ExitCode.PENDING_UPDATES;
+    }
+
+    if (PLATFORMS.firstPlatformWithoutWriteSupport(OPERATIONS)) |platform| {
+        context.stderr.print(
+            \\{s}{s}
+            \\
+        , .{ CONTEXT.Message.Generic.PERSISTENCE_NOT_IMPLEMENTED, platform }) catch
+            return CONTEXT.ExitCode.RUNTIME_FAILURE;
+
+        return CONTEXT.ExitCode.RUNTIME_FAILURE;
     }
 
     const LOCK_RESULT = STATE.lockForWrite(context, WORK_DIR);

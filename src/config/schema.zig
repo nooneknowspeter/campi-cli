@@ -20,6 +20,17 @@ pub const TIKTOK_CONFIG = struct {
     token_env: ?[]const u8 = null,
 };
 
+pub const GOOGLE_CONFIG = struct {
+    developer_token_env: ?[]const u8 = null,
+    client_id_env: ?[]const u8 = null,
+    client_secret_env: ?[]const u8 = null,
+    refresh_token_env: ?[]const u8 = null,
+    customer_id_env: ?[]const u8 = null,
+    login_customer_id_env: ?[]const u8 = null,
+    api_url_env: ?[]const u8 = null,
+    token_url_env: ?[]const u8 = null,
+};
+
 pub const CONFIG = struct {
     campi_version: []const u8,
     config_version: []const u8,
@@ -31,7 +42,7 @@ pub const CONFIG = struct {
         meta: ?META_CONFIG,
         x: ?struct {},
         tiktok: ?TIKTOK_CONFIG,
-        google: ?struct {},
+        google: ?GOOGLE_CONFIG,
         reddit: ?struct {},
         linkedin: ?struct {},
     },
