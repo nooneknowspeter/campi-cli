@@ -35,6 +35,7 @@ website:
         contents:
           - docs/platforms/README.md
           - docs/platforms/meta.md
+          - docs/platforms/google.md
       - section: Project
         contents:
           - CONTRIBUTING.md

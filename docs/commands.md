@@ -25,8 +25,10 @@ to persist changes.
   `google`, `reddit`, `linkedin`; the `meta` platform covers Facebook,
   Instagram, Messenger and other Meta destinations through the Marketing API;
   `platform meta` prints the ad account, its pages, linked Instagram accounts
-  and its campaigns as a tree of ad sets and ads; data fetching is implemented
-  for `meta`, the remaining platforms are reported as not implemented yet
+  and its campaigns as a tree of ad sets and ads; `platform google` prints the
+  Google Ads account and its campaigns as a tree of ad groups and ads;
+  data fetching is implemented for `meta` and `google`, the remaining platforms
+  are reported as not implemented yet
 
 See `campi-cli help <COMMAND>` for the flags of a specific command.
 

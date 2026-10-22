@@ -89,8 +89,11 @@ on `state.campi.lock` and appends the record; the platform must be one of
 Facebook, Instagram, Messenger and other Meta destinations through the
 Marketing API. `campi-cli platform meta` renders the ad account, the pages the
 token can see, its campaigns as a tree of ad sets and ads, and, when a page id
-is configured, the Instagram accounts linked to it with their ids. Data
-fetching is implemented for `meta`; the remaining platforms are reported as
+is configured, the Instagram accounts linked to it with their ids.
+`campi-cli platform google` renders the Google Ads account and its campaigns
+as a tree of ad groups and ads; it is read-only, so `apply` and `destroy` stop
+before writing when a Google Ads campaign is part of the plan. Data fetching
+is implemented for `meta` and `google`; the remaining platforms are reported as
 not implemented yet.
 
 # ENVIRONMENT
@@ -128,12 +131,40 @@ account must be linked to the page in `CAMPI_META_PAGE_ID`. One of this or
 `CAMPI_TIKTOK_ACCESS_TOKEN`
 : TikTok marketing API access token.
 
+`CAMPI_GOOGLE_ADS_DEVELOPER_TOKEN`
+: Google Ads developer token.
+
+`CAMPI_GOOGLE_ADS_CLIENT_ID`
+: OAuth client id of a Google Cloud project with the Google Ads API enabled.
+
+`CAMPI_GOOGLE_ADS_CLIENT_SECRET`
+: OAuth client secret of the same client.
+
+`CAMPI_GOOGLE_ADS_REFRESH_TOKEN`
+: Google Ads refresh token; it is exchanged for a short-lived access token on
+every run.
+
+`CAMPI_GOOGLE_ADS_CUSTOMER_ID`
+: Google Ads customer id of the account to read; hyphens are ignored.
+
+`CAMPI_GOOGLE_ADS_LOGIN_CUSTOMER_ID`
+: Optional; Google Ads manager account id used to reach a client account.
+
+`CAMPI_GOOGLE_ADS_API_URL`
+: Google Ads API base URL; defaults to
+`https://googleads.googleapis.com/v26`.
+
+`CAMPI_GOOGLE_ADS_TOKEN_URL`
+: OAuth token endpoint; defaults to `https://oauth2.googleapis.com/token`.
+
 Per platform, `config.campi` can override the variable names under
 `platform_configs`; a field is named after the key above with the `_env`
 suffix. For `meta`: `token_env`, `ad_account_id_env`, `page_id_env`,
-`instagram_user_id_env`, `graph_api_url_env`. For `tiktok`: `token_env`. The
-field value is the environment variable used for that key instead of the
-default `CAMPI_...` one above.
+`instagram_user_id_env`, `graph_api_url_env`. For `tiktok`: `token_env`. For
+`google`: `developer_token_env`, `client_id_env`, `client_secret_env`,
+`refresh_token_env`, `customer_id_env`, `login_customer_id_env`, `api_url_env`,
+`token_url_env`. The field value is the environment variable used for that key
+instead of the default `CAMPI_...` one above.
 
 # EXIT CODES
 

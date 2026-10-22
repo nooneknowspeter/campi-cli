@@ -58,7 +58,7 @@ zig build --prefix ~/.local
     - [x] meta
     - [x] tiktok
     - [ ] x
-    - [ ] google
+    - [x] google; read-only
     - [ ] reddit
     - [ ] linkedin
 - [ ] file handling
@@ -73,6 +73,7 @@ zig build --prefix ~/.local
   - [ ] platforms
     - [x] meta; payload and schema
     - [x] tiktok; schema
+    - [x] google; schema and client
   - [ ] artifacts
     - [x] source resolution and caching
 

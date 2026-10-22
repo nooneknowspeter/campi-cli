@@ -50,7 +50,8 @@ that are empty or whitespace only count as unset, so leave the entries you do
 not use empty.
 
 The [platform guides](platforms/README.md) walk through obtaining each token
-and id. For Meta, see [docs/platforms/meta.md](platforms/meta.md).
+and id. For Meta, see [docs/platforms/meta.md](platforms/meta.md); for Google
+Ads, see [docs/platforms/google.md](platforms/google.md).
 
 ## Dry run
 

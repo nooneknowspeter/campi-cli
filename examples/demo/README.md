@@ -26,3 +26,13 @@ page together with their ids:
 ```
 zig build run -- platform meta --dir examples/demo
 ```
+
+The Google Ads integration is read-only; it lists an account, its campaigns,
+ad groups, and ads:
+
+```
+zig build run -- platform google --dir examples/demo
+```
+
+See [docs/platforms/google.md](../../docs/platforms/google.md) for how to
+obtain the Google Ads credentials.
