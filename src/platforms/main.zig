@@ -40,6 +40,9 @@ pub fn firstPlatformWithoutWriteSupport(
 }
 
 test {
+    _ = @import("google/tests/command.zig");
+    _ = @import("google/tests/main.zig");
+    _ = @import("google/tests/schema.zig");
     _ = @import("meta/tests/command.zig");
     _ = @import("meta/tests/payload.zig");
     _ = @import("meta/tests/schema.zig");
